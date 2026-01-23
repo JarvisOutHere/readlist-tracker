@@ -19,14 +19,16 @@ const database = firebase.database();
 // ========================================
 // User Management with Magic Links
 // ========================================
-const USERS = ["Revant", "Parthiv"]; // Customize these names
+const USERS = ["Revant", "Parthiv", "Cicily", "Avantheka"]; // Customize these names
 const CURATOR = "Tanmay"; // You - the person who adds articles
 
 // Magic link tokens - share these unique links with friends
 // Example: yourapp.vercel.app/?u=r7x2k → Revant
 const USER_TOKENS = {
     "r7x2k": "Revant",
-    "p3m9n": "Parthiv"
+    "p3m9n": "Parthiv",
+    "c4w8j": "Cicily",
+    "a6t3v": "Avantheka"
 };
 
 // Check URL for magic link token
