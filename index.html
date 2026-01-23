@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReadList — Your Personal Reading Tracker</title>
+    <meta name="description"
+        content="Track articles you've read and loved. Organize by category, discover gems from your archive.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+    <!-- Landing Page -->
+    <section id="landing" class="landing">
+        <div class="landing-content">
+            <h1 class="landing-title">ReadList</h1>
+            <p class="landing-subtitle">Your personal archive of ideas worth revisiting</p>
+
+            <div class="landing-sections">
+                <!-- Articles Section -->
+                <div class="landing-section">
+                    <h2 class="section-title">Articles</h2>
+                    <span class="section-stat-number" id="total-articles">0</span>
+                </div>
+
+                <!-- Books Section -->
+                <div class="landing-section">
+                    <h2 class="section-title">Books</h2>
+                    <span class="section-stat-number" id="total-books">0</span>
+                </div>
+            </div>
+
+            <button class="cta-button" id="explore-btn">
+                Browse Catalog
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </button>
+        </div>
+    </section>
+
+    <!-- Main App -->
+    <main id="app" class="app hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2 class="sidebar-logo">ReadList</h2>
+            </div>
+            <nav class="category-nav">
+                <div class="nav-section-header">Articles</div>
+                <div class="subcategory-list">
+                    <button class="category-item" data-category="interesting-businesses">
+                        <span class="category-name">Interesting Businesses</span>
+                        <span class="category-count" id="count-interesting-businesses">0</span>
+                    </button>
+                    <button class="category-item" data-category="ai">
+                        <span class="category-name">AI</span>
+                        <span class="category-count" id="count-ai">0</span>
+                    </button>
+                    <button class="category-item" data-category="intrapersonal">
+                        <span class="category-name">Intrapersonal</span>
+                        <span class="category-count" id="count-intrapersonal">0</span>
+                    </button>
+                    <button class="category-item" data-category="core-finance">
+                        <span class="category-name">Core Finance</span>
+                        <span class="category-count" id="count-core-finance">0</span>
+                    </button>
+                    <button class="category-item" data-category="institution-building">
+                        <span class="category-name">Institution Building</span>
+                        <span class="category-count" id="count-institution-building">0</span>
+                    </button>
+                    <button class="category-item" data-category="food-for-thought">
+                        <span class="category-name">Food for Thought</span>
+                        <span class="category-count" id="count-food-for-thought">0</span>
+                    </button>
+                </div>
+
+                <div class="nav-spacer"></div>
+
+                <button class="nav-section-header nav-section-clickable" data-category="books">
+                    Books
+                    <span class="category-count" id="count-books">0</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="content-header">
+                <h1 class="content-title" id="current-category">Your Reading List</h1>
+                <button class="back-to-landing" id="back-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                        <polyline points="9,22 9,12 15,12 15,22" />
+                    </svg>
+                    Home
+                </button>
+            </header>
+            <div class="articles-grid" id="articles-grid">
+                <!-- Articles will be rendered here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Article Modal -->
+    <div class="modal-overlay hidden" id="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add New Article</h3>
+                <button class="modal-close" id="modal-close">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <form class="modal-form" id="add-form">
+                <div class="form-group">
+                    <label for="article-url">Article URL</label>
+                    <div class="url-input-group">
+                        <input type="url" id="article-url" placeholder="https://example.com/article" required>
+                        <button type="button" class="fetch-btn" id="fetch-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M21 12a9 9 0 11-9-9" />
+                                <path d="M21 3v6h-6" />
+                            </svg>
+                            Auto-fill
+                        </button>
+                    </div>
+                    <span class="form-hint">Paste a URL and click Auto-fill to fetch details</span>
+                </div>
+                <div class="form-group">
+                    <label for="article-title">Title</label>
+                    <input type="text" id="article-title" placeholder="Article title" required>
+                </div>
+                <div class="form-group">
+                    <label for="article-description">Description</label>
+                    <textarea id="article-description" placeholder="Brief description..." rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="article-category">Category</label>
+                    <select id="article-category" required>
+                        <option value="">Select category</option>
+                        <option value="interesting-businesses">Interesting Businesses</option>
+                        <option value="ai">AI</option>
+                        <option value="intrapersonal">Intrapersonal</option>
+                        <option value="core-finance">Core Finance</option>
+                        <option value="institution-building">Institution Building</option>
+                        <option value="food-for-thought">Food for Thought</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn">Add Article</button>
+            </form>
+        </div>
+    </div>
+    <!-- User Picker Modal -->
+    <div class="modal-overlay hidden" id="user-picker-overlay">
+        <div class="modal user-picker-modal">
+            <div class="modal-header">
+                <h3>Who's Reading?</h3>
+            </div>
+            <div class="user-picker-content">
+                <p class="user-picker-subtitle">Select your name to track what you've read</p>
+                <div class="user-buttons" id="user-buttons">
+                    <!-- User buttons will be rendered here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current User Indicator -->
+    <div class="current-user-badge hidden" id="current-user-badge">
+        <span class="user-icon">👤</span>
+        <span class="user-name" id="current-user-name"></span>
+        <button class="change-user-btn" id="change-user-btn" title="Change user">✕</button>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
