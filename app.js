@@ -354,23 +354,31 @@ function createArticleCard(article) {
     const readStatus = getArticleReadStatus(article.id);
     const currentUserStatus = user ? readStatus[user] : null;
 
-    // Build read status indicators HTML
-    let indicatorsHtml = '';
-    Object.entries(readStatus).forEach(([userName, status]) => {
-        const emoji = status === 'liked' ? '👍' : '👎';
-        const statusClass = status === 'liked' ? 'liked' : 'disliked';
-        indicatorsHtml += `<span class="read-indicator ${statusClass}">${userName} ${emoji}</span>`;
-    });
+    // Build scoreboard rows HTML (visible to all users)
+    let scoreboardHtml = '';
+    const entries = Object.entries(readStatus);
+    if (entries.length > 0) {
+        entries.forEach(([userName, status]) => {
+            const symbol = status === 'liked' ? '✓' : '✗';
+            const statusClass = status === 'liked' ? 'liked' : 'disliked';
+            scoreboardHtml += `
+                <div class="scoreboard-row">
+                    <span class="scoreboard-name">${userName}</span>
+                    <span class="scoreboard-reaction ${statusClass}">${symbol}</span>
+                </div>
+            `;
+        });
+    }
 
-    // Build action buttons HTML (only for non-curators)
-    let actionsHtml = '';
+    // Build action buttons HTML (top-right, only for non-curators)
+    let actionButtonsHtml = '';
     if (user && user !== CURATOR) {
         const likeActive = currentUserStatus === 'liked' ? 'active' : '';
         const dislikeActive = currentUserStatus === 'disliked' ? 'active' : '';
-        actionsHtml = `
-            <div class="action-buttons">
-                <button class="action-btn like-btn ${likeActive}" data-article-id="${article.id}" data-action="liked" title="I liked this">👍</button>
-                <button class="action-btn dislike-btn ${dislikeActive}" data-article-id="${article.id}" data-action="disliked" title="Didn't like it">👎</button>
+        actionButtonsHtml = `
+            <div class="card-action-buttons">
+                <button class="card-action-btn ${likeActive}" data-article-id="${article.id}" data-action="liked" title="I liked this">✓</button>
+                <button class="card-action-btn ${dislikeActive}" data-article-id="${article.id}" data-action="disliked" title="Didn't like it">✗</button>
             </div>
         `;
     }
@@ -414,34 +422,38 @@ function createArticleCard(article) {
         contentDiv.style.cursor = 'pointer';
     }
 
+    // Add action buttons to card (top-right)
+    if (actionButtonsHtml) {
+        card.insertAdjacentHTML('beforeend', actionButtonsHtml);
+    }
+
     card.appendChild(contentDiv);
 
-    // Add actions section if there's anything to show
-    if (indicatorsHtml || actionsHtml) {
-        const actionsSection = document.createElement('div');
-        actionsSection.className = 'article-actions';
-        actionsSection.innerHTML = `
-            <div class="read-status-indicators">${indicatorsHtml}</div>
-            ${actionsHtml}
-        `;
-        card.appendChild(actionsSection);
-
-        // Add click handlers for action buttons
-        actionsSection.querySelectorAll('.action-btn').forEach(btn => {
-            btn.onclick = (e) => {
-                e.stopPropagation();
-                const articleId = btn.dataset.articleId;
-                const action = btn.dataset.action;
-
-                // If already active, remove the status
-                if (btn.classList.contains('active')) {
-                    removeReadStatus(articleId);
-                } else {
-                    markAsRead(articleId, action);
-                }
-            };
-        });
+    // Add scoreboard section (visible on hover for all users)
+    const scoreboard = document.createElement('div');
+    scoreboard.className = 'scoreboard';
+    if (scoreboardHtml) {
+        scoreboard.innerHTML = `<div class="scoreboard-table">${scoreboardHtml}</div>`;
+    } else {
+        scoreboard.innerHTML = `<div class="scoreboard-empty">No reactions yet</div>`;
     }
+    card.appendChild(scoreboard);
+
+    // Add click handlers for action buttons
+    card.querySelectorAll('.card-action-btn').forEach(btn => {
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            const articleId = btn.dataset.articleId;
+            const action = btn.dataset.action;
+
+            // If already active, remove the status
+            if (btn.classList.contains('active')) {
+                removeReadStatus(articleId);
+            } else {
+                markAsRead(articleId, action);
+            }
+        };
+    });
 
     return card;
 }
