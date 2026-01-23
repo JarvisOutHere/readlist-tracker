@@ -83,6 +83,22 @@ const articles = [
         category: "ai"
     },
     {
+        id: 29,
+        title: "AGI Ruin: A List of Lethalities",
+        description: "A few dozen reasons why AGI alignment is an extremely difficult problem we are not on track to solve. The big ask isn't perfect alignment—it's obtaining by any strategy whatsoever a significant chance of there being any survivors.",
+        url: "https://www.lesswrong.com/posts/uMQ3cqWDPHhjtiesc/agi-ruin-a-list-of-lethalities",
+        source: "LessWrong",
+        category: "ai"
+    },
+    {
+        id: 30,
+        title: "Safety Is Making You Depressed",
+        description: "Modern psychology treats all intense dedication as trauma response. But when you avoid all pain, you accidentally avoid all high emotions too. The positive and negative are linked. Life became electric only when I accepted the chase and let suffering have direction.",
+        url: "https://conquer1.substack.com/p/safety-is-making-you-depressed",
+        source: "Conquer",
+        category: "intrapersonal"
+    },
+    {
         id: 24,
         title: "The Stable Marriage Problem",
         description: "Intelligence is choosing what you truly want, acting to get it, and learning fast. Most people drift in a 'river' of others' goals. Agency means stepping out, being honest about your nature, starting before you're ready, risking looking foolish, testing, failing, adjusting, and shipping imperfectly until results match your aims.",
@@ -139,7 +155,7 @@ const articles = [
         title: "I Deliver Parcels in Beijing",
         description: "A memoir from the ground level of China's delivery economy. What it feels like to be a node in the logistical machine that powers modern consumption.",
         url: "",
-        source: "Book",
+        source: "Hu Anyan",
         category: "books"
     },
     {
@@ -152,10 +168,10 @@ const articles = [
     },
     {
         id: 13,
-        title: "Apple in China: A Story of Innovation",
+        title: "Apple in China",
         description: "How Apple built its supply chain empire in China, and what it reveals about the real geography of innovation—not in labs, but in factories.",
         url: "",
-        source: "Book",
+        source: "Patrick McGee",
         category: "books"
     },
     {
@@ -177,9 +193,9 @@ const articles = [
     {
         id: 16,
         title: "The Last Economy",
-        description: "Iman Mustaq's exploration of what happens to economic systems when growth stops being the default assumption. A framework for thinking about post-growth worlds.",
+        description: "What happens to economic systems when growth stops being the default assumption. A framework for thinking about post-growth worlds.",
         url: "",
-        source: "Iman Mustaq",
+        source: "Emad Mostaque",
         category: "books"
     },
     {
@@ -187,7 +203,7 @@ const articles = [
         title: "If Anyone Builds It, Everyone Dies",
         description: "The game theory of existential risk. When one actor's breakthrough could mean everyone's end, how do we coordinate? A meditation on the unilateralist's curse.",
         url: "",
-        source: "Book",
+        source: "Eliezer Yudkowsky",
         category: "books"
     },
     {
