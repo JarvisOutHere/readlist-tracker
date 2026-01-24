@@ -559,14 +559,15 @@ function renderArticles() {
         curatedArticles.forEach((article, index) => {
             const card = createArticleCard(article);
             card.classList.add('filmreel-card');
+            // Start all cards blurred except first
+            if (index === 0) {
+                card.classList.add('filmreel-active');
+            } else {
+                card.classList.add('filmreel-blur');
+            }
             card.dataset.filmreelIndex = index;
             articlesGrid.appendChild(card);
         });
-
-        // Initialize filmreel - set first card as active
-        setTimeout(() => {
-            updateFilmreelFocus(0);
-        }, 100);
         return;
     }
 
@@ -1060,44 +1061,39 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ========================================
-// Filmreel Navigation Functions
+// Filmreel Scroll-Based Focus (Intersection Observer)
 // ========================================
-let currentFilmreelIndex = 0;
-
-function updateFilmreelFocus(index) {
+function initFilmreelObserver() {
     const cards = document.querySelectorAll('.filmreel-card');
     if (cards.length === 0) return;
 
-    currentFilmreelIndex = Math.max(0, Math.min(index, cards.length - 1));
-
-    cards.forEach((card, i) => {
-        card.classList.remove('filmreel-active', 'filmreel-blur');
-        if (i === currentFilmreelIndex) {
-            card.classList.add('filmreel-active');
-        } else {
-            card.classList.add('filmreel-blur');
-        }
+    // Create intersection observer to detect which card is in center
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+                // This card is mostly visible - make it active
+                cards.forEach(card => {
+                    card.classList.remove('filmreel-active');
+                    card.classList.add('filmreel-blur');
+                });
+                entry.target.classList.remove('filmreel-blur');
+                entry.target.classList.add('filmreel-active');
+            }
+        });
+    }, {
+        root: null,
+        rootMargin: '-40% 0px -40% 0px', // Only trigger for cards in the center 20% of viewport
+        threshold: 0.5
     });
 
-    // Scroll the active card into view
-    cards[currentFilmreelIndex].scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-    });
+    cards.forEach(card => observer.observe(card));
 }
 
-// Wheel navigation for filmreel
-document.addEventListener('wheel', (e) => {
-    if (!isCuratedView) return;
-
-    const cards = document.querySelectorAll('.filmreel-card');
-    if (cards.length === 0) return;
-
-    e.preventDefault();
-
-    if (e.deltaY > 0) {
-        updateFilmreelFocus(currentFilmreelIndex + 1);
-    } else {
-        updateFilmreelFocus(currentFilmreelIndex - 1);
+// Re-initialize observer when curated view is rendered
+const originalRenderArticles = renderArticles;
+renderArticles = function () {
+    originalRenderArticles.apply(this, arguments);
+    if (isCuratedView) {
+        setTimeout(initFilmreelObserver, 150);
     }
-}, { passive: false });
+};
