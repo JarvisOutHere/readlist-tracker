@@ -551,14 +551,27 @@ function createArticleCard(article) {
 function renderArticles() {
     articlesGrid.innerHTML = '';
 
-    // Handle curated view
+    // Handle curated view - film reel style
     if (isCuratedView) {
+        articlesGrid.classList.add('curated-filmreel');
         const curatedArticles = CURATED_ARTICLE_IDS.map(id => articles.find(a => a.id === id)).filter(Boolean);
-        curatedArticles.forEach(article => {
-            articlesGrid.appendChild(createArticleCard(article));
+
+        curatedArticles.forEach((article, index) => {
+            const card = createArticleCard(article);
+            card.classList.add('filmreel-card');
+            card.dataset.filmreelIndex = index;
+            articlesGrid.appendChild(card);
         });
+
+        // Initialize filmreel - set first card as active
+        setTimeout(() => {
+            updateFilmreelFocus(0);
+        }, 100);
         return;
     }
+
+    // Remove filmreel class for regular views
+    articlesGrid.classList.remove('curated-filmreel');
 
     if (!currentCategory) {
         articlesGrid.innerHTML = `
@@ -1045,3 +1058,46 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// ========================================
+// Filmreel Navigation Functions
+// ========================================
+let currentFilmreelIndex = 0;
+
+function updateFilmreelFocus(index) {
+    const cards = document.querySelectorAll('.filmreel-card');
+    if (cards.length === 0) return;
+
+    currentFilmreelIndex = Math.max(0, Math.min(index, cards.length - 1));
+
+    cards.forEach((card, i) => {
+        card.classList.remove('filmreel-active', 'filmreel-blur');
+        if (i === currentFilmreelIndex) {
+            card.classList.add('filmreel-active');
+        } else {
+            card.classList.add('filmreel-blur');
+        }
+    });
+
+    // Scroll the active card into view
+    cards[currentFilmreelIndex].scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+    });
+}
+
+// Wheel navigation for filmreel
+document.addEventListener('wheel', (e) => {
+    if (!isCuratedView) return;
+
+    const cards = document.querySelectorAll('.filmreel-card');
+    if (cards.length === 0) return;
+
+    e.preventDefault();
+
+    if (e.deltaY > 0) {
+        updateFilmreelFocus(currentFilmreelIndex + 1);
+    } else {
+        updateFilmreelFocus(currentFilmreelIndex - 1);
+    }
+}, { passive: false });

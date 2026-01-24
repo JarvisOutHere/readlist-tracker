@@ -585,6 +585,36 @@ body {
     color: white;
 }
 
+/* Curated Filmreel Layout */
+.curated-filmreel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 4rem 1rem;
+}
+
+.curated-filmreel .filmreel-card {
+    width: 100%;
+    max-width: 500px;
+    transition: all 0.4s ease-out;
+}
+
+.curated-filmreel .filmreel-blur {
+    filter: blur(4px);
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+.curated-filmreel .filmreel-active {
+    filter: none;
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: var(--shadow-elevated);
+}
+
 .category-count {
     background: var(--bg-tertiary);
     padding: 0.125rem 0.5rem;
