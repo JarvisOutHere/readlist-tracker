@@ -348,11 +348,16 @@ const totalBooksEl = document.getElementById('total-books');
 const totalYoutubeEl = document.getElementById('total-youtube');
 const landingCategoriesEl = document.getElementById('landing-categories');
 const booksBtn = document.getElementById('books-btn');
+const curatedBtn = document.getElementById('curated-btn');
+
+// Curated article IDs
+const CURATED_ARTICLE_IDS = [6, 2, 10, 8, 4, 37];
 
 // ========================================
 // State
 // ========================================
 let currentCategory = null;
+let isCuratedView = false;
 
 // ========================================
 // Helper Functions
@@ -546,6 +551,15 @@ function createArticleCard(article) {
 function renderArticles() {
     articlesGrid.innerHTML = '';
 
+    // Handle curated view
+    if (isCuratedView) {
+        const curatedArticles = CURATED_ARTICLE_IDS.map(id => articles.find(a => a.id === id)).filter(Boolean);
+        curatedArticles.forEach(article => {
+            articlesGrid.appendChild(createArticleCard(article));
+        });
+        return;
+    }
+
     if (!currentCategory) {
         articlesGrid.innerHTML = `
             <div class="welcome-prompt">
@@ -578,16 +592,25 @@ function renderArticles() {
 function updateActiveCategory() {
     categoryItems.forEach(item => {
         const category = item.dataset.category;
-        item.classList.toggle('active', category === currentCategory);
+        item.classList.toggle('active', category === currentCategory && !isCuratedView);
     });
     // Also handle clickable section labels
-    document.querySelectorAll('.nav-section-clickable').forEach(item => {
+    document.querySelectorAll('.nav-toggle-direct').forEach(item => {
         const category = item.dataset.category;
-        item.classList.toggle('active', category === currentCategory);
+        item.classList.toggle('active', category === currentCategory && !isCuratedView);
     });
-    currentCategoryTitle.textContent = currentCategory
-        ? getCategoryDisplayName(currentCategory)
-        : 'Your Reading List';
+    // Handle curated button
+    if (curatedBtn) {
+        curatedBtn.classList.toggle('active', isCuratedView);
+    }
+
+    if (isCuratedView) {
+        currentCategoryTitle.textContent = 'Curated Carousel';
+    } else {
+        currentCategoryTitle.textContent = currentCategory
+            ? getCategoryDisplayName(currentCategory)
+            : 'Your Reading List';
+    }
 }
 
 // ========================================
@@ -761,6 +784,7 @@ function showLanding() {
 
 function handleCategoryClick(event) {
     const categoryItem = event.currentTarget;
+    isCuratedView = false;
     currentCategory = categoryItem.dataset.category;
     updateActiveCategory();
     renderArticles();
@@ -1001,6 +1025,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toggle.addEventListener('click', () => {
             const category = toggle.dataset.category;
             if (category) {
+                isCuratedView = false;
                 currentCategory = category;
                 updateActiveCategory();
                 renderArticles();
@@ -1009,57 +1034,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ========================================
-    // Curated Carousel
+    // Curated Button Handler
     // ========================================
-    const carouselTrack = document.getElementById('carousel-track');
-    const carouselItems = document.querySelectorAll('.carousel-item');
-    let currentCarouselIndex = 0;
-
-    function updateCarouselPosition() {
-        if (!carouselTrack || carouselItems.length === 0) return;
-
-        const itemHeight = carouselItems[0].offsetHeight;
-        const offset = -currentCarouselIndex * itemHeight;
-        carouselTrack.style.transform = `translateY(calc(-50% + ${offset}px))`;
-
-        // Update active state
-        carouselItems.forEach((item, index) => {
-            item.classList.toggle('active', index === currentCarouselIndex);
+    if (curatedBtn) {
+        curatedBtn.addEventListener('click', () => {
+            isCuratedView = true;
+            currentCategory = null;
+            updateActiveCategory();
+            renderArticles();
         });
     }
-
-    // Carousel scroll with mouse wheel
-    const carousel = document.getElementById('curated-carousel');
-    if (carousel) {
-        carousel.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            if (e.deltaY > 0) {
-                currentCarouselIndex = Math.min(currentCarouselIndex + 1, carouselItems.length - 1);
-            } else {
-                currentCarouselIndex = Math.max(currentCarouselIndex - 1, 0);
-            }
-            updateCarouselPosition();
-        });
-    }
-
-    // Click on carousel item to open article
-    carouselItems.forEach((item, index) => {
-        item.addEventListener('click', () => {
-            const articleId = parseInt(item.dataset.articleId);
-            const article = articles.find(a => a.id === articleId);
-            if (article && article.url) {
-                window.open(article.url, '_blank');
-            } else if (article) {
-                // For books/items without URL, select their category
-                currentCategory = article.category;
-                updateActiveCategory();
-                renderArticles();
-            }
-            currentCarouselIndex = index;
-            updateCarouselPosition();
-        });
-    });
-
-    // Initialize carousel position
-    updateCarouselPosition();
 });
