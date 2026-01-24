@@ -184,7 +184,7 @@ const articles = [
     },
     {
         id: 15,
-        title: "The Defiance of the Fall",
+        title: "The Defiance of the Fall (14 Books)",
         description: "LitRPG at its most addictive. When the multiverse merges with Earth, one man's path through an endless progression system becomes surprisingly compelling.",
         url: "",
         source: "TheFirstDefier",
@@ -253,6 +253,48 @@ const articles = [
         url: "",
         source: "Albert Camus",
         category: "books"
+    },
+    // New additions
+    {
+        id: 31,
+        title: "The Great Differentiation",
+        description: "When sameness is cheap, differentiation is valuable. But how do you remain differentiated when copying is free? The salvation from slop is making copying expensive—peacocking for the AI age.",
+        url: "https://www.notboring.co/p/the-great-differentiation",
+        source: "Not Boring",
+        category: "food-for-thought"
+    },
+    {
+        id: 32,
+        title: "The Böckenförde Dilemma",
+        description: "Liberal democracies rely on shared cultural values to flourish, yet they cannot replenish those very values. A case for spiritual renewal in the West—diagnosing the malaise of American political life.",
+        url: "https://jasonzhao.substack.com/p/the-bockenforde-dilemma",
+        source: "Jason Zhao",
+        category: "food-for-thought"
+    },
+    {
+        id: 33,
+        title: "The Broken China Dream",
+        description: "Why China's embrace of capitalism gave rise to hard authoritarianism instead of democracy. A look at how the reforms of the post-Mao era have been reversed under Xi Jinping—and why the world failed to see it coming.",
+        url: "",
+        source: "Minxin Pei",
+        category: "books"
+    },
+    // YT Long Form
+    {
+        id: 34,
+        title: "David Deutsch: AGI, Quantum Computing, and the Future of Humanity",
+        description: "Quantum computing pioneer David Deutsch on the nature of knowledge, the origins of quantum computing, and why he's optimistic about AGI. A mind-expanding conversation about explanations and progress.",
+        url: "https://www.youtube.com/watch?v=IVA2bK9qjzE",
+        source: "YouTube",
+        category: "yt-long-form"
+    },
+    {
+        id: 35,
+        title: "The Only Trait for Success in the AI Era",
+        description: "Po-Shen Loh on why modern education may be failing us—and what it will take for humanity to thrive in the AI era. From AI solving Olympiad problems to rethinking how we learn.",
+        url: "https://www.youtube.com/watch?v=xWYb7tImErI",
+        source: "YouTube",
+        category: "yt-long-form"
     }
 ];
 
@@ -264,6 +306,7 @@ const CATEGORIES = {
     'core-finance': { name: 'Core Finance', emoji: '📈' },
     'institution-building': { name: 'Institution Building', emoji: '🏛️' },
     'food-for-thought': { name: 'Food for Thought', emoji: '💭' },
+    'yt-long-form': { name: 'YT Long Form', emoji: '🎬' },
     'books': { name: 'Books', emoji: '📚' }
 };
 
