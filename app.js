@@ -330,6 +330,7 @@ const articleUrlInput = document.getElementById('article-url');
 // Stats elements
 const totalArticlesEl = document.getElementById('total-articles');
 const totalBooksEl = document.getElementById('total-books');
+const totalYoutubeEl = document.getElementById('total-youtube');
 const landingCategoriesEl = document.getElementById('landing-categories');
 const booksBtn = document.getElementById('books-btn');
 
@@ -367,12 +368,14 @@ function getUniqueCategories() {
 // Render Functions
 // ========================================
 function updateStats() {
-    // Count articles (not books) and books separately
-    const articleCount = articles.filter(a => a.category !== 'books').length;
+    // Count articles (not books or youtube), books, and youtube separately
+    const articleCount = articles.filter(a => a.category !== 'books' && a.category !== 'yt-long-form').length;
     const bookCount = articles.filter(a => a.category === 'books').length;
+    const youtubeCount = articles.filter(a => a.category === 'yt-long-form').length;
 
     if (totalArticlesEl) totalArticlesEl.textContent = articleCount;
     if (totalBooksEl) totalBooksEl.textContent = bookCount;
+    if (totalYoutubeEl) totalYoutubeEl.textContent = youtubeCount;
 
     // Populate landing page category tags
     if (landingCategoriesEl) {

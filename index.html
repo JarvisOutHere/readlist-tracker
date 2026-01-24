@@ -21,6 +21,7 @@
         <div class="landing-content">
             <h1 class="landing-title">ReadList</h1>
             <p class="landing-subtitle">Your personal archive of ideas worth revisiting</p>
+            <p class="landing-disclaimer">Interesting pieces. Not necessarily accurate or well written.</p>
 
             <div class="landing-sections">
                 <!-- Articles Section -->
@@ -34,6 +35,12 @@
                     <h2 class="section-title">Books</h2>
                     <span class="section-stat-number" id="total-books">0</span>
                 </div>
+
+                <!-- YouTube Section -->
+                <div class="landing-section">
+                    <h2 class="section-title">YouTube</h2>
+                    <span class="section-stat-number" id="total-youtube">0</span>
+                </div>
             </div>
 
             <button class="cta-button" id="explore-btn">
@@ -42,8 +49,6 @@
                     <path d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
             </button>
-            <p class="landing-disclaimer">Many of these pieces are ones I found interesting, not necessarily ones I
-                agreed with.</p>
         </div>
     </section>
 
@@ -81,10 +86,6 @@
                         <span class="category-name">Food for Thought</span>
                         <span class="category-count" id="count-food-for-thought">0</span>
                     </button>
-                    <button class="category-item" data-category="yt-long-form">
-                        <span class="category-name">YT Long Form</span>
-                        <span class="category-count" id="count-yt-long-form">0</span>
-                    </button>
                 </div>
 
                 <div class="nav-spacer"></div>
@@ -92,6 +93,11 @@
                 <button class="nav-section-header nav-section-clickable" data-category="books">
                     Books
                     <span class="category-count" id="count-books">0</span>
+                </button>
+
+                <button class="nav-section-header nav-section-clickable" data-category="yt-long-form">
+                    YouTube
+                    <span class="category-count" id="count-yt-long-form">0</span>
                 </button>
             </nav>
         </aside>
