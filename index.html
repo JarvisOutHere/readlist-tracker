@@ -60,42 +60,72 @@
                 <h2 class="sidebar-logo">ReadList</h2>
             </div>
             <nav class="category-nav">
-                <div class="nav-section-header">Articles</div>
-                <div class="subcategory-list">
-                    <button class="category-item" data-category="interesting-businesses">
-                        <span class="category-name">Interesting Businesses</span>
-                        <span class="category-count" id="count-interesting-businesses">0</span>
+                <!-- Articles Section (Collapsible) -->
+                <div class="nav-section" data-section="articles">
+                    <button class="nav-toggle" data-toggle="articles">
+                        <span class="toggle-icon">▶</span>
+                        <span class="toggle-label">Articles</span>
+                        <span class="toggle-count" id="count-articles-total">0</span>
                     </button>
-                    <button class="category-item" data-category="ai">
-                        <span class="category-name">AI</span>
-                        <span class="category-count" id="count-ai">0</span>
-                    </button>
-                    <button class="category-item" data-category="intrapersonal">
-                        <span class="category-name">Intrapersonal</span>
-                        <span class="category-count" id="count-intrapersonal">0</span>
-                    </button>
-                    <button class="category-item" data-category="core-finance">
-                        <span class="category-name">Core Finance</span>
-                        <span class="category-count" id="count-core-finance">0</span>
-                    </button>
-                    <button class="category-item" data-category="food-for-thought">
-                        <span class="category-name">Food for Thought</span>
-                        <span class="category-count" id="count-food-for-thought">0</span>
+                    <div class="subcategory-list collapsed" id="articles-subcategories">
+                        <button class="category-item" data-category="interesting-businesses">
+                            <span class="category-name">Interesting Businesses</span>
+                            <span class="category-count" id="count-interesting-businesses">0</span>
+                        </button>
+                        <button class="category-item" data-category="ai">
+                            <span class="category-name">AI</span>
+                            <span class="category-count" id="count-ai">0</span>
+                        </button>
+                        <button class="category-item" data-category="intrapersonal">
+                            <span class="category-name">Intrapersonal</span>
+                            <span class="category-count" id="count-intrapersonal">0</span>
+                        </button>
+                        <button class="category-item" data-category="core-finance">
+                            <span class="category-name">Core Finance</span>
+                            <span class="category-count" id="count-core-finance">0</span>
+                        </button>
+                        <button class="category-item" data-category="food-for-thought">
+                            <span class="category-name">Food for Thought</span>
+                            <span class="category-count" id="count-food-for-thought">0</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Books Section -->
+                <div class="nav-section" data-section="books">
+                    <button class="nav-toggle nav-toggle-direct" data-category="books">
+                        <span class="toggle-icon">▶</span>
+                        <span class="toggle-label">Books</span>
+                        <span class="toggle-count" id="count-books">0</span>
                     </button>
                 </div>
 
-                <div class="nav-spacer"></div>
-
-                <button class="nav-section-header nav-section-clickable" data-category="books">
-                    Books
-                    <span class="category-count" id="count-books">0</span>
-                </button>
-
-                <button class="nav-section-header nav-section-clickable" data-category="yt-long-form">
-                    YouTube
-                    <span class="category-count" id="count-yt-long-form">0</span>
-                </button>
+                <!-- YouTube Section -->
+                <div class="nav-section" data-section="youtube">
+                    <button class="nav-toggle nav-toggle-direct" data-category="yt-long-form">
+                        <span class="toggle-icon">▶</span>
+                        <span class="toggle-label">YouTube</span>
+                        <span class="toggle-count" id="count-yt-long-form">0</span>
+                    </button>
+                </div>
             </nav>
+
+            <!-- Curated Carousel -->
+            <div class="curated-section">
+                <h3 class="curated-title">Curated</h3>
+                <div class="curated-carousel" id="curated-carousel">
+                    <div class="carousel-blur-top"></div>
+                    <div class="carousel-track" id="carousel-track">
+                        <div class="carousel-item" data-article-id="6">a16z: The Power Brokers</div>
+                        <div class="carousel-item" data-article-id="2">AI and Leviathan: Part I</div>
+                        <div class="carousel-item" data-article-id="10">AI 2027</div>
+                        <div class="carousel-item" data-article-id="8">Evolution of a Value Investor</div>
+                        <div class="carousel-item" data-article-id="4">India In Charts</div>
+                        <div class="carousel-item" data-article-id="37">Notes on India</div>
+                    </div>
+                    <div class="carousel-blur-bottom"></div>
+                </div>
+            </div>
         </aside>
 
         <!-- Main Content -->

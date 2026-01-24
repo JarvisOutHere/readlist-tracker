@@ -415,6 +415,14 @@ function updateStats() {
             countEl.textContent = countArticlesByCategory(cat);
         }
     });
+
+    // Update total articles count (excluding books and youtube)
+    const totalArticlesCountEl = document.getElementById('count-articles-total');
+    if (totalArticlesCountEl) {
+        const articleCategories = ['interesting-businesses', 'ai', 'intrapersonal', 'core-finance', 'food-for-thought'];
+        const total = articleCategories.reduce((sum, cat) => sum + countArticlesByCategory(cat), 0);
+        totalArticlesCountEl.textContent = total;
+    }
 }
 
 function createArticleCard(article) {
@@ -948,4 +956,110 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof initReadStatusListener === 'function') {
         initReadStatusListener();
     }
+
+    // ========================================
+    // Collapsible Navigation Toggles
+    // ========================================
+    const navToggles = document.querySelectorAll('.nav-toggle[data-toggle]');
+    navToggles.forEach(toggle => {
+        toggle.addEventListener('click', () => {
+            const section = toggle.closest('.nav-section');
+            const subcategoryList = section.querySelector('.subcategory-list');
+
+            if (subcategoryList) {
+                const isExpanded = section.classList.contains('expanded');
+
+                // Close all other sections first
+                document.querySelectorAll('.nav-section.expanded').forEach(s => {
+                    if (s !== section) {
+                        s.classList.remove('expanded');
+                        const list = s.querySelector('.subcategory-list');
+                        if (list) {
+                            list.classList.remove('expanded');
+                            list.classList.add('collapsed');
+                        }
+                    }
+                });
+
+                // Toggle current section
+                if (isExpanded) {
+                    section.classList.remove('expanded');
+                    subcategoryList.classList.remove('expanded');
+                    subcategoryList.classList.add('collapsed');
+                } else {
+                    section.classList.add('expanded');
+                    subcategoryList.classList.remove('collapsed');
+                    subcategoryList.classList.add('expanded');
+                }
+            }
+        });
+    });
+
+    // Direct navigation toggles (Books, YouTube)
+    const directToggles = document.querySelectorAll('.nav-toggle-direct');
+    directToggles.forEach(toggle => {
+        toggle.addEventListener('click', () => {
+            const category = toggle.dataset.category;
+            if (category) {
+                currentCategory = category;
+                updateActiveCategory();
+                renderArticles();
+            }
+        });
+    });
+
+    // ========================================
+    // Curated Carousel
+    // ========================================
+    const carouselTrack = document.getElementById('carousel-track');
+    const carouselItems = document.querySelectorAll('.carousel-item');
+    let currentCarouselIndex = 0;
+
+    function updateCarouselPosition() {
+        if (!carouselTrack || carouselItems.length === 0) return;
+
+        const itemHeight = carouselItems[0].offsetHeight;
+        const offset = -currentCarouselIndex * itemHeight;
+        carouselTrack.style.transform = `translateY(calc(-50% + ${offset}px))`;
+
+        // Update active state
+        carouselItems.forEach((item, index) => {
+            item.classList.toggle('active', index === currentCarouselIndex);
+        });
+    }
+
+    // Carousel scroll with mouse wheel
+    const carousel = document.getElementById('curated-carousel');
+    if (carousel) {
+        carousel.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY > 0) {
+                currentCarouselIndex = Math.min(currentCarouselIndex + 1, carouselItems.length - 1);
+            } else {
+                currentCarouselIndex = Math.max(currentCarouselIndex - 1, 0);
+            }
+            updateCarouselPosition();
+        });
+    }
+
+    // Click on carousel item to open article
+    carouselItems.forEach((item, index) => {
+        item.addEventListener('click', () => {
+            const articleId = parseInt(item.dataset.articleId);
+            const article = articles.find(a => a.id === articleId);
+            if (article && article.url) {
+                window.open(article.url, '_blank');
+            } else if (article) {
+                // For books/items without URL, select their category
+                currentCategory = article.category;
+                updateActiveCategory();
+                renderArticles();
+            }
+            currentCarouselIndex = index;
+            updateCarouselPosition();
+        });
+    });
+
+    // Initialize carousel position
+    updateCarouselPosition();
 });
