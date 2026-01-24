@@ -48,7 +48,7 @@ const articles = [
         description: "How a venture firm became a cultural and political force. A 16,000-word deep dive into the machine that Marc and Ben built, and what it means to broker power in Silicon Valley.",
         url: "https://www.notboring.co/p/a16z-the-power-brokers",
         source: "Not Boring",
-        category: "institution-building"
+        category: "interesting-businesses"
     },
     {
         id: 7,
@@ -295,6 +295,22 @@ const articles = [
         url: "https://www.youtube.com/watch?v=xWYb7tImErI",
         source: "YouTube",
         category: "yt-long-form"
+    },
+    {
+        id: 36,
+        title: "The Palantirization of Everything",
+        description: "Everyone wants to copy Palantir—embed FDEs with customers, build custom workflows, operate like special forces. But most companies copying the aesthetic are setting themselves up to become expensive services businesses with software multiples.",
+        url: "https://www.a16z.news/p/the-palantirization-of-everything",
+        source: "a16z News",
+        category: "interesting-businesses"
+    },
+    {
+        id: 37,
+        title: "Notes on India",
+        description: "Initial observations from a week in New Delhi, Bangalore, and Darjeeling. On culture, politics, and economy—the nation as perhaps the most striking experiment in democratic history.",
+        url: "https://jasonzhao.substack.com/p/notes-on-india",
+        source: "Jason Zhao",
+        category: "food-for-thought"
     }
 ];
 
@@ -304,7 +320,6 @@ const CATEGORIES = {
     'ai': { name: 'AI', emoji: '🤖' },
     'intrapersonal': { name: 'Intrapersonal', emoji: '🧘' },
     'core-finance': { name: 'Core Finance', emoji: '📈' },
-    'institution-building': { name: 'Institution Building', emoji: '🏛️' },
     'food-for-thought': { name: 'Food for Thought', emoji: '💭' },
     'yt-long-form': { name: 'YT Long Form', emoji: '🎬' },
     'books': { name: 'Books', emoji: '📚' }
