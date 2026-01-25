@@ -619,9 +619,9 @@ function updateActiveCategory() {
     }
 
     if (isCuratedView) {
-        currentCategoryTitle.textContent = 'Curated Carousel';
+        currentCategoryTitle.innerHTML = 'Curated Carousel<span class="curated-subtitle">A selection of favorite pieces worth revisiting</span>';
     } else {
-        currentCategoryTitle.textContent = currentCategory
+        currentCategoryTitle.innerHTML = currentCategory
             ? getCategoryDisplayName(currentCategory)
             : 'Your Reading List';
     }

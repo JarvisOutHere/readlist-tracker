@@ -593,7 +593,7 @@ body {
     gap: 2rem;
     max-width: 600px;
     margin: 0 auto;
-    padding: 4rem 1rem;
+    padding: 40vh 1rem;
 }
 
 .curated-filmreel .filmreel-card {
@@ -682,6 +682,16 @@ body {
     font-size: 2rem;
     font-weight: 600;
     color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.curated-subtitle {
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--text-muted);
 }
 
 .back-to-landing {
