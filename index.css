@@ -593,7 +593,7 @@ body {
     gap: 2rem;
     max-width: 600px;
     margin: 0 auto;
-    padding: 40vh 1rem;
+    padding: 0 1rem 2rem;
 }
 
 .curated-filmreel .filmreel-card {
@@ -603,9 +603,9 @@ body {
 }
 
 .curated-filmreel .filmreel-blur {
-    filter: blur(4px);
-    opacity: 0.5;
-    transform: scale(0.95);
+    filter: none;
+    opacity: 1;
+    transform: scale(1);
 }
 
 .curated-filmreel .filmreel-active {
@@ -745,6 +745,10 @@ body {
 .article-card:hover .article-description {
     -webkit-line-clamp: unset;
     max-height: 300px;
+}
+
+.article-card:hover .article-title {
+    color: var(--accent-primary);
 }
 
 /* Multi-link popup */
@@ -1245,16 +1249,16 @@ body {
    Read Status & Actions - Redesigned
    ======================================== */
 
-/* Action buttons - top right corner */
+/* Action buttons - positioned at tile border (half in, half out) */
 .card-action-buttons {
     position: absolute;
-    top: 0.75rem;
+    top: -12px;
     right: 0.75rem;
     display: flex;
     gap: 0.25rem;
     opacity: 0;
     transition: opacity var(--transition-fast);
-    z-index: 5;
+    z-index: 15;
 }
 
 .article-card:hover .card-action-buttons {
@@ -1340,7 +1344,7 @@ body {
     padding: 0.75rem 1rem;
     font-size: 0.75rem;
     color: var(--text-muted);
-    text-align: center;
+    text-align: left;
     font-style: italic;
 }
 

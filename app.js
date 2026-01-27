@@ -311,6 +311,63 @@ const articles = [
         url: "https://jasonzhao.substack.com/p/notes-on-india",
         source: "Jason Zhao",
         category: "food-for-thought"
+    },
+    // Fin-Econ-Polity articles
+    {
+        id: 38,
+        title: "The Puzzle of Pakistan's Poverty",
+        description: "Religious fundamentalism alone doesn't explain Pakistan's economic underperformance. Structural factors—high fertility, remittance dependency creating Dutch disease, military rent extraction, and geopolitical aid dependency—matter more than ideology in explaining why reforms never stick.",
+        url: "https://rshinde.substack.com/p/the-puzzle-of-pakistans-poverty",
+        source: "Rohit Shinde",
+        category: "food-for-thought"
+    },
+    {
+        id: 39,
+        title: "For India, Only Economic Growth Matters",
+        description: "India must prioritize growth above all else to achieve developed-nation status. Currency appreciation, expensive electricity, labor unions, and restrictive construction norms hinder manufacturing. With declining fertility, there's urgency—economic growth automatically improves every other outcome you care about.",
+        url: "https://rshinde.substack.com/p/for-india-only-economic-growth-matters",
+        source: "Rohit Shinde",
+        category: "food-for-thought"
+    },
+    {
+        id: 40,
+        title: "Is India Following China's Path to Prosperity?",
+        description: "Comparing India and China's development trajectories since the 1970s. India is adopting similar strategies—infrastructure, PLI schemes, education reforms—but faces de-globalization headwinds. Sustained 8% growth for two decades is needed to reach high-income status.",
+        url: "https://rshinde.substack.com/p/is-india-following-chinas-path-to",
+        source: "Rohit Shinde",
+        category: "food-for-thought"
+    },
+    {
+        id: 41,
+        title: "China's Broken Balance Sheet: Why China Will Invade Taiwan before 2030",
+        description: "China faces an unprecedented economic crisis from investment-driven growth funded through shadow banking. With traditional engines exhausted and no access to advanced semiconductors, Beijing may pursue military action against Taiwan to seize TSMC's sub-7nm manufacturing ecosystem.",
+        url: "https://substack.com/home/post/p-181489135",
+        source: "Rohit Shinde",
+        category: "food-for-thought"
+    },
+    {
+        id: 42,
+        title: "Compared to What?",
+        description: "The Paradox of Absolutism—many seemingly absolute statements actually require comparison to be meaningful. Asking 'compared to what?' helps resolve apparent paradoxes across epistemology, color perception, and metaphysics. Absolute claims often trap people in unproductive loops; calibrating statements through comparative frameworks allows for meaningful resolution.",
+        url: "https://adamgolding.substack.com/p/compared-to-what",
+        source: "Adam Golding",
+        category: "food-for-thought"
+    },
+    {
+        id: 43,
+        title: "Technology in 1776",
+        description: "Contrasting life in 1776 with 2026 to show extraordinary material progress. Technologies transformed water, food, shelter, medicine, and energy—often invisibly making us safer, healthier, and more productive. Recognizing these achievements should inspire confidence that America can overcome current challenges.",
+        url: "https://www.a16z.news/p/technology-in-1776",
+        source: "a16z",
+        category: "food-for-thought"
+    },
+    {
+        id: 44,
+        title: "The Adolescence of Technology",
+        description: "Exploring risks as AI approaches a 'country of geniuses in a datacenter.' Five concerns: autonomy risks, misuse for destruction, misuse for power, economic disruption, and destabilizing effects. Advocates pragmatic responses through constitutional AI, interpretability research, and surgical regulation.",
+        url: "https://www.darioamodei.com/essay/the-adolescence-of-technology",
+        source: "Dario Amodei",
+        category: "ai"
     }
 ];
 
@@ -525,7 +582,7 @@ function createArticleCard(article) {
     if (scoreboardHtml) {
         scoreboard.innerHTML = `<div class="scoreboard-table">${scoreboardHtml}</div>`;
     } else {
-        scoreboard.innerHTML = `<div class="scoreboard-empty">No reactions yet</div>`;
+        scoreboard.innerHTML = `<div class="scoreboard-empty">React to Share what you thought</div>`;
     }
     card.appendChild(scoreboard);
 
