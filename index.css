@@ -383,7 +383,7 @@ body {
 .sidebar-header {
     padding: 2rem 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 2px solid var(--accent-primary);
 }
 
 .sidebar-logo {
@@ -480,8 +480,8 @@ body {
     align-items: center;
     width: 100%;
     padding: 0.75rem 1rem;
-    background: transparent;
-    border: 1px solid var(--border-color);
+    background: var(--accent-light);
+    border: 1px solid var(--accent-primary);
     border-radius: 8px;
     cursor: pointer;
     font-family: var(--font-body);
@@ -730,7 +730,7 @@ body {
     justify-content: space-between;
     margin-bottom: 2rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 2px solid var(--accent-primary);
 }
 
 .content-title {
