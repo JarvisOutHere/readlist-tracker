@@ -381,7 +381,8 @@ body {
 }
 
 .sidebar-header {
-    padding: 1.5rem;
+    padding: 2rem 1.5rem;
+    padding-bottom: 1rem;
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -597,16 +598,7 @@ body {
     margin-bottom: 0;
 }
 
-/* Bottom nav items - dark brownish tint */
-.sidebar-bottom-nav .nav-toggle {
-    background: rgba(100, 65, 30, 0.25);
-    border-color: rgba(100, 65, 30, 0.5);
-}
-
-.sidebar-bottom-nav .nav-toggle:hover {
-    background: rgba(100, 65, 30, 0.35);
-    border-color: rgba(100, 65, 30, 0.65);
-}
+/* Bottom nav uses same styling as top nav - no special colors */
 
 /* ========================================
    Navigation Selection Animations
@@ -632,15 +624,11 @@ body {
     }
 }
 
-/* Bottom nav items (Books, YouTube) - Shimmer slide animation */
+/* Bottom nav items (Books, YouTube) - Same glow animation as top */
 .sidebar-bottom-nav .nav-toggle.active {
-    background: linear-gradient(90deg,
-            rgba(100, 65, 30, 0.3) 0%,
-            rgba(100, 65, 30, 0.45) 50%,
-            rgba(100, 65, 30, 0.3) 100%);
-    background-size: 200% 100%;
-    border-color: rgba(100, 65, 30, 0.7);
-    animation: shimmerSlide 2s linear infinite;
+    background: var(--accent-light);
+    border-color: var(--accent-primary);
+    animation: glowPulse 2s ease-in-out infinite;
 }
 
 @keyframes shimmerSlide {
