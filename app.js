@@ -1178,10 +1178,7 @@ function initNoticeBoard() {
     INVITEES.forEach(userName => {
         const userDiv = document.createElement('div');
         userDiv.className = 'notice-board-user';
-        userDiv.innerHTML = `
-            <span class="notice-board-user-icon">👤</span>
-            <span>${userName}</span>
-        `;
+        userDiv.textContent = userName;
         userDiv.onclick = () => showUserReactionsPopup(userName);
         noticeBoardUsers.appendChild(userDiv);
     });
