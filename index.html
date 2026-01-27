@@ -57,20 +57,21 @@
                 <span>Inactive Invitees</span>
                 <span class="toggle-arrow">▼</span>
             </div>
+            <!-- Boo figure outside the collapsible box, visible when expanded -->
+            <div class="inactive-boo-figure hidden" id="boo-figure">
+                <svg width="80" height="70" viewBox="0 0 80 70" class="boo-stick-figure">
+                    <!-- Simple stick figure -->
+                    <circle cx="40" cy="12" r="10" fill="none" stroke="var(--text-muted)" stroke-width="2" />
+                    <line x1="40" y1="22" x2="40" y2="45" stroke="var(--text-muted)" stroke-width="2" />
+                    <line x1="40" y1="30" x2="25" y2="40" stroke="var(--text-muted)" stroke-width="2" />
+                    <line x1="40" y1="30" x2="55" y2="40" stroke="var(--text-muted)" stroke-width="2" />
+                    <line x1="40" y1="45" x2="28" y2="65" stroke="var(--text-muted)" stroke-width="2" />
+                    <line x1="40" y1="45" x2="52" y2="65" stroke="var(--text-muted)" stroke-width="2" />
+                    <!-- Speech bubble with Boooooo -->
+                    <text x="58" y="10" font-size="9" fill="var(--text-muted)" font-style="italic">Boooooo!</text>
+                </svg>
+            </div>
             <div class="notice-board-content collapsed" id="inactive-content">
-                <div class="inactive-boo-figure">
-                    <svg width="50" height="60" viewBox="0 0 50 60" class="boo-stick-figure">
-                        <!-- Simple stick figure -->
-                        <circle cx="25" cy="10" r="8" fill="none" stroke="var(--text-muted)" stroke-width="2" />
-                        <line x1="25" y1="18" x2="25" y2="38" stroke="var(--text-muted)" stroke-width="2" />
-                        <line x1="25" y1="24" x2="12" y2="32" stroke="var(--text-muted)" stroke-width="2" />
-                        <line x1="25" y1="24" x2="38" y2="32" stroke="var(--text-muted)" stroke-width="2" />
-                        <line x1="25" y1="38" x2="15" y2="55" stroke="var(--text-muted)" stroke-width="2" />
-                        <line x1="25" y1="38" x2="35" y2="55" stroke="var(--text-muted)" stroke-width="2" />
-                        <!-- Speech bubble -->
-                        <text x="40" y="8" font-size="8" fill="var(--text-muted)" font-style="italic">Boo!</text>
-                    </svg>
-                </div>
                 <div class="notice-board-users" id="inactive-users">
                     <!-- Inactive users rendered by JS -->
                 </div>
@@ -80,7 +81,7 @@
         <!-- Active Invitees Board (top-right) -->
         <div class="notice-board notice-board-right" id="active-board">
             <div class="notice-board-toggle" id="active-toggle">
-                <span>Active Invitees</span>
+                <span>Invitees</span>
                 <span class="toggle-arrow">▼</span>
             </div>
             <div class="notice-board-content collapsed" id="active-content">
@@ -88,12 +89,6 @@
                     <!-- Active users rendered by JS -->
                 </div>
             </div>
-        </div>
-
-        <!-- Profile Box (bottom-right) -->
-        <div class="profile-box" id="profile-box">
-            <div class="profile-name" id="profile-name"><!-- Rendered by JS --></div>
-            <div class="profile-hint">Click on it!</div>
         </div>
 
         <!-- User Reactions Popup (hidden by default) -->
@@ -119,7 +114,7 @@
                 <select id="favorite-article-select" class="thoughts-select">
                     <option value="">-- Select your favorite --</option>
                 </select>
-                <label class="thoughts-label">Your Thoughts</label>
+                <label class="thoughts-label">General Thoughts</label>
                 <textarea id="thoughts-textarea" class="thoughts-textarea"
                     placeholder="Share what you're thinking about these reads..."></textarea>
                 <button id="save-thoughts-btn" class="thoughts-save-btn">Save</button>
@@ -278,6 +273,7 @@
     <div class="current-user-badge hidden" id="current-user-badge">
         <span class="user-icon">👤</span>
         <span class="user-name" id="current-user-name"></span>
+        <span class="click-hint-badge">Click on it!</span>
         <button class="change-user-btn" id="change-user-btn" title="Change user">✕</button>
     </div>
 

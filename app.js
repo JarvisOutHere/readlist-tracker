@@ -1210,9 +1210,14 @@ function initNoticeBoards() {
     }
 
     if (inactiveToggle && inactiveBoard && inactiveContent) {
+        const booFigure = document.getElementById('boo-figure');
         inactiveToggle.onclick = () => {
             inactiveBoard.classList.toggle('expanded');
             inactiveContent.classList.toggle('collapsed');
+            // Toggle boo figure visibility
+            if (booFigure) {
+                booFigure.classList.toggle('hidden');
+            }
         };
     }
 
@@ -1224,22 +1229,17 @@ function initNoticeBoards() {
 }
 
 function initProfileBox() {
-    const profileBox = document.getElementById('profile-box');
-    const profileName = document.getElementById('profile-name');
+    // Make the user name in the existing current-user-badge clickable
+    const userNameEl = document.getElementById('current-user-name');
     const currentUser = getCurrentUser();
 
-    if (!profileBox || !profileName) return;
+    if (!userNameEl || !currentUser || isCuratorAccess()) return;
 
-    // Hide profile box if no user logged in or if curator
-    if (!currentUser || isCuratorAccess()) {
-        profileBox.style.display = 'none';
-        return;
-    }
-
-    profileName.textContent = currentUser;
-
-    // Clicking profile box opens thoughts popup
-    profileBox.onclick = () => showThoughtsPopup();
+    // Clicking user name opens thoughts popup
+    userNameEl.onclick = (e) => {
+        e.stopPropagation(); // Prevent any parent handlers
+        showThoughtsPopup();
+    };
 }
 
 function showUserReactionsPopup(userName) {

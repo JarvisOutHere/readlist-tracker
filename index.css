@@ -1226,6 +1226,19 @@ body {
 
 .current-user-badge .user-name {
     font-weight: 500;
+    cursor: pointer;
+    transition: color var(--transition-fast);
+}
+
+.current-user-badge .user-name:hover {
+    color: var(--accent-primary);
+}
+
+.click-hint-badge {
+    font-size: 0.6875rem;
+    font-style: italic;
+    color: var(--text-muted);
+    margin-left: -0.25rem;
 }
 
 .change-user-btn {
@@ -1469,11 +1482,16 @@ body {
     border-top: 1px solid var(--border-color);
 }
 
-/* Inactive board boo figure */
+/* Inactive board boo figure - positioned to the side */
 .inactive-boo-figure {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 0.75rem;
+    position: absolute;
+    left: 100%;
+    top: 30px;
+    margin-left: 10px;
+}
+
+.inactive-boo-figure.hidden {
+    display: none;
 }
 
 .boo-stick-figure {
