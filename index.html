@@ -50,6 +50,29 @@
                 </svg>
             </button>
         </div>
+
+        <!-- Notice Board - Wooden Plank -->
+        <div class="notice-board" id="notice-board">
+            <div class="notice-board-plank">
+                <div class="notice-board-rope"></div>
+                <div class="notice-board-title">📜 Invitees</div>
+                <div class="notice-board-users" id="notice-board-users">
+                    <!-- Users will be rendered by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- User Reactions Popup (hidden by default) -->
+        <div class="user-reactions-overlay hidden" id="reactions-overlay"></div>
+        <div class="user-reactions-popup hidden" id="reactions-popup">
+            <div class="user-reactions-header">
+                <span class="user-reactions-title" id="reactions-popup-title">User's Reactions</span>
+                <button class="user-reactions-close" id="reactions-popup-close">✕</button>
+            </div>
+            <div class="user-reactions-content" id="reactions-popup-content">
+                <!-- Content rendered by JS -->
+            </div>
+        </div>
     </section>
 
     <!-- Main App -->

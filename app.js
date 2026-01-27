@@ -493,7 +493,7 @@ function createArticleCard(article) {
 
     // Add curator mode class if applicable
     const user = getCurrentUser();
-    if (user === CURATOR) {
+    if (isCuratorAccess()) {
         card.classList.add('curator-mode');
     }
 
@@ -506,8 +506,17 @@ function createArticleCard(article) {
     const entries = Object.entries(readStatus);
     if (entries.length > 0) {
         entries.forEach(([userName, status]) => {
-            const symbol = status === 'liked' ? '✓' : '✗';
-            const statusClass = status === 'liked' ? 'liked' : 'disliked';
+            let symbol, statusClass;
+            if (status === 'liked') {
+                symbol = '✓';
+                statusClass = 'liked';
+            } else if (status === 'neutral') {
+                symbol = '—';
+                statusClass = 'neutral';
+            } else {
+                symbol = '✗';
+                statusClass = 'disliked';
+            }
             scoreboardHtml += `
                 <div class="scoreboard-row">
                     <span class="scoreboard-name">${userName}</span>
@@ -519,13 +528,15 @@ function createArticleCard(article) {
 
     // Build action buttons HTML (top-right, only for non-curators)
     let actionButtonsHtml = '';
-    if (user && user !== CURATOR) {
+    if (user && !isCuratorAccess()) {
         const likeActive = currentUserStatus === 'liked' ? 'active' : '';
+        const neutralActive = currentUserStatus === 'neutral' ? 'active' : '';
         const dislikeActive = currentUserStatus === 'disliked' ? 'active' : '';
         actionButtonsHtml = `
             <div class="card-action-buttons">
-                <button class="card-action-btn ${likeActive}" data-article-id="${article.id}" data-action="liked" title="I liked this">✓</button>
-                <button class="card-action-btn ${dislikeActive}" data-article-id="${article.id}" data-action="disliked" title="Didn't like it">✗</button>
+                <button class="card-action-btn like-btn ${likeActive}" data-article-id="${article.id}" data-action="liked" title="I liked this">✓</button>
+                <button class="card-action-btn neutral-btn ${neutralActive}" data-article-id="${article.id}" data-action="neutral" title="Neutral">—</button>
+                <button class="card-action-btn dislike-btn ${dislikeActive}" data-article-id="${article.id}" data-action="disliked" title="Didn't like it">✗</button>
             </div>
         `;
     }
@@ -1154,3 +1165,112 @@ renderArticles = function () {
         setTimeout(initFilmreelObserver, 150);
     }
 };
+
+// ========================================
+// Notice Board Functions
+// ========================================
+function initNoticeBoard() {
+    const noticeBoardUsers = document.getElementById('notice-board-users');
+    if (!noticeBoardUsers) return;
+
+    noticeBoardUsers.innerHTML = '';
+
+    INVITEES.forEach(userName => {
+        const userDiv = document.createElement('div');
+        userDiv.className = 'notice-board-user';
+        userDiv.innerHTML = `
+            <span class="notice-board-user-icon">👤</span>
+            <span>${userName}</span>
+        `;
+        userDiv.onclick = () => showUserReactionsPopup(userName);
+        noticeBoardUsers.appendChild(userDiv);
+    });
+}
+
+function showUserReactionsPopup(userName) {
+    const overlay = document.getElementById('reactions-overlay');
+    const popup = document.getElementById('reactions-popup');
+    const title = document.getElementById('reactions-popup-title');
+    const content = document.getElementById('reactions-popup-content');
+
+    if (!overlay || !popup || !content) return;
+
+    title.textContent = `${userName}'s Reactions`;
+
+    // Get user reactions
+    const reactions = getUserReactions(userName);
+    const totalReactions = reactions.liked.length + reactions.neutral.length + reactions.disliked.length;
+
+    if (totalReactions === 0) {
+        // Empty state with animated figure
+        const pronoun = getPronoun(userName);
+        const capitalPronoun = pronoun.charAt(0).toUpperCase() + pronoun.slice(1);
+        content.innerHTML = `
+            <div class="reactions-empty">
+                <div class="reactions-empty-figure">👻</div>
+                <div class="reactions-empty-text">Boo, ${pronoun} hasn't done anything so far.</div>
+                <div class="reactions-empty-disclaimer">Don't worry, ${pronoun}'s being booed on ${pronoun === 'he' ? 'his' : 'her'} own screen as well.</div>
+            </div>
+        `;
+    } else {
+        let html = '';
+
+        if (reactions.liked.length > 0) {
+            html += `
+                <div class="reactions-section">
+                    <div class="reactions-section-title liked">
+                        <span class="reaction-icon">✓</span> Liked (${reactions.liked.length})
+                    </div>
+                    ${reactions.liked.map(a => `<div class="reaction-article">${a.title}</div>`).join('')}
+                </div>
+            `;
+        }
+
+        if (reactions.neutral.length > 0) {
+            html += `
+                <div class="reactions-section">
+                    <div class="reactions-section-title neutral">
+                        <span class="reaction-icon">—</span> Neutral (${reactions.neutral.length})
+                    </div>
+                    ${reactions.neutral.map(a => `<div class="reaction-article">${a.title}</div>`).join('')}
+                </div>
+            `;
+        }
+
+        if (reactions.disliked.length > 0) {
+            html += `
+                <div class="reactions-section">
+                    <div class="reactions-section-title disliked">
+                        <span class="reaction-icon">✗</span> Disliked (${reactions.disliked.length})
+                    </div>
+                    ${reactions.disliked.map(a => `<div class="reaction-article">${a.title}</div>`).join('')}
+                </div>
+            `;
+        }
+
+        content.innerHTML = html;
+    }
+
+    overlay.classList.remove('hidden');
+    popup.classList.remove('hidden');
+}
+
+function hideUserReactionsPopup() {
+    const overlay = document.getElementById('reactions-overlay');
+    const popup = document.getElementById('reactions-popup');
+
+    if (overlay) overlay.classList.add('hidden');
+    if (popup) popup.classList.add('hidden');
+}
+
+// Initialize notice board and popup handlers on DOM load
+document.addEventListener('DOMContentLoaded', () => {
+    initNoticeBoard();
+
+    // Close popup handlers
+    const closeBtn = document.getElementById('reactions-popup-close');
+    const overlay = document.getElementById('reactions-overlay');
+
+    if (closeBtn) closeBtn.onclick = hideUserReactionsPopup;
+    if (overlay) overlay.onclick = hideUserReactionsPopup;
+});

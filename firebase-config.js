@@ -19,27 +19,54 @@ const database = firebase.database();
 // ========================================
 // User Management with Magic Links
 // ========================================
-const USERS = ["Revant", "Parthiv", "Cicily", "Avantheka", "Nicole"]; // Customize these names
+const USERS = ["Avantheka", "Cicily", "Nicole", "Himadri"]; // Friends list (excluding Tanmay who is curator)
 const CURATOR = "Tanmay"; // You - the person who adds articles
 
-// Magic link tokens - share these unique links with friends
-// Example: yourapp.vercel.app/?u=r7x2k → Revant, n8k2p → Nicole
-const USER_TOKENS = {
-    "r7x2k": "Revant",
-    "p3m9n": "Parthiv",
-    "c4w8j": "Cicily",
-    "a6t3v": "Avantheka",
-    "n8k2p": "Nicole"
+// User info with gender for pronouns
+const USER_INFO = {
+    "Tanmay": { gender: "male", token: "t9m4x" },
+    "Avantheka": { gender: "female", token: "a6t3v" },
+    "Cicily": { gender: "female", token: "c4w8j" },
+    "Nicole": { gender: "female", token: "n8k2p" },
+    "Himadri": { gender: "male", token: "h5d2m" }
 };
+
+// Magic link tokens - share these unique links with friends
+// Example: readlist-tracker.vercel.app/?u=a6t3v → Avantheka
+const USER_TOKENS = {
+    "t9m4x": "Tanmay",    // Tanmay (regular user access, not curator)
+    "a6t3v": "Avantheka",
+    "c4w8j": "Cicily",
+    "n8k2p": "Nicole",
+    "h5d2m": "Himadri"
+};
+
+// Curator/parent access token
+const CURATOR_TOKEN = "curator_x7z9q";
+
+// All invitees for the notice board
+const INVITEES = ["Tanmay", "Avantheka", "Cicily", "Nicole", "Himadri"];
 
 // Check URL for magic link token
 function getUserFromToken() {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('u');
+
+    // Check for curator access
+    if (token === CURATOR_TOKEN) {
+        return CURATOR;
+    }
+
     if (token && USER_TOKENS[token]) {
         return USER_TOKENS[token];
     }
     return null;
+}
+
+// Check if user is accessing as curator (parent access)
+function isCuratorAccess() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('u') === CURATOR_TOKEN;
 }
 
 // Check if user came via magic link
@@ -62,7 +89,15 @@ function setCurrentUser(userName) {
 }
 
 function isCurator() {
-    return getCurrentUser() === CURATOR;
+    return isCuratorAccess();
+}
+
+function getGender(userName) {
+    return USER_INFO[userName]?.gender || "male";
+}
+
+function getPronoun(userName) {
+    return getGender(userName) === "female" ? "she" : "he";
 }
 
 // ========================================
@@ -70,14 +105,14 @@ function isCurator() {
 // ========================================
 function markAsRead(articleId, status) {
     const user = getCurrentUser();
-    if (!user || user === CURATOR) return; // Curator doesn't mark
+    if (!user || isCuratorAccess()) return; // Curator doesn't mark
 
     return database.ref(`readStatus/${articleId}/${user}`).set(status);
 }
 
 function removeReadStatus(articleId) {
     const user = getCurrentUser();
-    if (!user || user === CURATOR) return;
+    if (!user || isCuratorAccess()) return;
 
     return database.ref(`readStatus/${articleId}/${user}`).remove();
 }
@@ -104,4 +139,25 @@ function initReadStatusListener() {
 
 function getArticleReadStatus(articleId) {
     return readStatusCache[articleId] || {};
+}
+
+// Get all reactions for a specific user across all articles
+function getUserReactions(userName) {
+    const liked = [];
+    const neutral = [];
+    const disliked = [];
+
+    Object.entries(readStatusCache).forEach(([articleId, reactions]) => {
+        if (reactions[userName]) {
+            const status = reactions[userName];
+            const article = articles.find(a => a.id === parseInt(articleId));
+            if (article) {
+                if (status === 'liked') liked.push(article);
+                else if (status === 'neutral') neutral.push(article);
+                else if (status === 'disliked') disliked.push(article);
+            }
+        }
+    });
+
+    return { liked, neutral, disliked };
 }
