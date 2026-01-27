@@ -408,7 +408,7 @@ const booksBtn = document.getElementById('books-btn');
 const curatedBtn = document.getElementById('curated-btn');
 
 // Curated article IDs
-const CURATED_ARTICLE_IDS = [6, 2, 10, 8, 4, 37];
+const CURATED_ARTICLE_IDS = [6, 2, 8, 4, 39, 43, 44];
 
 // ========================================
 // State
