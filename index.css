@@ -597,6 +597,62 @@ body {
     margin-bottom: 0;
 }
 
+/* Bottom nav items - brownish tint */
+.sidebar-bottom-nav .nav-toggle {
+    background: rgba(139, 90, 43, 0.08);
+    border-color: rgba(139, 90, 43, 0.25);
+}
+
+.sidebar-bottom-nav .nav-toggle:hover {
+    background: rgba(139, 90, 43, 0.15);
+    border-color: rgba(139, 90, 43, 0.4);
+}
+
+/* ========================================
+   Navigation Selection Animations
+   ======================================== */
+
+/* Top nav items (Articles, Selected Favorites) - Glow pulse animation */
+.category-nav .nav-toggle.active,
+.category-nav .nav-toggle-direct.active {
+    background: var(--accent-light);
+    border-color: var(--accent-primary);
+    animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(139, 90, 43, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 0 12px 2px rgba(139, 90, 43, 0.4);
+    }
+}
+
+/* Bottom nav items (Books, YouTube) - Shimmer slide animation */
+.sidebar-bottom-nav .nav-toggle.active {
+    background: linear-gradient(90deg,
+            rgba(139, 90, 43, 0.15) 0%,
+            rgba(139, 90, 43, 0.25) 50%,
+            rgba(139, 90, 43, 0.15) 100%);
+    background-size: 200% 100%;
+    border-color: rgba(139, 90, 43, 0.5);
+    animation: shimmerSlide 2s linear infinite;
+}
+
+@keyframes shimmerSlide {
+    0% {
+        background-position: -100% 0;
+    }
+
+    100% {
+        background-position: 100% 0;
+    }
+}
+
 /* Curated Filmreel Layout */
 .curated-filmreel {
     display: flex;
