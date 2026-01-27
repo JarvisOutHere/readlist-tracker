@@ -59,16 +59,16 @@
             </div>
             <!-- Boo figure outside the collapsible box, visible when expanded -->
             <div class="inactive-boo-figure hidden" id="boo-figure">
-                <svg width="100" height="70" viewBox="0 0 100 70" class="boo-stick-figure">
-                    <!-- Speech bubble with Booooooooooo -->
-                    <text x="2" y="12" font-size="9" fill="var(--text-muted)" font-style="italic">Booooooooooo!</text>
+                <svg width="200" height="150" viewBox="0 0 200 150" class="boo-stick-figure">
                     <!-- Simple stick figure (facing left towards the box) -->
-                    <circle cx="60" cy="20" r="10" fill="none" stroke="var(--text-muted)" stroke-width="2" />
-                    <line x1="60" y1="30" x2="60" y2="50" stroke="var(--text-muted)" stroke-width="2" />
-                    <line x1="60" y1="36" x2="48" y2="44" stroke="var(--text-muted)" stroke-width="2" />
-                    <line x1="60" y1="36" x2="72" y2="44" stroke="var(--text-muted)" stroke-width="2" />
-                    <line x1="60" y1="50" x2="50" y2="68" stroke="var(--text-muted)" stroke-width="2" />
-                    <line x1="60" y1="50" x2="70" y2="68" stroke="var(--text-muted)" stroke-width="2" />
+                    <circle cx="120" cy="40" r="20" fill="none" stroke="var(--text-muted)" stroke-width="3" />
+                    <line x1="120" y1="60" x2="120" y2="100" stroke="var(--text-muted)" stroke-width="3" />
+                    <line x1="120" y1="72" x2="96" y2="88" stroke="var(--text-muted)" stroke-width="3" />
+                    <line x1="120" y1="72" x2="144" y2="88" stroke="var(--text-muted)" stroke-width="3" />
+                    <line x1="120" y1="100" x2="100" y2="136" stroke="var(--text-muted)" stroke-width="3" />
+                    <line x1="120" y1="100" x2="140" y2="136" stroke="var(--text-muted)" stroke-width="3" />
+                    <!-- Speech bubble with Booooooooooo -->
+                    <text x="5" y="30" font-size="18" fill="var(--text-muted)" font-style="italic">Booooooooooo!</text>
                 </svg>
             </div>
             <div class="notice-board-content collapsed" id="inactive-content">
@@ -88,36 +88,6 @@
                 <div class="notice-board-users" id="active-users">
                     <!-- Active users rendered by JS -->
                 </div>
-            </div>
-        </div>
-
-        <!-- User Reactions Popup (hidden by default) -->
-        <div class="user-reactions-overlay hidden" id="reactions-overlay"></div>
-        <div class="user-reactions-popup hidden" id="reactions-popup">
-            <div class="user-reactions-header">
-                <span class="user-reactions-title" id="reactions-popup-title">User's Reactions</span>
-                <button class="user-reactions-close" id="reactions-popup-close">✕</button>
-            </div>
-            <div class="user-reactions-content" id="reactions-popup-content">
-                <!-- Content rendered by JS -->
-            </div>
-        </div>
-
-        <!-- Thoughts/Favorite Popup (for logged-in user editing their own) -->
-        <div class="thoughts-popup hidden" id="thoughts-popup">
-            <div class="thoughts-popup-header">
-                <span class="thoughts-popup-title">Your Thoughts</span>
-                <button class="thoughts-popup-close" id="thoughts-popup-close">✕</button>
-            </div>
-            <div class="thoughts-popup-content">
-                <label class="thoughts-label">Favorite Article</label>
-                <select id="favorite-article-select" class="thoughts-select">
-                    <option value="">-- Select your favorite --</option>
-                </select>
-                <label class="thoughts-label">General Thoughts</label>
-                <textarea id="thoughts-textarea" class="thoughts-textarea"
-                    placeholder="Share what you're thinking about these reads..."></textarea>
-                <button id="save-thoughts-btn" class="thoughts-save-btn">Save</button>
             </div>
         </div>
     </section>
@@ -277,6 +247,37 @@
             <button class="change-user-btn" id="change-user-btn" title="Change user">✕</button>
         </div>
         <span class="click-hint-badge">Click on it!</span>
+    </div>
+
+    <!-- Global Popups (work on both landing and app views) -->
+    <!-- User Reactions Popup -->
+    <div class="user-reactions-overlay hidden" id="reactions-overlay"></div>
+    <div class="user-reactions-popup hidden" id="reactions-popup">
+        <div class="user-reactions-header">
+            <span class="user-reactions-title" id="reactions-popup-title">User's Reactions</span>
+            <button class="user-reactions-close" id="reactions-popup-close">✕</button>
+        </div>
+        <div class="user-reactions-content" id="reactions-popup-content">
+            <!-- Content rendered by JS -->
+        </div>
+    </div>
+
+    <!-- Thoughts/Favorite Popup -->
+    <div class="thoughts-popup hidden" id="thoughts-popup">
+        <div class="thoughts-popup-header">
+            <span class="thoughts-popup-title">Your Thoughts</span>
+            <button class="thoughts-popup-close" id="thoughts-popup-close">✕</button>
+        </div>
+        <div class="thoughts-popup-content">
+            <label class="thoughts-label">Favorite Article</label>
+            <select id="favorite-article-select" class="thoughts-select">
+                <option value="">-- Select your favorite --</option>
+            </select>
+            <label class="thoughts-label">General Thoughts</label>
+            <textarea id="thoughts-textarea" class="thoughts-textarea"
+                placeholder="Share what you're thinking about these reads..."></textarea>
+            <button id="save-thoughts-btn" class="thoughts-save-btn">Save</button>
+        </div>
     </div>
 
     <!-- Firebase SDK -->

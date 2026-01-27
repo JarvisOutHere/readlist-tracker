@@ -1521,9 +1521,9 @@ body {
 .inactive-boo-figure {
     position: absolute;
     left: 100%;
-    top: 65px;
-    /* Align head with first person in list */
-    margin-left: 5px;
+    top: 40px;
+    /* Position below the toggle button */
+    margin-left: 0;
 }
 
 .inactive-boo-figure.hidden {
