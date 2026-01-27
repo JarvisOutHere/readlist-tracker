@@ -202,3 +202,197 @@ function saveUserThoughts(userName, thoughts, favoriteArticleId) {
 function getUserThoughts(userName) {
     return userThoughtsCache[userName] || { thoughts: '', favoriteArticleId: null };
 }
+
+// ========================================
+// Analytics Tracking
+// ========================================
+let analyticsCache = {};
+let sessionId = null;
+let sessionStartTime = null;
+
+function generateSessionId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+}
+
+function initAnalytics() {
+    const user = getCurrentUser();
+    if (!user || isCuratorAccess()) return; // Don't track curator
+
+    sessionId = generateSessionId();
+    sessionStartTime = Date.now();
+
+    // Record session start
+    const sessionRef = database.ref(`analytics/${user}/sessions/${sessionId}`);
+    sessionRef.set({
+        startTime: sessionStartTime,
+        endTime: null,
+        duration: 0,
+        pageViews: 0,
+        articleClicks: 0,
+        reactionsGiven: 0
+    });
+
+    // Update end time periodically and on page unload
+    const updateSession = () => {
+        if (!sessionId) return;
+        const now = Date.now();
+        const duration = Math.floor((now - sessionStartTime) / 1000); // in seconds
+        sessionRef.update({
+            endTime: now,
+            duration: duration
+        });
+    };
+
+    // Update every 30 seconds
+    setInterval(updateSession, 30000);
+
+    // Update on page visibility change
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+            updateSession();
+        }
+    });
+
+    // Update on beforeunload
+    window.addEventListener('beforeunload', updateSession);
+
+    // Increment visit count
+    database.ref(`analytics/${user}/totalVisits`).transaction(count => (count || 0) + 1);
+    database.ref(`analytics/${user}/lastVisit`).set(Date.now());
+}
+
+function trackPageView(pageName) {
+    const user = getCurrentUser();
+    if (!user || isCuratorAccess() || !sessionId) return;
+
+    // Increment page views for this session
+    database.ref(`analytics/${user}/sessions/${sessionId}/pageViews`).transaction(count => (count || 0) + 1);
+    database.ref(`analytics/${user}/totalPageViews`).transaction(count => (count || 0) + 1);
+}
+
+function trackArticleClick(articleId, articleTitle) {
+    const user = getCurrentUser();
+    if (!user || isCuratorAccess() || !sessionId) return;
+
+    // Increment article clicks for this session
+    database.ref(`analytics/${user}/sessions/${sessionId}/articleClicks`).transaction(count => (count || 0) + 1);
+    database.ref(`analytics/${user}/totalArticleClicks`).transaction(count => (count || 0) + 1);
+
+    // Log the specific article clicked
+    database.ref(`analytics/${user}/clickedArticles/${articleId}`).transaction(data => {
+        if (!data) {
+            return { title: articleTitle, clicks: 1, lastClicked: Date.now() };
+        }
+        return { ...data, clicks: (data.clicks || 0) + 1, lastClicked: Date.now() };
+    });
+}
+
+function trackReaction(articleId) {
+    const user = getCurrentUser();
+    if (!user || isCuratorAccess() || !sessionId) return;
+
+    database.ref(`analytics/${user}/sessions/${sessionId}/reactionsGiven`).transaction(count => (count || 0) + 1);
+    database.ref(`analytics/${user}/totalReactions`).transaction(count => (count || 0) + 1);
+}
+
+// Analytics data subscription for curator dashboard
+function subscribeToAnalytics(callback) {
+    database.ref('analytics').on('value', (snapshot) => {
+        const data = snapshot.val() || {};
+        callback(data);
+    });
+}
+
+function initAnalyticsListener() {
+    subscribeToAnalytics((data) => {
+        analyticsCache = data;
+        // Update dashboard if visible
+        if (typeof updateAnalyticsDashboard === 'function') {
+            updateAnalyticsDashboard();
+        }
+    });
+}
+
+function getAnalyticsForUser(userName) {
+    return analyticsCache[userName] || null;
+}
+
+function getAllAnalytics() {
+    return analyticsCache;
+}
+
+// Calculate summary stats for a user
+function getUserAnalyticsSummary(userName) {
+    const data = analyticsCache[userName];
+    if (!data) {
+        return {
+            totalVisits: 0,
+            totalPageViews: 0,
+            totalArticleClicks: 0,
+            totalReactions: 0,
+            avgSessionDuration: 0,
+            lastVisit: null
+        };
+    }
+
+    // Calculate average session duration
+    let totalDuration = 0;
+    let sessionCount = 0;
+    if (data.sessions) {
+        Object.values(data.sessions).forEach(session => {
+            if (session.duration) {
+                totalDuration += session.duration;
+                sessionCount++;
+            }
+        });
+    }
+
+    return {
+        totalVisits: data.totalVisits || 0,
+        totalPageViews: data.totalPageViews || 0,
+        totalArticleClicks: data.totalArticleClicks || 0,
+        totalReactions: data.totalReactions || 0,
+        avgSessionDuration: sessionCount > 0 ? Math.floor(totalDuration / sessionCount) : 0,
+        lastVisit: data.lastVisit || null,
+        sessionCount: sessionCount
+    };
+}
+
+// Get consolidated analytics across all users
+function getConsolidatedAnalytics() {
+    let totals = {
+        totalVisits: 0,
+        totalPageViews: 0,
+        totalArticleClicks: 0,
+        totalReactions: 0,
+        totalSessionDuration: 0,
+        sessionCount: 0,
+        activeUsers: 0
+    };
+
+    Object.entries(analyticsCache).forEach(([userName, data]) => {
+        totals.totalVisits += data.totalVisits || 0;
+        totals.totalPageViews += data.totalPageViews || 0;
+        totals.totalArticleClicks += data.totalArticleClicks || 0;
+        totals.totalReactions += data.totalReactions || 0;
+
+        if (data.sessions) {
+            Object.values(data.sessions).forEach(session => {
+                if (session.duration) {
+                    totals.totalSessionDuration += session.duration;
+                    totals.sessionCount++;
+                }
+            });
+        }
+
+        if (data.totalVisits > 0) {
+            totals.activeUsers++;
+        }
+    });
+
+    totals.avgSessionDuration = totals.sessionCount > 0
+        ? Math.floor(totals.totalSessionDuration / totals.sessionCount)
+        : 0;
+
+    return totals;
+}

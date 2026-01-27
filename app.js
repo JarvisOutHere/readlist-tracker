@@ -576,7 +576,13 @@ function createArticleCard(article) {
             card.appendChild(popup);
         };
     } else if (article.url) {
-        contentDiv.onclick = () => window.open(article.url, '_blank');
+        contentDiv.onclick = () => {
+            // Track article click
+            if (typeof trackArticleClick === 'function') {
+                trackArticleClick(article.id, article.title);
+            }
+            window.open(article.url, '_blank');
+        };
         contentDiv.style.cursor = 'pointer';
     }
 
@@ -609,6 +615,10 @@ function createArticleCard(article) {
                 removeReadStatus(articleId);
             } else {
                 markAsRead(articleId, action);
+                // Track reaction
+                if (typeof trackReaction === 'function') {
+                    trackReaction(articleId);
+                }
             }
         };
     });
@@ -870,6 +880,10 @@ function handleCategoryClick(event) {
     currentCategory = categoryItem.dataset.category;
     updateActiveCategory();
     renderArticles();
+    // Track page view
+    if (typeof trackPageView === 'function') {
+        trackPageView(currentCategory);
+    }
 }
 
 function showModal() {
@@ -1368,4 +1382,200 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     if (thoughtsCloseBtn) thoughtsCloseBtn.onclick = hideThoughtsPopup;
     if (saveThoughtsBtn) saveThoughtsBtn.onclick = saveUserThoughtsHandler;
+
+    // Initialize analytics
+    if (typeof initAnalytics === 'function') {
+        initAnalytics();
+    }
+    if (typeof initAnalyticsListener === 'function') {
+        initAnalyticsListener();
+    }
+
+    // Initialize analytics dashboard for curator
+    initAnalyticsDashboard();
 });
+
+// ========================================
+// Analytics Dashboard Functions
+// ========================================
+function initAnalyticsDashboard() {
+    const dashboard = document.getElementById('analytics-dashboard');
+    const toggle = document.getElementById('analytics-toggle');
+    const content = document.getElementById('analytics-content');
+    const tabs = document.querySelectorAll('.analytics-tab');
+    const userSelect = document.getElementById('analytics-user-select');
+
+    // Only show for curator
+    if (!isCuratorAccess()) {
+        if (dashboard) dashboard.remove();
+        return;
+    }
+
+    // Show dashboard
+    if (dashboard) dashboard.classList.remove('hidden');
+
+    // Toggle expand/collapse
+    if (toggle && content) {
+        toggle.onclick = () => {
+            dashboard.classList.toggle('expanded');
+            content.classList.toggle('collapsed');
+        };
+    }
+
+    // Tab switching
+    tabs.forEach(tab => {
+        tab.onclick = () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            const consolidatedPanel = document.getElementById('consolidated-panel');
+            const individualPanel = document.getElementById('individual-panel');
+
+            if (tab.dataset.tab === 'consolidated') {
+                consolidatedPanel.classList.remove('hidden');
+                individualPanel.classList.add('hidden');
+            } else {
+                consolidatedPanel.classList.add('hidden');
+                individualPanel.classList.remove('hidden');
+            }
+        };
+    });
+
+    // Populate user select
+    if (userSelect) {
+        userSelect.innerHTML = '<option value="">-- Select User --</option>';
+        INVITEES.forEach(userName => {
+            const option = document.createElement('option');
+            option.value = userName;
+            option.textContent = userName;
+            userSelect.appendChild(option);
+        });
+
+        userSelect.onchange = () => {
+            renderUserStats(userSelect.value);
+        };
+    }
+
+    // Initial render
+    updateAnalyticsDashboard();
+}
+
+function updateAnalyticsDashboard() {
+    if (!isCuratorAccess()) return;
+
+    renderConsolidatedStats();
+
+    // Also update individual user stats if one is selected
+    const userSelect = document.getElementById('analytics-user-select');
+    if (userSelect && userSelect.value) {
+        renderUserStats(userSelect.value);
+    }
+}
+
+function formatDuration(seconds) {
+    if (seconds < 60) return `${seconds}s`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    return `${hrs}h ${mins}m`;
+}
+
+function formatLastVisit(timestamp) {
+    if (!timestamp) return 'Never';
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffHours < 1) return 'Just now';
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+}
+
+function renderConsolidatedStats() {
+    const container = document.getElementById('consolidated-stats');
+    if (!container) return;
+
+    const stats = typeof getConsolidatedAnalytics === 'function'
+        ? getConsolidatedAnalytics()
+        : { totalVisits: 0, totalPageViews: 0, totalArticleClicks: 0, totalReactions: 0, avgSessionDuration: 0, activeUsers: 0 };
+
+    container.innerHTML = `
+        <div class="analytics-stat">
+            <div class="analytics-stat-value">${stats.activeUsers}</div>
+            <div class="analytics-stat-label">Active Users</div>
+        </div>
+        <div class="analytics-stat">
+            <div class="analytics-stat-value">${stats.totalVisits}</div>
+            <div class="analytics-stat-label">Total Visits</div>
+        </div>
+        <div class="analytics-stat">
+            <div class="analytics-stat-value">${stats.totalPageViews}</div>
+            <div class="analytics-stat-label">Page Views</div>
+        </div>
+        <div class="analytics-stat">
+            <div class="analytics-stat-value">${stats.totalArticleClicks}</div>
+            <div class="analytics-stat-label">Articles Opened</div>
+        </div>
+        <div class="analytics-stat">
+            <div class="analytics-stat-value">${stats.totalReactions}</div>
+            <div class="analytics-stat-label">Reactions</div>
+        </div>
+        <div class="analytics-stat">
+            <div class="analytics-stat-value">${formatDuration(stats.avgSessionDuration)}</div>
+            <div class="analytics-stat-label">Avg Session</div>
+        </div>
+    `;
+}
+
+function renderUserStats(userName) {
+    const container = document.getElementById('user-stats');
+    if (!container) return;
+
+    if (!userName) {
+        container.innerHTML = '<div class="analytics-empty">Select a user to view their stats</div>';
+        return;
+    }
+
+    const stats = typeof getUserAnalyticsSummary === 'function'
+        ? getUserAnalyticsSummary(userName)
+        : { totalVisits: 0, totalPageViews: 0, totalArticleClicks: 0, totalReactions: 0, avgSessionDuration: 0, lastVisit: null };
+
+    if (stats.totalVisits === 0) {
+        container.innerHTML = `<div class="analytics-empty">${userName} hasn't visited yet</div>`;
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="analytics-stat full-width">
+            <div class="analytics-stat-value">${formatLastVisit(stats.lastVisit)}</div>
+            <div class="analytics-stat-label">Last Visit</div>
+        </div>
+        <div class="analytics-stat">
+            <div class="analytics-stat-value">${stats.totalVisits}</div>
+            <div class="analytics-stat-label">Visits</div>
+        </div>
+        <div class="analytics-stat">
+            <div class="analytics-stat-value">${stats.sessionCount || 0}</div>
+            <div class="analytics-stat-label">Sessions</div>
+        </div>
+        <div class="analytics-stat">
+            <div class="analytics-stat-value">${stats.totalPageViews}</div>
+            <div class="analytics-stat-label">Page Views</div>
+        </div>
+        <div class="analytics-stat">
+            <div class="analytics-stat-value">${stats.totalArticleClicks}</div>
+            <div class="analytics-stat-label">Articles</div>
+        </div>
+        <div class="analytics-stat">
+            <div class="analytics-stat-value">${stats.totalReactions}</div>
+            <div class="analytics-stat-label">Reactions</div>
+        </div>
+        <div class="analytics-stat">
+            <div class="analytics-stat-value">${formatDuration(stats.avgSessionDuration)}</div>
+            <div class="analytics-stat-label">Avg Session</div>
+        </div>
+    `;
+}

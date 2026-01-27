@@ -90,6 +90,37 @@
                 </div>
             </div>
         </div>
+
+        <!-- Analytics Dashboard (bottom-left, curator only) -->
+        <div class="analytics-dashboard hidden" id="analytics-dashboard">
+            <div class="analytics-toggle" id="analytics-toggle">
+                <span>📊 Analytics</span>
+                <span class="toggle-arrow">▲</span>
+            </div>
+            <div class="analytics-content collapsed" id="analytics-content">
+                <div class="analytics-tabs">
+                    <button class="analytics-tab active" data-tab="consolidated">All Users</button>
+                    <button class="analytics-tab" data-tab="individual">By User</button>
+                </div>
+
+                <!-- Consolidated View -->
+                <div class="analytics-panel" id="consolidated-panel">
+                    <div class="analytics-grid" id="consolidated-stats">
+                        <!-- Stats rendered by JS -->
+                    </div>
+                </div>
+
+                <!-- Individual User View -->
+                <div class="analytics-panel hidden" id="individual-panel">
+                    <select class="analytics-user-select" id="analytics-user-select">
+                        <option value="">-- Select User --</option>
+                    </select>
+                    <div class="analytics-grid" id="user-stats">
+                        <!-- User stats rendered by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- Main App -->
