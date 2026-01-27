@@ -1250,90 +1250,35 @@ function showUserReactionsPopup(userName) {
 
     if (!overlay || !popup || !content) return;
 
-    // Get user's thoughts and favorite
+    // Get user's favorite article
     const userThoughts = getUserThoughts(userName);
     const favoriteArticle = userThoughts.favoriteArticleId
         ? articles.find(a => a.id === userThoughts.favoriteArticleId)
         : null;
 
-    title.textContent = `${userName}'s Reactions`;
+    title.textContent = `${userName}'s Favorite`;
 
-    // Get user reactions
-    const reactions = getUserReactions(userName);
-    const totalReactions = reactions.liked.length + reactions.neutral.length + reactions.disliked.length;
-    const hasThoughts = userThoughts.thoughts || favoriteArticle;
-
-    if (totalReactions === 0 && !hasThoughts) {
-        // Empty state with animated figure
-        const pronoun = getPronoun(userName);
+    if (favoriteArticle) {
+        // Show the favorite article as a tile-style card
         content.innerHTML = `
-            <div class="reactions-empty">
-                <div class="reactions-empty-figure">👻</div>
-                <div class="reactions-empty-text">Boo, ${pronoun} hasn't done anything so far.</div>
-                <div class="reactions-empty-disclaimer">Don't worry, ${pronoun}'s being booed on ${pronoun === 'he' ? 'his' : 'her'} own screen as well.</div>
+            <div class="favorite-tile">
+                <div class="favorite-tile-star">⭐</div>
+                <div class="favorite-tile-title">${favoriteArticle.title}</div>
+                <div class="favorite-tile-description">${favoriteArticle.description || ''}</div>
+                ${favoriteArticle.url ? `<a href="${favoriteArticle.url}" target="_blank" rel="noopener" class="favorite-tile-link">Read Article →</a>` : ''}
             </div>
         `;
     } else {
-        let html = '';
-
-        // Show favorite article first if exists
-        if (favoriteArticle) {
-            html += `
-                <div class="reactions-section">
-                    <div class="reactions-section-title liked">
-                        <span class="reaction-icon">⭐</span> Favorite Article
-                    </div>
-                    <div class="reaction-article">${favoriteArticle.title}</div>
-                </div>
-            `;
-        }
-
-        // Show thoughts if exists
-        if (userThoughts.thoughts) {
-            html += `
-                <div class="reactions-section">
-                    <div class="reactions-section-title">
-                        <span class="reaction-icon">💭</span> Thoughts
-                    </div>
-                    <div class="reaction-article" style="white-space: pre-wrap;">${userThoughts.thoughts}</div>
-                </div>
-            `;
-        }
-
-        if (reactions.liked.length > 0) {
-            html += `
-                <div class="reactions-section">
-                    <div class="reactions-section-title liked">
-                        <span class="reaction-icon">✓</span> Liked (${reactions.liked.length})
-                    </div>
-                    ${reactions.liked.map(a => `<div class="reaction-article">${a.title}</div>`).join('')}
-                </div>
-            `;
-        }
-
-        if (reactions.neutral.length > 0) {
-            html += `
-                <div class="reactions-section">
-                    <div class="reactions-section-title neutral">
-                        <span class="reaction-icon">—</span> Neutral (${reactions.neutral.length})
-                    </div>
-                    ${reactions.neutral.map(a => `<div class="reaction-article">${a.title}</div>`).join('')}
-                </div>
-            `;
-        }
-
-        if (reactions.disliked.length > 0) {
-            html += `
-                <div class="reactions-section">
-                    <div class="reactions-section-title disliked">
-                        <span class="reaction-icon">✗</span> Disliked (${reactions.disliked.length})
-                    </div>
-                    ${reactions.disliked.map(a => `<div class="reaction-article">${a.title}</div>`).join('')}
-                </div>
-            `;
-        }
-
-        content.innerHTML = html;
+        // User has activity but no favorite selected
+        const pronoun = getPronoun(userName);
+        const possessive = pronoun === 'he' ? 'his' : 'her';
+        content.innerHTML = `
+            <div class="favorite-tile favorite-tile-empty">
+                <div class="favorite-tile-star">📖</div>
+                <div class="favorite-tile-title">${userName} hasn't picked a favorite yet</div>
+                <div class="favorite-tile-description">Check back later to see what ${pronoun} chooses as ${possessive} favorite article!</div>
+            </div>
+        `;
     }
 
     overlay.classList.remove('hidden');
@@ -1355,9 +1300,8 @@ function showThoughtsPopup() {
     const popup = document.getElementById('thoughts-popup');
     const overlay = document.getElementById('reactions-overlay');
     const select = document.getElementById('favorite-article-select');
-    const textarea = document.getElementById('thoughts-textarea');
 
-    if (!popup || !select || !textarea) return;
+    if (!popup || !select) return;
 
     const currentUser = getCurrentUser();
     const userThoughts = getUserThoughts(currentUser);
@@ -1376,9 +1320,6 @@ function showThoughtsPopup() {
         }
     });
 
-    // Set existing thoughts
-    textarea.value = userThoughts.thoughts || '';
-
     if (overlay) overlay.classList.remove('hidden');
     popup.classList.remove('hidden');
 }
@@ -1393,21 +1334,19 @@ function hideThoughtsPopup() {
 
 function saveUserThoughtsHandler() {
     const select = document.getElementById('favorite-article-select');
-    const textarea = document.getElementById('thoughts-textarea');
     const currentUser = getCurrentUser();
 
-    if (!currentUser || !select || !textarea) return;
+    if (!currentUser || !select) return;
 
     const favoriteId = select.value ? parseInt(select.value) : null;
-    const thoughts = textarea.value.trim();
 
-    saveUserThoughts(currentUser, thoughts, favoriteId)
+    saveUserThoughts(currentUser, '', favoriteId)
         .then(() => {
             hideThoughtsPopup();
             updateNoticeBoards();
         })
         .catch(err => {
-            console.error('Failed to save thoughts:', err);
+            console.error('Failed to save favorite:', err);
         });
 }
 

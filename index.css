@@ -1825,3 +1825,63 @@ body {
     color: var(--text-muted);
     font-style: italic;
 }
+
+/* Favorite Tile - for displaying invitee's favorite article */
+.favorite-tile {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.favorite-tile-star {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.favorite-tile-title {
+    font-family: var(--font-heading);
+    font-size: 1.125rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+}
+
+.favorite-tile-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.favorite-tile-link {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    background: var(--accent-primary);
+    color: white;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.favorite-tile-link:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+}
+
+.favorite-tile-empty {
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(139, 90, 43, 0.05) 100%);
+}
+
+.favorite-tile-empty .favorite-tile-title {
+    color: var(--text-secondary);
+}
+
+.favorite-tile-empty .favorite-tile-description {
+    color: var(--text-muted);
+    font-style: italic;
+}
