@@ -35,6 +35,7 @@ const USER_INFO = {
 // Magic link tokens - share these unique links with friends
 const USER_TOKENS = {
     "t9m4x": "Tanmay",    // Tanmay (regular user access, not curator)
+    "tanmay": "Tanmay",   // Tanmay alias for convenience
     "a6t3v": "Avantheka",
     "c4w8j": "Cicily",
     "h5d2m": "Himadri",
