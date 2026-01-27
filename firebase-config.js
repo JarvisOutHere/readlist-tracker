@@ -19,7 +19,7 @@ const database = firebase.database();
 // ========================================
 // User Management with Magic Links
 // ========================================
-const USERS = ["Avantheka", "Cicily", "Himadri"]; // Friends list (excluding Tanmay who is curator)
+const USERS = ["Avantheka", "Cicily", "Himadri", "Kashvi", "Achyut"]; // Friends list (excluding Tanmay who is curator)
 const CURATOR = "Tanmay"; // You - the person who adds articles
 
 // User info with gender for pronouns
@@ -27,7 +27,9 @@ const USER_INFO = {
     "Tanmay": { gender: "male", token: "t9m4x" },
     "Avantheka": { gender: "female", token: "a6t3v" },
     "Cicily": { gender: "female", token: "c4w8j" },
-    "Himadri": { gender: "male", token: "h5d2m" }
+    "Himadri": { gender: "male", token: "h5d2m" },
+    "Kashvi": { gender: "female", token: "k7v9f" },
+    "Achyut": { gender: "male", token: "y3m8q" }
 };
 
 // Magic link tokens - share these unique links with friends
@@ -35,14 +37,16 @@ const USER_TOKENS = {
     "t9m4x": "Tanmay",    // Tanmay (regular user access, not curator)
     "a6t3v": "Avantheka",
     "c4w8j": "Cicily",
-    "h5d2m": "Himadri"
+    "h5d2m": "Himadri",
+    "k7v9f": "Kashvi",
+    "y3m8q": "Achyut"
 };
 
 // Curator/parent access token
 const CURATOR_TOKEN = "curator_x7z9q";
 
 // All invitees for the notice board
-const INVITEES = ["Tanmay", "Avantheka", "Cicily", "Himadri"];
+const INVITEES = ["Tanmay", "Avantheka", "Cicily", "Himadri", "Kashvi", "Achyut"];
 
 // Check URL for magic link token
 function getUserFromToken() {
