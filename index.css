@@ -597,15 +597,15 @@ body {
     margin-bottom: 0;
 }
 
-/* Bottom nav items - brownish tint */
+/* Bottom nav items - dark brownish tint */
 .sidebar-bottom-nav .nav-toggle {
-    background: rgba(139, 90, 43, 0.08);
-    border-color: rgba(139, 90, 43, 0.25);
+    background: rgba(100, 65, 30, 0.25);
+    border-color: rgba(100, 65, 30, 0.5);
 }
 
 .sidebar-bottom-nav .nav-toggle:hover {
-    background: rgba(139, 90, 43, 0.15);
-    border-color: rgba(139, 90, 43, 0.4);
+    background: rgba(100, 65, 30, 0.35);
+    border-color: rgba(100, 65, 30, 0.65);
 }
 
 /* ========================================
@@ -635,11 +635,11 @@ body {
 /* Bottom nav items (Books, YouTube) - Shimmer slide animation */
 .sidebar-bottom-nav .nav-toggle.active {
     background: linear-gradient(90deg,
-            rgba(139, 90, 43, 0.15) 0%,
-            rgba(139, 90, 43, 0.25) 50%,
-            rgba(139, 90, 43, 0.15) 100%);
+            rgba(100, 65, 30, 0.3) 0%,
+            rgba(100, 65, 30, 0.45) 50%,
+            rgba(100, 65, 30, 0.3) 100%);
     background-size: 200% 100%;
-    border-color: rgba(139, 90, 43, 0.5);
+    border-color: rgba(100, 65, 30, 0.7);
     animation: shimmerSlide 2s linear infinite;
 }
 

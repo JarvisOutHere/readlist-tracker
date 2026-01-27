@@ -420,6 +420,9 @@ let isCuratedView = false;
 // Helper Functions
 // ========================================
 function getCategoryDisplayName(category) {
+    if (category === 'articles-landing') {
+        return 'Articles';
+    }
     return CATEGORIES[category]?.name || category;
 }
 
@@ -651,6 +654,18 @@ function renderArticles() {
 
     // Remove filmreel class for regular views
     articlesGrid.classList.remove('curated-filmreel');
+
+    // Handle Articles landing page
+    if (currentCategory === 'articles-landing') {
+        articlesGrid.innerHTML = `
+            <div class="welcome-prompt articles-landing">
+                <div class="welcome-icon">📚</div>
+                <h3>Choose a Subcategory to Proceed</h3>
+                <p>Select one of the article subcategories from the expanded menu on the left.</p>
+            </div>
+        `;
+        return;
+    }
 
     if (!currentCategory) {
         articlesGrid.innerHTML = `
@@ -1085,6 +1100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toggle.addEventListener('click', () => {
             const section = toggle.closest('.nav-section');
             const subcategoryList = section.querySelector('.subcategory-list');
+            const toggleType = toggle.dataset.toggle;
 
             if (subcategoryList) {
                 const isExpanded = section.classList.contains('expanded');
@@ -1110,6 +1126,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     section.classList.add('expanded');
                     subcategoryList.classList.remove('collapsed');
                     subcategoryList.classList.add('expanded');
+
+                    // Show Articles landing page when expanding
+                    if (toggleType === 'articles') {
+                        isCuratedView = false;
+                        currentCategory = 'articles-landing';
+                        updateActiveCategory();
+                        renderArticles();
+                    }
                 }
             }
         });
