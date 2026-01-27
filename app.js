@@ -64,7 +64,7 @@ const articles = [
         description: "How value investing philosophy evolves when held seriously over decades. Not the Warren Buffett mythology, but the messy reality of changing your mind while staying principled.",
         url: "https://sagesaigal.substack.com/p/evolution-of-a-value-investor-presentation",
         source: "Anshul's Substack",
-        category: "core-finance"
+        category: "fin-econ-geopolity"
     },
     {
         id: 9,
@@ -319,7 +319,7 @@ const articles = [
         description: "Religious fundamentalism alone doesn't explain Pakistan's economic underperformance. Structural factors—high fertility, remittance dependency creating Dutch disease, military rent extraction, and geopolitical aid dependency—matter more than ideology in explaining why reforms never stick.",
         url: "https://rshinde.substack.com/p/the-puzzle-of-pakistans-poverty",
         source: "Rohit Shinde",
-        category: "food-for-thought"
+        category: "fin-econ-geopolity"
     },
     {
         id: 39,
@@ -327,7 +327,7 @@ const articles = [
         description: "India must prioritize growth above all else to achieve developed-nation status. Currency appreciation, expensive electricity, labor unions, and restrictive construction norms hinder manufacturing. With declining fertility, there's urgency—economic growth automatically improves every other outcome you care about.",
         url: "https://rshinde.substack.com/p/for-india-only-economic-growth-matters",
         source: "Rohit Shinde",
-        category: "food-for-thought"
+        category: "fin-econ-geopolity"
     },
     {
         id: 40,
@@ -335,7 +335,7 @@ const articles = [
         description: "Comparing India and China's development trajectories since the 1970s. India is adopting similar strategies—infrastructure, PLI schemes, education reforms—but faces de-globalization headwinds. Sustained 8% growth for two decades is needed to reach high-income status.",
         url: "https://rshinde.substack.com/p/is-india-following-chinas-path-to",
         source: "Rohit Shinde",
-        category: "food-for-thought"
+        category: "fin-econ-geopolity"
     },
     {
         id: 41,
@@ -343,7 +343,7 @@ const articles = [
         description: "China faces an unprecedented economic crisis from investment-driven growth funded through shadow banking. With traditional engines exhausted and no access to advanced semiconductors, Beijing may pursue military action against Taiwan to seize TSMC's sub-7nm manufacturing ecosystem.",
         url: "https://substack.com/home/post/p-181489135",
         source: "Rohit Shinde",
-        category: "food-for-thought"
+        category: "fin-econ-geopolity"
     },
     {
         id: 42,
@@ -376,7 +376,7 @@ const CATEGORIES = {
     'interesting-businesses': { name: 'Interesting Businesses', emoji: '🏢' },
     'ai': { name: 'AI', emoji: '🤖' },
     'intrapersonal': { name: 'Intrapersonal', emoji: '🧘' },
-    'core-finance': { name: 'Core Finance', emoji: '📈' },
+    'fin-econ-geopolity': { name: 'Fin-Econ-(Geo)Polity', emoji: '📈' },
     'food-for-thought': { name: 'Food for Thought', emoji: '💭' },
     'yt-long-form': { name: 'YT Long Form', emoji: '🎬' },
     'books': { name: 'Books', emoji: '📚' }
@@ -481,7 +481,7 @@ function updateStats() {
     // Update total articles count (excluding books and youtube)
     const totalArticlesCountEl = document.getElementById('count-articles-total');
     if (totalArticlesCountEl) {
-        const articleCategories = ['interesting-businesses', 'ai', 'intrapersonal', 'core-finance', 'food-for-thought'];
+        const articleCategories = ['interesting-businesses', 'ai', 'intrapersonal', 'fin-econ-geopolity', 'food-for-thought'];
         const total = articleCategories.reduce((sum, cat) => sum + countArticlesByCategory(cat), 0);
         totalArticlesCountEl.textContent = total;
     }
