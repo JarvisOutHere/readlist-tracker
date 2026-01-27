@@ -54,7 +54,7 @@
         <!-- Inactive Invitees Board (top-left) -->
         <div class="notice-board notice-board-left" id="inactive-board">
             <div class="notice-board-toggle" id="inactive-toggle">
-                <span>Inactive</span>
+                <span>Inactive Invitees</span>
                 <span class="toggle-arrow">▼</span>
             </div>
             <div class="notice-board-content collapsed" id="inactive-content">
@@ -80,15 +80,20 @@
         <!-- Active Invitees Board (top-right) -->
         <div class="notice-board notice-board-right" id="active-board">
             <div class="notice-board-toggle" id="active-toggle">
-                <span>Invitees</span>
+                <span>Active Invitees</span>
                 <span class="toggle-arrow">▼</span>
             </div>
             <div class="notice-board-content collapsed" id="active-content">
                 <div class="notice-board-users" id="active-users">
                     <!-- Active users rendered by JS -->
                 </div>
-                <div class="click-hint">Click on it!</div>
             </div>
+        </div>
+
+        <!-- Profile Box (bottom-right) -->
+        <div class="profile-box" id="profile-box">
+            <div class="profile-name" id="profile-name"><!-- Rendered by JS --></div>
+            <div class="profile-hint">Click on it!</div>
         </div>
 
         <!-- User Reactions Popup (hidden by default) -->

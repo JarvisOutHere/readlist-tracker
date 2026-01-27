@@ -1178,8 +1178,6 @@ function updateNoticeBoards() {
     activeUsersEl.innerHTML = '';
     inactiveUsersEl.innerHTML = '';
 
-    const currentUser = getCurrentUser();
-
     INVITEES.forEach(userName => {
         const hasActivity = hasUserActivity(userName);
         const targetEl = hasActivity ? activeUsersEl : inactiveUsersEl;
@@ -1188,15 +1186,8 @@ function updateNoticeBoards() {
         userDiv.className = 'notice-board-user';
         userDiv.textContent = userName;
 
-        // If clicking on yourself, open thoughts popup
-        // If clicking on someone else, show their reactions/thoughts
-        userDiv.onclick = () => {
-            if (userName === currentUser && !isCuratorAccess()) {
-                showThoughtsPopup();
-            } else {
-                showUserReactionsPopup(userName);
-            }
-        };
+        // Always show reactions/thoughts popup when clicking names in list
+        userDiv.onclick = () => showUserReactionsPopup(userName);
 
         targetEl.appendChild(userDiv);
     });
@@ -1225,8 +1216,30 @@ function initNoticeBoards() {
         };
     }
 
+    // Initialize profile box
+    initProfileBox();
+
     // Initial render
     updateNoticeBoards();
+}
+
+function initProfileBox() {
+    const profileBox = document.getElementById('profile-box');
+    const profileName = document.getElementById('profile-name');
+    const currentUser = getCurrentUser();
+
+    if (!profileBox || !profileName) return;
+
+    // Hide profile box if no user logged in or if curator
+    if (!currentUser || isCuratorAccess()) {
+        profileBox.style.display = 'none';
+        return;
+    }
+
+    profileName.textContent = currentUser;
+
+    // Clicking profile box opens thoughts popup
+    profileBox.onclick = () => showThoughtsPopup();
 }
 
 function showUserReactionsPopup(userName) {
