@@ -1358,41 +1358,79 @@ body {
 }
 
 /* ========================================
-   Notice Board - Minimalist Style
+   Notice Boards - Collapsible Style
    ======================================== */
 .notice-board {
     position: fixed;
     top: 20px;
-    right: 20px;
-    width: 180px;
     z-index: 100;
 }
 
-.notice-board-plank {
+.notice-board-right {
+    right: 20px;
+}
+
+.notice-board-left {
+    left: 20px;
+}
+
+.notice-board-toggle {
     background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    box-shadow: var(--shadow-soft);
+    transition: all var(--transition-fast);
+    min-width: 100px;
+}
+
+.notice-board-toggle:hover {
+    background: var(--bg-secondary);
+}
+
+.notice-board-toggle .toggle-arrow {
+    font-size: 0.625rem;
+    transition: transform var(--transition-fast);
+}
+
+.notice-board.expanded .toggle-arrow {
+    transform: rotate(180deg);
+}
+
+.notice-board-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 1rem;
+    margin-top: 0.5rem;
     box-shadow: var(--shadow-soft);
-    border: 1px solid var(--border-color);
+    max-height: 300px;
+    overflow-y: auto;
+    animation: slideDown 0.2s ease;
 }
 
-/* Hide rope and texture */
-.notice-board-plank::before {
+.notice-board-content.collapsed {
     display: none;
 }
 
-.notice-board-rope {
-    display: none;
-}
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
 
-.notice-board-title {
-    font-family: var(--font-heading);
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    text-align: center;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border-color);
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .notice-board-users {
@@ -1419,8 +1457,132 @@ body {
     color: var(--accent-primary);
 }
 
-.notice-board-user-icon {
-    display: none;
+/* Click hint */
+.click-hint {
+    text-align: center;
+    font-size: 0.6875rem;
+    font-style: italic;
+    color: var(--text-muted);
+    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Inactive board boo figure */
+.inactive-boo-figure {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+}
+
+.boo-stick-figure {
+    opacity: 0.7;
+}
+
+/* Thoughts Popup */
+.thoughts-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    min-width: 340px;
+    max-width: 400px;
+    box-shadow: var(--shadow-elevated);
+    z-index: 1002;
+    animation: popupIn 0.25s ease;
+}
+
+.thoughts-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.thoughts-popup-title {
+    font-family: var(--font-heading);
+    font-size: 1.125rem;
+    color: var(--text-primary);
+}
+
+.thoughts-popup-close {
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: all var(--transition-fast);
+}
+
+.thoughts-popup-close:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.thoughts-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.thoughts-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+
+.thoughts-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    font-family: var(--font-body);
+    resize: vertical;
+    margin-bottom: 1rem;
+}
+
+.thoughts-textarea:focus,
+.thoughts-select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.thoughts-save-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.thoughts-save-btn:hover {
+    background: var(--accent-hover);
 }
 
 /* User Reactions Popup */

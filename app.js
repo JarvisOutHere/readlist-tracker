@@ -1169,19 +1169,64 @@ renderArticles = function () {
 // ========================================
 // Notice Board Functions
 // ========================================
-function initNoticeBoard() {
-    const noticeBoardUsers = document.getElementById('notice-board-users');
-    if (!noticeBoardUsers) return;
+function updateNoticeBoards() {
+    const activeUsersEl = document.getElementById('active-users');
+    const inactiveUsersEl = document.getElementById('inactive-users');
 
-    noticeBoardUsers.innerHTML = '';
+    if (!activeUsersEl || !inactiveUsersEl) return;
+
+    activeUsersEl.innerHTML = '';
+    inactiveUsersEl.innerHTML = '';
+
+    const currentUser = getCurrentUser();
 
     INVITEES.forEach(userName => {
+        const hasActivity = hasUserActivity(userName);
+        const targetEl = hasActivity ? activeUsersEl : inactiveUsersEl;
+
         const userDiv = document.createElement('div');
         userDiv.className = 'notice-board-user';
         userDiv.textContent = userName;
-        userDiv.onclick = () => showUserReactionsPopup(userName);
-        noticeBoardUsers.appendChild(userDiv);
+
+        // If clicking on yourself, open thoughts popup
+        // If clicking on someone else, show their reactions/thoughts
+        userDiv.onclick = () => {
+            if (userName === currentUser && !isCuratorAccess()) {
+                showThoughtsPopup();
+            } else {
+                showUserReactionsPopup(userName);
+            }
+        };
+
+        targetEl.appendChild(userDiv);
     });
+}
+
+function initNoticeBoards() {
+    // Set up toggle handlers
+    const activeToggle = document.getElementById('active-toggle');
+    const inactiveToggle = document.getElementById('inactive-toggle');
+    const activeBoard = document.getElementById('active-board');
+    const inactiveBoard = document.getElementById('inactive-board');
+    const activeContent = document.getElementById('active-content');
+    const inactiveContent = document.getElementById('inactive-content');
+
+    if (activeToggle && activeBoard && activeContent) {
+        activeToggle.onclick = () => {
+            activeBoard.classList.toggle('expanded');
+            activeContent.classList.toggle('collapsed');
+        };
+    }
+
+    if (inactiveToggle && inactiveBoard && inactiveContent) {
+        inactiveToggle.onclick = () => {
+            inactiveBoard.classList.toggle('expanded');
+            inactiveContent.classList.toggle('collapsed');
+        };
+    }
+
+    // Initial render
+    updateNoticeBoards();
 }
 
 function showUserReactionsPopup(userName) {
@@ -1192,16 +1237,22 @@ function showUserReactionsPopup(userName) {
 
     if (!overlay || !popup || !content) return;
 
+    // Get user's thoughts and favorite
+    const userThoughts = getUserThoughts(userName);
+    const favoriteArticle = userThoughts.favoriteArticleId
+        ? articles.find(a => a.id === userThoughts.favoriteArticleId)
+        : null;
+
     title.textContent = `${userName}'s Reactions`;
 
     // Get user reactions
     const reactions = getUserReactions(userName);
     const totalReactions = reactions.liked.length + reactions.neutral.length + reactions.disliked.length;
+    const hasThoughts = userThoughts.thoughts || favoriteArticle;
 
-    if (totalReactions === 0) {
+    if (totalReactions === 0 && !hasThoughts) {
         // Empty state with animated figure
         const pronoun = getPronoun(userName);
-        const capitalPronoun = pronoun.charAt(0).toUpperCase() + pronoun.slice(1);
         content.innerHTML = `
             <div class="reactions-empty">
                 <div class="reactions-empty-figure">👻</div>
@@ -1211,6 +1262,30 @@ function showUserReactionsPopup(userName) {
         `;
     } else {
         let html = '';
+
+        // Show favorite article first if exists
+        if (favoriteArticle) {
+            html += `
+                <div class="reactions-section">
+                    <div class="reactions-section-title liked">
+                        <span class="reaction-icon">⭐</span> Favorite Article
+                    </div>
+                    <div class="reaction-article">${favoriteArticle.title}</div>
+                </div>
+            `;
+        }
+
+        // Show thoughts if exists
+        if (userThoughts.thoughts) {
+            html += `
+                <div class="reactions-section">
+                    <div class="reactions-section-title">
+                        <span class="reaction-icon">💭</span> Thoughts
+                    </div>
+                    <div class="reaction-article" style="white-space: pre-wrap;">${userThoughts.thoughts}</div>
+                </div>
+            `;
+        }
 
         if (reactions.liked.length > 0) {
             html += `
@@ -1260,14 +1335,85 @@ function hideUserReactionsPopup() {
     if (popup) popup.classList.add('hidden');
 }
 
-// Initialize notice board and popup handlers on DOM load
+// ========================================
+// Thoughts Popup Functions
+// ========================================
+function showThoughtsPopup() {
+    const popup = document.getElementById('thoughts-popup');
+    const overlay = document.getElementById('reactions-overlay');
+    const select = document.getElementById('favorite-article-select');
+    const textarea = document.getElementById('thoughts-textarea');
+
+    if (!popup || !select || !textarea) return;
+
+    const currentUser = getCurrentUser();
+    const userThoughts = getUserThoughts(currentUser);
+
+    // Populate article select dropdown
+    select.innerHTML = '<option value="">-- Select your favorite --</option>';
+    articles.forEach(article => {
+        if (article.category !== 'books') { // Only include articles, not books
+            const option = document.createElement('option');
+            option.value = article.id;
+            option.textContent = article.title;
+            if (userThoughts.favoriteArticleId === article.id) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        }
+    });
+
+    // Set existing thoughts
+    textarea.value = userThoughts.thoughts || '';
+
+    if (overlay) overlay.classList.remove('hidden');
+    popup.classList.remove('hidden');
+}
+
+function hideThoughtsPopup() {
+    const popup = document.getElementById('thoughts-popup');
+    const overlay = document.getElementById('reactions-overlay');
+
+    if (popup) popup.classList.add('hidden');
+    if (overlay) overlay.classList.add('hidden');
+}
+
+function saveUserThoughtsHandler() {
+    const select = document.getElementById('favorite-article-select');
+    const textarea = document.getElementById('thoughts-textarea');
+    const currentUser = getCurrentUser();
+
+    if (!currentUser || !select || !textarea) return;
+
+    const favoriteId = select.value ? parseInt(select.value) : null;
+    const thoughts = textarea.value.trim();
+
+    saveUserThoughts(currentUser, thoughts, favoriteId)
+        .then(() => {
+            hideThoughtsPopup();
+            updateNoticeBoards();
+        })
+        .catch(err => {
+            console.error('Failed to save thoughts:', err);
+        });
+}
+
+// Initialize notice boards and popup handlers on DOM load
 document.addEventListener('DOMContentLoaded', () => {
-    initNoticeBoard();
+    initNoticeBoards();
+    initUserThoughtsListener();
 
     // Close popup handlers
     const closeBtn = document.getElementById('reactions-popup-close');
     const overlay = document.getElementById('reactions-overlay');
+    const thoughtsCloseBtn = document.getElementById('thoughts-popup-close');
+    const saveThoughtsBtn = document.getElementById('save-thoughts-btn');
 
     if (closeBtn) closeBtn.onclick = hideUserReactionsPopup;
-    if (overlay) overlay.onclick = hideUserReactionsPopup;
+    if (overlay) overlay.onclick = () => {
+        hideUserReactionsPopup();
+        hideThoughtsPopup();
+    };
+    if (thoughtsCloseBtn) thoughtsCloseBtn.onclick = hideThoughtsPopup;
+    if (saveThoughtsBtn) saveThoughtsBtn.onclick = saveUserThoughtsHandler;
 });

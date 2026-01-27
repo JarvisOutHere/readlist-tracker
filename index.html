@@ -51,14 +51,43 @@
             </button>
         </div>
 
-        <!-- Notice Board -->
-        <div class="notice-board" id="notice-board">
-            <div class="notice-board-plank">
-                <div class="notice-board-rope"></div>
-                <div class="notice-board-title">Invitees</div>
-                <div class="notice-board-users" id="notice-board-users">
-                    <!-- Users will be rendered by JS -->
+        <!-- Inactive Invitees Board (top-left) -->
+        <div class="notice-board notice-board-left" id="inactive-board">
+            <div class="notice-board-toggle" id="inactive-toggle">
+                <span>Inactive</span>
+                <span class="toggle-arrow">▼</span>
+            </div>
+            <div class="notice-board-content collapsed" id="inactive-content">
+                <div class="inactive-boo-figure">
+                    <svg width="50" height="60" viewBox="0 0 50 60" class="boo-stick-figure">
+                        <!-- Simple stick figure -->
+                        <circle cx="25" cy="10" r="8" fill="none" stroke="var(--text-muted)" stroke-width="2" />
+                        <line x1="25" y1="18" x2="25" y2="38" stroke="var(--text-muted)" stroke-width="2" />
+                        <line x1="25" y1="24" x2="12" y2="32" stroke="var(--text-muted)" stroke-width="2" />
+                        <line x1="25" y1="24" x2="38" y2="32" stroke="var(--text-muted)" stroke-width="2" />
+                        <line x1="25" y1="38" x2="15" y2="55" stroke="var(--text-muted)" stroke-width="2" />
+                        <line x1="25" y1="38" x2="35" y2="55" stroke="var(--text-muted)" stroke-width="2" />
+                        <!-- Speech bubble -->
+                        <text x="40" y="8" font-size="8" fill="var(--text-muted)" font-style="italic">Boo!</text>
+                    </svg>
                 </div>
+                <div class="notice-board-users" id="inactive-users">
+                    <!-- Inactive users rendered by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Invitees Board (top-right) -->
+        <div class="notice-board notice-board-right" id="active-board">
+            <div class="notice-board-toggle" id="active-toggle">
+                <span>Invitees</span>
+                <span class="toggle-arrow">▼</span>
+            </div>
+            <div class="notice-board-content collapsed" id="active-content">
+                <div class="notice-board-users" id="active-users">
+                    <!-- Active users rendered by JS -->
+                </div>
+                <div class="click-hint">Click on it!</div>
             </div>
         </div>
 
@@ -71,6 +100,24 @@
             </div>
             <div class="user-reactions-content" id="reactions-popup-content">
                 <!-- Content rendered by JS -->
+            </div>
+        </div>
+
+        <!-- Thoughts/Favorite Popup (for logged-in user editing their own) -->
+        <div class="thoughts-popup hidden" id="thoughts-popup">
+            <div class="thoughts-popup-header">
+                <span class="thoughts-popup-title">Your Thoughts</span>
+                <button class="thoughts-popup-close" id="thoughts-popup-close">✕</button>
+            </div>
+            <div class="thoughts-popup-content">
+                <label class="thoughts-label">Favorite Article</label>
+                <select id="favorite-article-select" class="thoughts-select">
+                    <option value="">-- Select your favorite --</option>
+                </select>
+                <label class="thoughts-label">Your Thoughts</label>
+                <textarea id="thoughts-textarea" class="thoughts-textarea"
+                    placeholder="Share what you're thinking about these reads..."></textarea>
+                <button id="save-thoughts-btn" class="thoughts-save-btn">Save</button>
             </div>
         </div>
     </section>

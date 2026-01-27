@@ -19,7 +19,7 @@ const database = firebase.database();
 // ========================================
 // User Management with Magic Links
 // ========================================
-const USERS = ["Avantheka", "Cicily", "Nicole", "Himadri"]; // Friends list (excluding Tanmay who is curator)
+const USERS = ["Avantheka", "Cicily", "Himadri"]; // Friends list (excluding Tanmay who is curator)
 const CURATOR = "Tanmay"; // You - the person who adds articles
 
 // User info with gender for pronouns
@@ -27,17 +27,14 @@ const USER_INFO = {
     "Tanmay": { gender: "male", token: "t9m4x" },
     "Avantheka": { gender: "female", token: "a6t3v" },
     "Cicily": { gender: "female", token: "c4w8j" },
-    "Nicole": { gender: "female", token: "n8k2p" },
     "Himadri": { gender: "male", token: "h5d2m" }
 };
 
 // Magic link tokens - share these unique links with friends
-// Example: readlist-tracker.vercel.app/?u=a6t3v → Avantheka
 const USER_TOKENS = {
     "t9m4x": "Tanmay",    // Tanmay (regular user access, not curator)
     "a6t3v": "Avantheka",
     "c4w8j": "Cicily",
-    "n8k2p": "Nicole",
     "h5d2m": "Himadri"
 };
 
@@ -45,7 +42,7 @@ const USER_TOKENS = {
 const CURATOR_TOKEN = "curator_x7z9q";
 
 // All invitees for the notice board
-const INVITEES = ["Tanmay", "Avantheka", "Cicily", "Nicole", "Himadri"];
+const INVITEES = ["Tanmay", "Avantheka", "Cicily", "Himadri"];
 
 // Check URL for magic link token
 function getUserFromToken() {
@@ -134,6 +131,10 @@ function initReadStatusListener() {
         if (!appSection.classList.contains('hidden')) {
             renderArticles();
         }
+        // Update notice boards when data changes
+        if (typeof updateNoticeBoards === 'function') {
+            updateNoticeBoards();
+        }
     });
 }
 
@@ -160,4 +161,40 @@ function getUserReactions(userName) {
     });
 
     return { liked, neutral, disliked };
+}
+
+// Check if user has any activity
+function hasUserActivity(userName) {
+    const reactions = getUserReactions(userName);
+    return reactions.liked.length > 0 || reactions.neutral.length > 0 || reactions.disliked.length > 0;
+}
+
+// ========================================
+// User Thoughts & Favorites
+// ========================================
+let userThoughtsCache = {};
+
+function subscribeToUserThoughts(callback) {
+    database.ref('userThoughts').on('value', (snapshot) => {
+        const data = snapshot.val() || {};
+        callback(data);
+    });
+}
+
+function initUserThoughtsListener() {
+    subscribeToUserThoughts((data) => {
+        userThoughtsCache = data;
+    });
+}
+
+function saveUserThoughts(userName, thoughts, favoriteArticleId) {
+    return database.ref(`userThoughts/${userName}`).set({
+        thoughts: thoughts || '',
+        favoriteArticleId: favoriteArticleId || null,
+        updatedAt: Date.now()
+    });
+}
+
+function getUserThoughts(userName) {
+    return userThoughtsCache[userName] || { thoughts: '', favoriteArticleId: null };
 }
