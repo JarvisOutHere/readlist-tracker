@@ -582,36 +582,19 @@ body {
     border-color: var(--accent-primary);
 }
 
-/* Curated Button Section */
-.curated-section {
+/* Sidebar Bottom Nav (Books & YouTube) */
+.sidebar-bottom-nav {
     margin-top: auto;
     padding: 1rem;
     border-top: 1px solid var(--border-color);
 }
 
-.curated-btn {
-    width: 100%;
-    padding: 0.875rem 1.25rem;
-    background: var(--accent-light);
-    border: 1px solid var(--accent-primary);
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: var(--font-body);
-    font-size: 0.9375rem;
-    font-weight: 500;
-    color: var(--accent-primary);
-    text-align: center;
-    transition: all var(--transition-fast);
+.sidebar-bottom-nav .nav-section {
+    margin-bottom: 0.5rem;
 }
 
-.curated-btn:hover {
-    background: var(--accent-primary);
-    color: white;
-}
-
-.curated-btn.active {
-    background: var(--accent-primary);
-    color: white;
+.sidebar-bottom-nav .nav-section:last-child {
+    margin-bottom: 0;
 }
 
 /* Curated Filmreel Layout */

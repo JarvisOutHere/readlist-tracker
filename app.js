@@ -697,7 +697,7 @@ function updateActiveCategory() {
     }
 
     if (isCuratedView) {
-        currentCategoryTitle.innerHTML = 'Curated Carousel<span class="curated-subtitle">A selection of favorite pieces worth revisiting</span>';
+        currentCategoryTitle.innerHTML = 'Selected Favorite Articles<span class="curated-subtitle">A selection of favorite pieces worth revisiting</span>';
     } else {
         currentCategoryTitle.innerHTML = currentCategory
             ? getCategoryDisplayName(currentCategory)
