@@ -386,29 +386,27 @@ body {
     border-bottom: 1px solid rgba(139, 90, 43, 0.3);
 }
 
-.home-btn {
+.back-arrow-btn {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-family: var(--font-heading);
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--text-primary);
+    justify-content: center;
+    width: 40px;
+    height: 40px;
     background: transparent;
-    border: 1px solid rgba(139, 90, 43, 0.3);
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
+    border: 2px solid var(--accent-primary);
+    border-radius: 50%;
     cursor: pointer;
     transition: all var(--transition-fast);
-}
-
-.home-btn:hover {
-    background: var(--accent-light);
-    border-color: var(--accent-primary);
     color: var(--accent-primary);
+    margin-left: 0.25rem;
 }
 
-.home-btn svg {
+.back-arrow-btn:hover {
+    background: var(--accent-primary);
+    color: white;
+}
+
+.back-arrow-btn svg {
     flex-shrink: 0;
 }
 
