@@ -1357,12 +1357,20 @@ body {
     opacity: 1;
 }
 
+/* Fixed-width slot to maintain consistent gaps */
+.btn-slot {
+    position: relative;
+    width: 24px;
+    height: 24px;
+}
+
 .card-action-btn {
+    position: absolute;
+    top: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0;
-    min-width: 24px;
     height: 24px;
     padding: 0 6px;
     background: var(--bg-card);
@@ -1374,6 +1382,20 @@ body {
     color: var(--accent-primary);
     overflow: hidden;
     white-space: nowrap;
+}
+
+/* Position buttons to expand in their respective directions */
+.like-btn {
+    right: 0;
+}
+
+.neutral-btn {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.dislike-btn {
+    left: 0;
 }
 
 .card-action-btn .btn-icon {
@@ -1394,19 +1416,11 @@ body {
     gap: 4px;
     padding: 0 8px;
     transform: scale(1.22);
+    z-index: 10;
 }
 
-/* Each button expands outward to maintain consistent gaps */
-.card-action-btn.like-btn {
-    transform-origin: left center;
-}
-
-.card-action-btn.neutral-btn {
-    transform-origin: center center;
-}
-
-.card-action-btn.dislike-btn {
-    transform-origin: right center;
+.neutral-btn:hover {
+    transform: translateX(-50%) scale(1.22);
 }
 
 .card-action-btn:hover .btn-text {
