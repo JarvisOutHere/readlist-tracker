@@ -369,7 +369,7 @@ const CATEGORIES = {
 const landingSection = document.getElementById('landing');
 const appSection = document.getElementById('app');
 const exploreBtn = document.getElementById('explore-btn');
-const backBtn = document.getElementById('back-btn');
+const sidebarHomeBtn = document.getElementById('sidebar-home-btn');
 const articlesGrid = document.getElementById('articles-grid');
 const categoryItems = document.querySelectorAll('.category-item');
 const currentCategoryTitle = document.getElementById('current-category');
@@ -889,7 +889,7 @@ function handleAddArticle(event) {
 // Event Listeners
 // ========================================
 exploreBtn.addEventListener('click', showApp);
-backBtn.addEventListener('click', showLanding);
+sidebarHomeBtn.addEventListener('click', showLanding);
 
 categoryItems.forEach(item => {
     item.addEventListener('click', handleCategoryClick);
