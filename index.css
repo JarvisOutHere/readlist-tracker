@@ -1390,7 +1390,7 @@ body {
 }
 
 .card-action-btn:hover {
-    background: var(--accent-light);
+    background: #f5f0eb;
     gap: 4px;
     padding: 0 8px;
 }
