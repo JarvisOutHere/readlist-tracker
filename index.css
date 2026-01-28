@@ -1401,29 +1401,12 @@ body {
     opacity: 1;
 }
 
-/* All buttons expand leftward (container is on right edge of card) */
-.like-btn {
-    transform-origin: right center;
-}
-
-.like-btn:hover {
-    margin-left: -30px;
-}
-
-.neutral-btn {
-    transform-origin: right center;
-}
-
-.neutral-btn:hover {
-    margin-left: -20px;
-}
-
+/* All buttons expand leftward visually (container is on right edge of card) */
+/* Flex layout naturally pushes siblings left when button width increases */
+.like-btn,
+.neutral-btn,
 .dislike-btn {
     transform-origin: right center;
-}
-
-.dislike-btn:hover {
-    margin-left: -40px;
 }
 
 .card-action-btn.active {
