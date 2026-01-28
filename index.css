@@ -1394,7 +1394,19 @@ body {
     gap: 4px;
     padding: 0 8px;
     transform: scale(1.22);
+}
+
+/* Each button expands outward to maintain consistent gaps */
+.card-action-btn.like-btn {
+    transform-origin: left center;
+}
+
+.card-action-btn.neutral-btn {
     transform-origin: center center;
+}
+
+.card-action-btn.dislike-btn {
+    transform-origin: right center;
 }
 
 .card-action-btn:hover .btn-text {
