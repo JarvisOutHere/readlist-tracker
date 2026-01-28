@@ -1393,7 +1393,8 @@ body {
     background: #f5f0eb;
     gap: 4px;
     padding: 0 8px;
-    transform: scale(1.12);
+    transform: scale(1.22);
+    transform-origin: center center;
 }
 
 .card-action-btn:hover .btn-text {
