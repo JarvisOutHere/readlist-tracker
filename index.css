@@ -1401,6 +1401,34 @@ body {
     opacity: 1;
 }
 
+/* Left button: expand leftward */
+.like-btn {
+    transform-origin: right center;
+}
+
+.like-btn:hover {
+    margin-left: -30px;
+}
+
+/* Center button: expand both ways */
+.neutral-btn {
+    transform-origin: center center;
+}
+
+.neutral-btn:hover {
+    margin-left: -15px;
+    margin-right: -15px;
+}
+
+/* Right button: expand rightward */
+.dislike-btn {
+    transform-origin: left center;
+}
+
+.dislike-btn:hover {
+    margin-right: -40px;
+}
+
 .card-action-btn.active {
     background: var(--accent-primary);
     color: white;
