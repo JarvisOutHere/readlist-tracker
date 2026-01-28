@@ -1209,15 +1209,17 @@ function initNoticeBoards() {
 }
 
 function initProfileBox() {
-    // Make the user name in the existing current-user-badge clickable
-    const userNameEl = document.getElementById('current-user-name');
+    // Make the entire badge clickable (not just the name)
+    const badgeMain = document.getElementById('badge-main-clickable');
     const currentUser = getCurrentUser();
 
-    if (!userNameEl || !currentUser || isCuratorAccess()) return;
+    if (!badgeMain || !currentUser || isCuratorAccess()) return;
 
-    // Clicking user name opens thoughts popup
-    userNameEl.onclick = (e) => {
-        e.stopPropagation(); // Prevent any parent handlers
+    // Clicking badge opens thoughts popup
+    badgeMain.onclick = (e) => {
+        // Don't trigger if clicking the X button
+        if (e.target.closest('.change-user-btn')) return;
+        e.stopPropagation();
         showThoughtsPopup();
     };
 }
