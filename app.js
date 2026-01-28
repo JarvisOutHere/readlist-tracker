@@ -130,25 +130,6 @@ const articles = [
         source: "Working Theorys",
         category: "intrapersonal"
     },
-    {
-        id: 27,
-        title: "State of Markets",
-        description: "Snapshots from the public and private markets on AI, company-building, and more. Unicorns are real, they run in herds, and tech is its own supercycle.",
-        url: "https://www.a16z.news/p/state-of-markets",
-        source: "a16z",
-        category: "ai",
-        multiLink: {
-            presentation: {
-                url: "https://docs.google.com/presentation/d/e/2PACX-1vQXsMMv5ZCWm77za7oXJcz1X-Th5Mz15g5nYBxbUjnomStVcjn8lXPjE5LzAlvc_hg4yHKgwASWLo5a/pub?start=false&loop=false&delayms=3000&slide=id.g3b6e2578ab2_8_4858",
-                label: "Presentation",
-                recommended: true
-            },
-            article: {
-                url: "https://www.a16z.news/p/state-of-markets",
-                label: "Article"
-            }
-        }
-    },
     // Books
     {
         id: 11,
@@ -405,16 +386,12 @@ const totalBooksEl = document.getElementById('total-books');
 const totalYoutubeEl = document.getElementById('total-youtube');
 const landingCategoriesEl = document.getElementById('landing-categories');
 const booksBtn = document.getElementById('books-btn');
-const curatedBtn = document.getElementById('curated-btn');
-
-// Curated article IDs
-const CURATED_ARTICLE_IDS = [6, 2, 8, 4, 39, 43, 44];
+const userSubmissionsBtn = document.getElementById('user-submissions-btn');
 
 // ========================================
 // State
 // ========================================
 let currentCategory = null;
-let isCuratedView = false;
 
 // ========================================
 // Helper Functions
@@ -632,29 +609,6 @@ function createArticleCard(article) {
 function renderArticles() {
     articlesGrid.innerHTML = '';
 
-    // Handle curated view - film reel style
-    if (isCuratedView) {
-        articlesGrid.classList.add('curated-filmreel');
-        const curatedArticles = CURATED_ARTICLE_IDS.map(id => articles.find(a => a.id === id)).filter(Boolean);
-
-        curatedArticles.forEach((article, index) => {
-            const card = createArticleCard(article);
-            card.classList.add('filmreel-card');
-            // Start all cards blurred except first
-            if (index === 0) {
-                card.classList.add('filmreel-active');
-            } else {
-                card.classList.add('filmreel-blur');
-            }
-            card.dataset.filmreelIndex = index;
-            articlesGrid.appendChild(card);
-        });
-        return;
-    }
-
-    // Remove filmreel class for regular views
-    articlesGrid.classList.remove('curated-filmreel');
-
     // Handle Articles landing page
     if (currentCategory === 'articles-landing') {
         articlesGrid.innerHTML = `
@@ -699,25 +653,17 @@ function renderArticles() {
 function updateActiveCategory() {
     categoryItems.forEach(item => {
         const category = item.dataset.category;
-        item.classList.toggle('active', category === currentCategory && !isCuratedView);
+        item.classList.toggle('active', category === currentCategory);
     });
     // Also handle clickable section labels
     document.querySelectorAll('.nav-toggle-direct').forEach(item => {
         const category = item.dataset.category;
-        item.classList.toggle('active', category === currentCategory && !isCuratedView);
+        item.classList.toggle('active', category === currentCategory);
     });
-    // Handle curated button
-    if (curatedBtn) {
-        curatedBtn.classList.toggle('active', isCuratedView);
-    }
 
-    if (isCuratedView) {
-        currentCategoryTitle.innerHTML = 'Selected Favorite Articles<span class="curated-subtitle">A selection of favorite pieces worth revisiting</span>';
-    } else {
-        currentCategoryTitle.innerHTML = currentCategory
-            ? getCategoryDisplayName(currentCategory)
-            : 'Your Reading List';
-    }
+    currentCategoryTitle.innerHTML = currentCategory
+        ? getCategoryDisplayName(currentCategory)
+        : 'Your Reading List';
 }
 
 // ========================================
@@ -891,7 +837,6 @@ function showLanding() {
 
 function handleCategoryClick(event) {
     const categoryItem = event.currentTarget;
-    isCuratedView = false;
     currentCategory = categoryItem.dataset.category;
     updateActiveCategory();
     renderArticles();
@@ -1129,7 +1074,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Show Articles landing page when expanding
                     if (toggleType === 'articles') {
-                        isCuratedView = false;
                         currentCategory = 'articles-landing';
                         updateActiveCategory();
                         renderArticles();
@@ -1145,7 +1089,6 @@ document.addEventListener('DOMContentLoaded', () => {
         toggle.addEventListener('click', () => {
             const category = toggle.dataset.category;
             if (category) {
-                isCuratedView = false;
                 currentCategory = category;
                 updateActiveCategory();
                 renderArticles();
@@ -1154,14 +1097,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ========================================
-    // Curated Button Handler
+    // User Submissions Button Handler
     // ========================================
-    if (curatedBtn) {
-        curatedBtn.addEventListener('click', () => {
-            isCuratedView = true;
-            currentCategory = null;
-            updateActiveCategory();
-            renderArticles();
+    if (userSubmissionsBtn) {
+        userSubmissionsBtn.addEventListener('click', () => {
+            openSubmissionsModal();
         });
     }
 });
@@ -1195,14 +1135,7 @@ function initFilmreelObserver() {
     cards.forEach(card => observer.observe(card));
 }
 
-// Re-initialize observer when curated view is rendered
-const originalRenderArticles = renderArticles;
-renderArticles = function () {
-    originalRenderArticles.apply(this, arguments);
-    if (isCuratedView) {
-        setTimeout(initFilmreelObserver, 150);
-    }
-};
+
 
 // ========================================
 // Notice Board Functions
@@ -1603,3 +1536,183 @@ function renderUserStats(userName) {
         </div>
     `;
 }
+
+// ========================================
+// User Submissions Functions
+// ========================================
+function openSubmissionsModal() {
+    const overlay = document.getElementById('submissions-overlay');
+    const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+
+    if (overlay) {
+        overlay.classList.remove('hidden');
+        refreshSubmissionsView(user);
+    }
+}
+
+function closeSubmissionsModal() {
+    const overlay = document.getElementById('submissions-overlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+    }
+    // Reset form state
+    hideSubmissionForm();
+    hideSubmissionConfirmation();
+}
+
+function refreshSubmissionsView(user) {
+    const emptyState = document.getElementById('submissions-empty');
+    const listEl = document.getElementById('submissions-list');
+    const addSection = document.getElementById('add-submission-section');
+    const limitMsg = document.getElementById('submission-limit');
+    const isCurator = typeof isCuratorAccess === 'function' && isCuratorAccess();
+
+    // Get submissions based on user type
+    const allSubmissions = typeof getAllSubmissions === 'function' ? getAllSubmissions() : {};
+    const hasAnySubmissions = Object.keys(allSubmissions).length > 0;
+
+    // Reset states
+    emptyState?.classList.add('hidden');
+    listEl?.classList.add('hidden');
+    addSection?.classList.add('hidden');
+    limitMsg?.classList.add('hidden');
+
+    if (isCurator) {
+        // Curator view: show all submissions
+        if (hasAnySubmissions) {
+            listEl?.classList.remove('hidden');
+            renderAllSubmissions(allSubmissions);
+        } else {
+            emptyState?.classList.remove('hidden');
+        }
+    } else if (user) {
+        // Regular user view
+        const userSubmissions = typeof getUserSubmissions === 'function' ? getUserSubmissions(user) : {};
+        const userCount = Object.keys(userSubmissions).length;
+
+        if (hasAnySubmissions) {
+            listEl?.classList.remove('hidden');
+            renderAllSubmissions(allSubmissions);
+        } else {
+            emptyState?.classList.remove('hidden');
+        }
+
+        // Show add button if under limit
+        if (userCount < 2) {
+            addSection?.classList.remove('hidden');
+        } else {
+            limitMsg?.classList.remove('hidden');
+        }
+    } else {
+        // No user - show empty state
+        emptyState?.classList.remove('hidden');
+    }
+}
+
+function renderAllSubmissions(allSubmissions) {
+    const listEl = document.getElementById('submissions-list');
+    if (!listEl) return;
+
+    let html = '';
+    Object.entries(allSubmissions).forEach(([userName, submissions]) => {
+        Object.values(submissions).forEach(sub => {
+            const date = new Date(sub.submittedAt).toLocaleDateString();
+            html += `
+                <div class="submission-item">
+                    <div class="submission-user">${userName}</div>
+                    <a href="${sub.url}" target="_blank" class="submission-url">${sub.url}</a>
+                    <div class="submission-date">${date}</div>
+                </div>
+            `;
+        });
+    });
+
+    listEl.innerHTML = html || '<p>No submissions found.</p>';
+}
+
+function showSubmissionForm() {
+    const form = document.getElementById('submission-form');
+    const addBtn = document.getElementById('add-submission-btn');
+    if (form) form.classList.remove('hidden');
+    if (addBtn) addBtn.classList.add('hidden');
+}
+
+function hideSubmissionForm() {
+    const form = document.getElementById('submission-form');
+    const addBtn = document.getElementById('add-submission-btn');
+    const input = document.getElementById('article-url-input');
+    if (form) form.classList.add('hidden');
+    if (addBtn) addBtn.classList.remove('hidden');
+    if (input) input.value = '';
+}
+
+function showSubmissionConfirmation() {
+    const conf = document.getElementById('submission-confirmation');
+    const form = document.getElementById('submission-form');
+    const addSection = document.getElementById('add-submission-section');
+    if (conf) conf.classList.remove('hidden');
+    if (form) form.classList.add('hidden');
+    if (addSection) addSection.classList.add('hidden');
+}
+
+function hideSubmissionConfirmation() {
+    const conf = document.getElementById('submission-confirmation');
+    if (conf) conf.classList.add('hidden');
+}
+
+async function submitArticle() {
+    const input = document.getElementById('article-url-input');
+    const url = input?.value?.trim();
+    const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+
+    if (!url || !user) {
+        alert('Please enter a valid URL');
+        return;
+    }
+
+    // Validate URL format
+    try {
+        new URL(url);
+    } catch {
+        alert('Please enter a valid URL');
+        return;
+    }
+
+    // Save submission
+    if (typeof saveUserSubmission === 'function') {
+        await saveUserSubmission(user, url);
+    }
+
+    showSubmissionConfirmation();
+
+    // Auto-close after delay
+    setTimeout(() => {
+        closeSubmissionsModal();
+    }, 3000);
+}
+
+// Initialize submissions modal handlers
+document.addEventListener('DOMContentLoaded', () => {
+    const closeBtn = document.getElementById('close-submissions-btn');
+    const addBtn = document.getElementById('add-submission-btn');
+    const submitBtn = document.getElementById('submit-article-btn');
+    const cancelBtn = document.getElementById('cancel-submission-btn');
+    const overlay = document.getElementById('submissions-overlay');
+
+    if (closeBtn) closeBtn.addEventListener('click', closeSubmissionsModal);
+    if (addBtn) addBtn.addEventListener('click', showSubmissionForm);
+    if (submitBtn) submitBtn.addEventListener('click', submitArticle);
+    if (cancelBtn) cancelBtn.addEventListener('click', hideSubmissionForm);
+
+    // Close on overlay click
+    if (overlay) {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) closeSubmissionsModal();
+        });
+    }
+
+    // Initialize submissions listener
+    if (typeof initUserSubmissionsListener === 'function') {
+        initUserSubmissionsListener();
+    }
+});

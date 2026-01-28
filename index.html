@@ -128,7 +128,7 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2 class="sidebar-logo">ReadList</h2>
+                <h2 class="sidebar-logo">Home</h2>
             </div>
             <nav class="category-nav">
                 <!-- Articles Section (Collapsible) -->
@@ -161,16 +161,7 @@
                     </div>
                 </div>
 
-                <!-- Selected Favorite Articles (Curated) -->
-                <div class="nav-section" data-section="curated">
-                    <button class="nav-toggle nav-toggle-direct" id="curated-btn">
-                        <span class="toggle-label">Selected Favorite Articles</span>
-                    </button>
-                </div>
-            </nav>
-
-            <!-- Bottom Section: Books & YouTube -->
-            <div class="sidebar-bottom-nav">
+                <!-- Books -->
                 <div class="nav-section" data-section="books">
                     <button class="nav-toggle nav-toggle-direct" data-category="books">
                         <span class="toggle-label">Books</span>
@@ -178,10 +169,20 @@
                     </button>
                 </div>
 
+                <!-- YouTube -->
                 <div class="nav-section" data-section="youtube">
                     <button class="nav-toggle nav-toggle-direct" data-category="yt-long-form">
                         <span class="toggle-label">YouTube</span>
                         <span class="toggle-count" id="count-yt-long-form">0</span>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Bottom Section: User Submissions -->
+            <div class="sidebar-bottom-nav">
+                <div class="nav-section" data-section="submissions">
+                    <button class="nav-toggle nav-toggle-direct" id="user-submissions-btn">
+                        <span class="toggle-label">User Submissions</span>
                     </button>
                 </div>
             </div>
@@ -266,6 +267,55 @@
                 <p class="user-picker-subtitle">Select your name to track what you've read</p>
                 <div class="user-buttons" id="user-buttons">
                     <!-- User buttons will be rendered here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Submissions Modal -->
+    <div class="modal-overlay hidden" id="submissions-overlay">
+        <div class="modal submissions-modal">
+            <div class="modal-header">
+                <h3>User Submissions</h3>
+                <button class="modal-close-btn" id="close-submissions-btn">✕</button>
+            </div>
+            <div class="submissions-content">
+                <!-- Empty state -->
+                <div class="submissions-empty" id="submissions-empty">
+                    <div class="submissions-empty-icon">📝</div>
+                    <p>No user submissions yet.</p>
+                    <p class="submissions-hint">Click below to add an article.</p>
+                </div>
+
+                <!-- Submissions list -->
+                <div class="submissions-list hidden" id="submissions-list">
+                    <!-- Submissions will be rendered here -->
+                </div>
+
+                <!-- Add submission section -->
+                <div class="add-submission-section" id="add-submission-section">
+                    <button class="add-submission-btn" id="add-submission-btn">+ Add Article</button>
+                </div>
+
+                <!-- Submission form (hidden by default) -->
+                <div class="submission-form hidden" id="submission-form">
+                    <label for="article-url-input">Article Link:</label>
+                    <input type="url" id="article-url-input" placeholder="https://..." class="submission-input">
+                    <div class="submission-form-actions">
+                        <button class="submit-article-btn" id="submit-article-btn">Submit</button>
+                        <button class="cancel-submission-btn" id="cancel-submission-btn">Cancel</button>
+                    </div>
+                </div>
+
+                <!-- Confirmation message -->
+                <div class="submission-confirmation hidden" id="submission-confirmation">
+                    <div class="confirmation-icon">✓</div>
+                    <p>Your article has been submitted and will be updated soon!</p>
+                </div>
+
+                <!-- Limit reached message -->
+                <div class="submission-limit hidden" id="submission-limit">
+                    <p>You have reached the maximum of 2 submissions.</p>
                 </div>
             </div>
         </div>

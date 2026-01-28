@@ -397,3 +397,41 @@ function getConsolidatedAnalytics() {
 
     return totals;
 }
+
+// ========================================
+// User Submissions
+// ========================================
+let userSubmissionsCache = {};
+
+function subscribeToUserSubmissions(callback) {
+    database.ref('userSubmissions').on('value', (snapshot) => {
+        callback(snapshot.val() || {});
+    });
+}
+
+function initUserSubmissionsListener() {
+    subscribeToUserSubmissions((data) => {
+        userSubmissionsCache = data;
+    });
+}
+
+function saveUserSubmission(userName, articleUrl) {
+    const submissionId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    return database.ref(`userSubmissions/${userName}/${submissionId}`).set({
+        url: articleUrl,
+        submittedAt: Date.now()
+    });
+}
+
+function getUserSubmissions(userName) {
+    return userSubmissionsCache[userName] || {};
+}
+
+function getUserSubmissionCount(userName) {
+    const submissions = getUserSubmissions(userName);
+    return Object.keys(submissions).length;
+}
+
+function getAllSubmissions() {
+    return userSubmissionsCache;
+}
