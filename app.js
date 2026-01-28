@@ -514,24 +514,18 @@ function createArticleCard(article) {
         const dislikeActive = currentUserStatus === 'disliked' ? 'active' : '';
         actionButtonsHtml = `
             <div class="card-action-buttons">
-                <div class="btn-slot">
-                    <button class="card-action-btn like-btn ${likeActive}" data-article-id="${article.id}" data-action="liked" title="I liked this">
-                        <span class="btn-icon">✓</span>
-                        <span class="btn-text">Nice</span>
-                    </button>
-                </div>
-                <div class="btn-slot">
-                    <button class="card-action-btn neutral-btn ${neutralActive}" data-article-id="${article.id}" data-action="neutral" title="Neutral">
-                        <span class="btn-icon">—</span>
-                        <span class="btn-text">Meh</span>
-                    </button>
-                </div>
-                <div class="btn-slot">
-                    <button class="card-action-btn dislike-btn ${dislikeActive}" data-article-id="${article.id}" data-action="disliked" title="Didn't like it">
-                        <span class="btn-icon">✗</span>
-                        <span class="btn-text">Disagree</span>
-                    </button>
-                </div>
+                <button class="card-action-btn like-btn ${likeActive}" data-article-id="${article.id}" data-action="liked" title="I liked this">
+                    <span class="btn-icon">✓</span>
+                    <span class="btn-text">Nice</span>
+                </button>
+                <button class="card-action-btn neutral-btn ${neutralActive}" data-article-id="${article.id}" data-action="neutral" title="Neutral">
+                    <span class="btn-icon">—</span>
+                    <span class="btn-text">Meh</span>
+                </button>
+                <button class="card-action-btn dislike-btn ${dislikeActive}" data-article-id="${article.id}" data-action="disliked" title="Didn't like it">
+                    <span class="btn-icon">✗</span>
+                    <span class="btn-text">Disagree</span>
+                </button>
             </div>
         `;
     }
