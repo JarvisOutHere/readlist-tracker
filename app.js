@@ -848,15 +848,8 @@ function showApp(targetSection = null) {
         // Collapse articles, select books
         currentCategory = 'books';
     } else if (targetSection === 'youtube') {
-        // Collapse articles, expand YouTube section
-        const youtubeToggle = document.querySelector('.nav-toggle[data-toggle="youtube"]');
-        const youtubeSubcategories = document.getElementById('youtube-subcategories');
-        if (youtubeToggle && youtubeSubcategories) {
-            youtubeToggle.classList.add('expanded');
-            youtubeSubcategories.classList.remove('collapsed');
-            youtubeSubcategories.classList.add('expanded');
-        }
-        currentCategory = 'youtube-landing';
+        // YouTube is a direct category, not a section with subcategories
+        currentCategory = 'yt-long-form';
     } else {
         currentCategory = null;
     }
