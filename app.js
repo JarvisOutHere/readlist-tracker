@@ -830,10 +830,37 @@ Reply with ONLY the category key (e.g., "ai" or "core-finance"), nothing else.`;
 // ========================================
 // Event Handlers
 // ========================================
-function showApp() {
+function showApp(targetSection = null) {
     landingSection.classList.add('hidden');
     appSection.classList.remove('hidden');
-    currentCategory = null;
+
+    if (targetSection === 'articles') {
+        // Expand articles nav section, show articles landing
+        const articlesToggle = document.querySelector('.nav-toggle[data-toggle="articles"]');
+        const articlesSubcategories = document.getElementById('articles-subcategories');
+        if (articlesToggle && articlesSubcategories) {
+            articlesToggle.classList.add('expanded');
+            articlesSubcategories.classList.remove('collapsed');
+            articlesSubcategories.classList.add('expanded');
+        }
+        currentCategory = 'articles-landing';
+    } else if (targetSection === 'books') {
+        // Collapse articles, select books
+        currentCategory = 'books';
+    } else if (targetSection === 'youtube') {
+        // Collapse articles, expand YouTube section
+        const youtubeToggle = document.querySelector('.nav-toggle[data-toggle="youtube"]');
+        const youtubeSubcategories = document.getElementById('youtube-subcategories');
+        if (youtubeToggle && youtubeSubcategories) {
+            youtubeToggle.classList.add('expanded');
+            youtubeSubcategories.classList.remove('collapsed');
+            youtubeSubcategories.classList.add('expanded');
+        }
+        currentCategory = 'youtube-landing';
+    } else {
+        currentCategory = null;
+    }
+
     updateActiveCategory();
     renderArticles();
     updateStats();
@@ -897,8 +924,13 @@ function handleAddArticle(event) {
 // ========================================
 // Event Listeners
 // ========================================
-exploreBtn.addEventListener('click', showApp);
+exploreBtn.addEventListener('click', () => showApp());
 sidebarHomeBtn.addEventListener('click', showLanding);
+
+// Landing section click handlers - navigate directly to that section
+document.getElementById('landing-articles')?.addEventListener('click', () => showApp('articles'));
+document.getElementById('landing-books')?.addEventListener('click', () => showApp('books'));
+document.getElementById('landing-youtube')?.addEventListener('click', () => showApp('youtube'));
 
 categoryItems.forEach(item => {
     item.addEventListener('click', handleCategoryClick);
