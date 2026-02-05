@@ -585,7 +585,7 @@ const nerds = [
     {
         id: "himadri",
         name: "Himadri",
-        subtitle: "Quietly knows more than you"
+        subtitle: "finbro"
     },
     {
         id: "avantheka",
@@ -595,19 +595,39 @@ const nerds = [
     {
         id: "cicily",
         name: "Cicily",
-        subtitle: "Finds the gems no one else reads"
+        subtitle: "MBG"
     },
     {
         id: "kashvi",
         name: "Kashvi",
-        subtitle: "Curates with quiet intensity"
+        subtitle: "President"
     },
     {
         id: "achyut",
         name: "Achyut",
-        subtitle: "Charts and contrarian takes"
+        subtitle: "Resident Fin-Econ-(Geo)Policy Expert"
     }
 ];
+
+// Helper function to get article title by numeric ID (from old app's Firebase storage)
+function getArticleTitleById(articleId) {
+    // Build a flat list of all articles with their index
+    const allArticles = [];
+    for (const category in data.articles) {
+        for (const article of data.articles[category]) {
+            allArticles.push(article);
+        }
+    }
+
+    // If articleId is a number or numeric string, look up by index
+    const numId = parseInt(articleId, 10);
+    if (!isNaN(numId) && numId >= 0 && numId < allArticles.length) {
+        return allArticles[numId].title;
+    }
+
+    // If it's already a title string, return as-is
+    return null;
+}
 
 // Get reviews for a specific nerd from Firebase
 function getNerdReviews(nerdName) {
@@ -668,15 +688,13 @@ function openNerdProfile(nerd) {
 
     // Get favorite from Firebase userThoughts
     const userThoughts = getUserThoughts(nerd.name);
-    const hasFavorite = userThoughts.favoriteArticleId !== null;
+    const hasFavorite = userThoughts.favoriteArticleId !== null && userThoughts.favoriteArticleId !== undefined;
 
-    // Find article title from favoriteArticleId if set
+    // Find article title from favoriteArticleId
     let favoriteTitle = 'Not set yet';
-    let favoriteAuthor = '';
     if (hasFavorite) {
-        // favoriteArticleId might be a numeric ID from the old app
-        // We'll just show what's there or 'Not set yet'
-        favoriteTitle = userThoughts.favoriteArticleId || 'Not set yet';
+        // Look up the article title from the stored ID
+        favoriteTitle = getArticleTitleById(userThoughts.favoriteArticleId) || userThoughts.favoriteArticleId;
     }
 
     pane.innerHTML = `
