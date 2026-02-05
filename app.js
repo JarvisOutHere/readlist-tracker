@@ -723,25 +723,40 @@ const nerds = [
     }
 ];
 
-// Helper function to get article title by numeric ID (from old app's Firebase storage)
+// Helper function to get article title by ID (handles both numeric and string IDs)
 function getArticleTitleById(articleId) {
-    // Build a flat list of all articles with their index
-    const allArticles = [];
+    const article = getArticleById(articleId);
+    return article ? article.title : null;
+}
+
+// Helper function to get full article details by ID (for navigation)
+function getArticleById(articleId) {
+    // Build a flat list of all articles with their IDs and category
     for (const category in data.articles) {
         for (const article of data.articles[category]) {
-            allArticles.push(article);
+            const itemId = getItemId(article);
+            if (itemId === articleId) {
+                return { ...article, category };
+            }
         }
     }
 
-    // If articleId is a number or numeric string, look up by index
-    const numId = parseInt(articleId, 10);
-    if (!isNaN(numId) && numId >= 0 && numId < allArticles.length) {
-        return allArticles[numId].title;
+    // Also check if it's a numeric ID (legacy)
+    const allArticles = [];
+    for (const category in data.articles) {
+        for (const article of data.articles[category]) {
+            allArticles.push({ ...article, category });
+        }
     }
 
-    // If it's already a title string, return as-is
+    const numId = parseInt(articleId, 10);
+    if (!isNaN(numId) && numId >= 0 && numId < allArticles.length) {
+        return allArticles[numId];
+    }
+
     return null;
 }
+
 
 // Get all valid item IDs from current article data
 function getAllValidItemIds() {
@@ -844,11 +859,13 @@ function openNerdProfile(nerd) {
     const userThoughts = getUserThoughts(nerd.name);
     const hasFavorite = userThoughts.favoriteArticleId !== null && userThoughts.favoriteArticleId !== undefined;
 
-    // Find article title from favoriteArticleId
+    // Find article details from favoriteArticleId
     let favoriteTitle = 'Not set yet';
+    let favoriteArticleId = null;
     if (hasFavorite) {
+        favoriteArticleId = userThoughts.favoriteArticleId;
         // Look up the article title from the stored ID
-        favoriteTitle = getArticleTitleById(userThoughts.favoriteArticleId) || userThoughts.favoriteArticleId;
+        favoriteTitle = getArticleTitleById(favoriteArticleId) || favoriteArticleId;
     }
 
     pane.innerHTML = `
@@ -859,10 +876,11 @@ function openNerdProfile(nerd) {
         <div class="profile-divider"></div>
         ${hasFavorite ? `<div class="profile-section">
             <div class="profile-section-label">Favorite Article</div>
-            <div class="profile-favorite-title">${favoriteTitle}</div>
+            <div class="profile-favorite-title clickable" data-article-id="${favoriteArticleId}">${favoriteTitle}</div>
         </div>
         <div class="profile-divider"></div>` : ''}
         <div class="profile-section">
+
             <div class="profile-section-label">Reviews So Far</div>
             ${totalReviews === 0
             ? `<div class="profile-empty-reviews">
@@ -902,7 +920,24 @@ function openNerdProfile(nerd) {
 
     overlay.classList.remove('hidden');
     requestAnimationFrame(() => overlay.classList.add('active'));
+
+    // Add click handler for favorite title to navigate to article
+    const favoriteEl = pane.querySelector('.profile-favorite-title.clickable');
+    if (favoriteEl) {
+        favoriteEl.addEventListener('click', () => {
+            const articleId = favoriteEl.dataset.articleId;
+            const article = getArticleById(articleId);
+            if (article && article.category) {
+                closeNerdProfile();
+                // Navigate to the article's category
+                setTimeout(() => {
+                    showScrollPage(article.category);
+                }, 350); // Wait for profile close animation
+            }
+        });
+    }
 }
+
 
 // Close nerd profile pane
 function closeNerdProfile() {

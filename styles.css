@@ -561,6 +561,17 @@ body {
     margin-bottom: 0.15rem;
 }
 
+.profile-favorite-title.clickable {
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.profile-favorite-title.clickable:hover {
+    color: #8B6914;
+    text-decoration: underline;
+}
+
+
 .profile-favorite-author {
     font-size: 0.78rem;
     color: var(--accent-secondary);
