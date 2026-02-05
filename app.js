@@ -580,7 +580,7 @@ const nerds = [
     {
         id: "tanmay",
         name: "Tanmay",
-        subtitle: "Reads everything, retains selectively"
+        subtitle: "Reads everything, retains nothing"
     },
     {
         id: "himadri",
@@ -600,7 +600,7 @@ const nerds = [
     {
         id: "kashvi",
         name: "Kashvi",
-        subtitle: "President"
+        subtitle: "BaroC President"
     },
     {
         id: "achyut",
