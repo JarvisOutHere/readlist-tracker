@@ -711,14 +711,12 @@ const nerds = [
         name: "Cicily",
         subtitle: "MBG"
     },
-    // BACKUP - Kashvi removed temporarily per user request
-    // {
-    //     id: "kashvi",
-    //     name: "Kashvi",
-    //     subtitle: "Crochet Enthusiast"
-    // },
     {
-
+        id: "kashvi",
+        name: "Kashvi",
+        subtitle: "Crochet Enthusiast"
+    },
+    {
         id: "achyut",
         name: "Achyut",
         subtitle: "Resident Fin-Econ-(Geo)Policy Expert"
@@ -847,10 +845,11 @@ function buildNerdTiles() {
         tile.className = 'nerd-tile';
         tile.dataset.nerd = nerd.id;
 
-        // Simple tile with just initial and name
+        // Tile with initial, name, and subtitle
         tile.innerHTML = `
             <div class="nerd-initial">${nerd.name.charAt(0)}</div>
             <div class="nerd-name">${nerd.name}</div>
+            <div class="nerd-subtitle">${nerd.subtitle || ''}</div>
         `;
 
         // Click to open full profile popup (connected to Firebase)
