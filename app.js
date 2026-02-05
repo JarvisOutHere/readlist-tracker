@@ -722,10 +722,11 @@ const nerds = [
         subtitle: "Resident Fin-Econ-(Geo)Policy Expert"
     },
     {
-        id: "vibhu",
+        id: "v1bhu",
         name: "Vibhu",
         subtitle: "Sea Link"
     }
+
 
 ];
 
