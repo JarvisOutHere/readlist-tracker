@@ -1,0 +1,927 @@
+/* Clean Beige Reading Archive Theme — V2 Pillars */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+:root {
+    /* Beige Palette */
+    --bg-main: #f5f1eb;
+    --bg-card: #ffffff;
+    --bg-card-hover: #faf8f5;
+    --bg-sidebar: #ebe7e0;
+
+    /* Accent color - warm brown */
+    --accent-primary: #8b7355;
+    --accent-secondary: #a08568;
+    --accent-tertiary: #6b5744;
+
+    /* Text colors */
+    --text-primary: #2d2a26;
+    --text-secondary: #5c5650;
+    --text-muted: #8c8680;
+
+    /* Borders and shadows */
+    --border-subtle: rgba(139, 115, 85, 0.15);
+    --border-accent: rgba(139, 115, 85, 0.4);
+    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.1);
+
+    /* Reaction colors */
+    --reaction-positive: #5a8a5a;
+    --reaction-negative: #b85c5c;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ============================================
+   LANDING PAGE (same as v1)
+   ============================================ */
+.landing-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: var(--bg-main);
+}
+
+.landing-content {
+    text-align: center;
+    max-width: 900px;
+}
+
+.main-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.subtitle {
+    font-size: 1.35rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    font-weight: 400;
+    animation: fadeInUp 0.8s ease-out 0.1s both;
+}
+
+.sub-subtitle {
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin-bottom: 4rem;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+.sub-subtitle em {
+    font-style: italic;
+    color: var(--text-muted);
+}
+
+.category-tiles {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-bottom: 4rem;
+    animation: fadeInUp 0.8s ease-out 0.3s both;
+}
+
+.category-tile {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 2.5rem 3rem;
+    min-width: 180px;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-card);
+}
+
+.category-tile:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-accent);
+    box-shadow: var(--shadow-hover);
+}
+
+.category-tile h2 {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+}
+
+.category-tile .count {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+}
+
+.browse-btn {
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    padding: 1.1rem 3rem;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+.browse-btn:hover {
+    background: var(--accent-tertiary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+/* ============================================
+   PILLARS PAGE
+   ============================================ */
+.pillars-page {
+    background: var(--bg-main);
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100vh;
+}
+
+/* First screen: pillars area */
+.pillars-section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 2rem 2rem 8vh 2rem;
+    position: relative;
+}
+
+.pillars-back-btn {
+    position: fixed;
+    top: 2rem;
+    left: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--accent-primary);
+    transition: color 0.2s ease;
+    padding: 0;
+    z-index: 10;
+}
+
+.pillars-back-btn svg {
+    width: 36px;
+    height: 36px;
+}
+
+.pillars-back-btn:hover {
+    color: var(--accent-tertiary);
+}
+
+/* Greeting text */
+.pillars-greeting {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    opacity: 0.12;
+    letter-spacing: 0.02em;
+    margin-bottom: 2.5rem;
+    animation: fadeInUp 0.6s ease-out 0.1s both;
+    user-select: none;
+}
+
+.pillars-container {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-end;
+    height: 55vh;
+    padding-bottom: 2rem;
+}
+
+/* Corner navigation button (toggles between down/up) */
+.corner-nav-btn {
+    position: fixed;
+    bottom: 2.5rem;
+    right: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.corner-nav-btn:hover {
+    color: var(--accent-primary);
+    border-color: var(--accent-primary);
+    background: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.corner-nav-arrow {
+    transition: transform 0.4s ease;
+}
+
+.pillar {
+    width: 140px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 2rem 1rem;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-card);
+    position: relative;
+    animation: pillarGrow 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Heights set dynamically by JS based on article count */
+
+.pillar:hover {
+    transform: translateY(-8px);
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-hover);
+    background: var(--bg-card-hover);
+}
+
+.pillar-count {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    margin-bottom: 0.75rem;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+.pillar:hover .pillar-count {
+    opacity: 1;
+}
+
+.pillar-name {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-align: center;
+    line-height: 1.4;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+@keyframes pillarGrow {
+    from {
+        transform: scaleY(0);
+        opacity: 0;
+        transform-origin: bottom;
+    }
+    to {
+        transform: scaleY(1);
+        opacity: 1;
+        transform-origin: bottom;
+    }
+}
+
+/* ============================================
+   NERDS SECTION (second screen in pillars page)
+   ============================================ */
+.nerds-section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6rem 2rem;
+}
+
+.nerds-grid {
+    display: flex;
+    gap: 1.8rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.nerd-tile {
+    width: 180px;
+    height: 240px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2rem;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-card);
+    position: relative;
+}
+
+.nerd-tile:hover {
+    transform: translateY(-6px);
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-hover);
+    background: var(--bg-card-hover);
+}
+
+.nerd-initial {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    background: var(--bg-sidebar);
+    border: 2px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 2.1rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    transition: all 0.3s ease;
+}
+
+.nerd-tile:hover .nerd-initial {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: #fff;
+}
+
+.nerd-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.03em;
+}
+
+/* ============================================
+   PROFILE PANE (popup on nerd click)
+   ============================================ */
+.profile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(2px);
+}
+
+.profile-overlay.active {
+    opacity: 1;
+}
+
+.profile-overlay.hidden {
+    display: none !important;
+}
+
+.profile-pane {
+    background: var(--bg-card);
+    border-radius: 18px;
+    padding: 2.5rem 2.5rem 2rem;
+    width: 340px;
+    max-width: 90vw;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.18);
+    position: relative;
+    text-align: center;
+    transform: scale(0.95) translateY(10px);
+    transition: transform 0.3s ease;
+}
+
+.profile-overlay.active .profile-pane {
+    transform: scale(1) translateY(0);
+}
+
+.profile-close {
+    position: absolute;
+    top: 1rem;
+    right: 1.2rem;
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+    transition: color 0.2s ease;
+}
+
+.profile-close:hover {
+    color: var(--text-primary);
+}
+
+.profile-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--bg-sidebar);
+    border: 2px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    margin: 0 auto 1rem;
+}
+
+.profile-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.profile-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: 0.5rem;
+}
+
+.profile-divider {
+    width: 40px;
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 1.2rem auto;
+}
+
+.profile-section {
+    margin-bottom: 0.5rem;
+}
+
+.profile-section-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    margin-bottom: 0.6rem;
+}
+
+.profile-favorite-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+    margin-bottom: 0.15rem;
+}
+
+.profile-favorite-author {
+    font-size: 0.78rem;
+    color: var(--accent-secondary);
+    font-weight: 500;
+}
+
+.profile-no-reviews {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.profile-reviews-grid {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.profile-review-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.profile-review-icon {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.profile-review-count {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.1;
+}
+
+.profile-review-label {
+    font-size: 0.65rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+}
+
+.profile-review-item.positive .profile-review-icon,
+.profile-review-item.positive .profile-review-count {
+    color: var(--reaction-positive);
+}
+
+.profile-review-item.neutral .profile-review-icon,
+.profile-review-item.neutral .profile-review-count {
+    color: var(--text-muted);
+}
+
+.profile-review-item.negative .profile-review-icon,
+.profile-review-item.negative .profile-review-count {
+    color: var(--reaction-negative);
+}
+
+/* ============================================
+   SCROLL VIEW PAGE
+   ============================================ */
+.scroll-page {
+    min-height: 100vh;
+    background: var(--bg-main);
+    padding: 2rem;
+    position: relative;
+}
+
+.scroll-back-btn {
+    position: fixed;
+    top: 2rem;
+    left: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--accent-primary);
+    transition: color 0.2s ease;
+    padding: 0;
+    z-index: 10;
+}
+
+.scroll-back-btn svg {
+    width: 36px;
+    height: 36px;
+}
+
+.scroll-back-btn:hover {
+    color: var(--accent-tertiary);
+}
+
+.scroll-category-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-top: 1rem;
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.scroll-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4rem;
+    padding-bottom: 6rem;
+}
+
+/* ============================================
+   SCROLL CARDS (same visual as overlay windows)
+   ============================================ */
+.scroll-card {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.scroll-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+    animation: fadeInUp 0.6s ease-out both;
+}
+
+.card-window {
+    position: relative;
+    background: transparent;
+    border: none;
+    border-radius: 16px;
+    width: 80vw;
+    height: 80vh;
+    max-width: 90vw;
+    max-height: 85vh;
+    overflow: visible;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.card-window:hover {
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Reaction buttons: bottom-right, half in / half out */
+.card-reactions {
+    position: absolute;
+    bottom: -18px;
+    right: 2rem;
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    z-index: 20;
+}
+
+.card-reaction-btn {
+    height: 36px;
+    min-width: 36px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(139, 115, 85, 0.3);
+    background: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.card-reaction-btn .btn-label {
+    max-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-width 0.2s ease, opacity 0.15s ease, margin 0.2s ease;
+    font-size: 13px;
+    font-weight: 500;
+    margin-left: 0;
+}
+
+.card-reaction-btn:hover .btn-label {
+    max-width: 130px;
+    opacity: 1;
+    margin-left: 6px;
+}
+
+.card-reaction-btn:hover {
+    z-index: 1;
+}
+
+.card-reaction-btn.positive:hover {
+    background: #e8f5e8;
+    border-color: var(--reaction-positive);
+    color: var(--reaction-positive);
+}
+
+.card-reaction-btn.neutral:hover {
+    background: #f0ede8;
+    border-color: var(--text-muted);
+    color: var(--text-secondary);
+}
+
+.card-reaction-btn.negative:hover {
+    background: #fbe8e8;
+    border-color: var(--reaction-negative);
+    color: var(--reaction-negative);
+}
+
+.card-reaction-btn.positive.active {
+    background: var(--reaction-positive);
+    border-color: var(--reaction-positive);
+    color: white;
+}
+
+.card-reaction-btn.neutral.active {
+    background: var(--text-muted);
+    border-color: var(--text-muted);
+    color: white;
+}
+
+.card-reaction-btn.negative.active {
+    background: var(--reaction-negative);
+    border-color: var(--reaction-negative);
+    color: white;
+}
+
+/* Image area */
+.card-image {
+    flex: 1;
+    background: var(--bg-sidebar);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    min-height: 0;
+    border-radius: 16px 16px 0 0;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.card-image-placeholder {
+    color: var(--text-muted);
+    opacity: 0.4;
+}
+
+/* Bottom text area */
+.card-bottom {
+    flex-shrink: 0;
+    padding: 1.25rem 2.5rem 1.5rem 2.5rem;
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+    overflow: hidden;
+    background: var(--bg-card);
+}
+
+.card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    line-height: 1.3;
+}
+
+.card-author {
+    font-size: 0.85rem;
+    color: var(--accent-secondary);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.card-description {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Horizontal layouts: image left, text right */
+.card-window.horizontal,
+.card-window.horizontal-square {
+    flex-direction: row;
+}
+
+.card-window.horizontal .card-image,
+.card-window.horizontal-square .card-image {
+    height: 100%;
+    border-radius: 16px 0 0 16px;
+}
+
+.card-window.horizontal .card-bottom,
+.card-window.horizontal-square .card-bottom {
+    height: 100%;
+    border-radius: 0 16px 16px 0;
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow-y: auto;
+}
+
+.card-window.horizontal .card-description,
+.card-window.horizontal-square .card-description {
+    -webkit-line-clamp: 10;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-subtle);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 900px) {
+    .pillars-container {
+        gap: 1rem;
+    }
+
+    .pillar {
+        width: 110px;
+    }
+
+    .main-title {
+        font-size: 3.5rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .pillars-container {
+        flex-wrap: wrap;
+        height: auto;
+        justify-content: center;
+    }
+
+    .pillar {
+        width: 45%;
+        height: 200px !important;
+    }
+
+    .main-title {
+        font-size: 2.5rem;
+    }
+
+    .category-tiles {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .category-tile {
+        width: 100%;
+        max-width: 300px;
+    }
+}

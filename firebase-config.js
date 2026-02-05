@@ -83,41 +83,18 @@ function getCurrentUser() {
     if (tokenUser) {
         return tokenUser;
     }
-    return localStorage.getItem('readlist-user');
-}
-
-function setCurrentUser(userName) {
-    localStorage.setItem('readlist-user', userName);
+    // Fallback to Tanmay if no token provided
+    return "Tanmay";
 }
 
 function isCurator() {
     return isCuratorAccess();
 }
 
-function getGender(userName) {
-    return USER_INFO[userName]?.gender || "male";
-}
-
-function getPronoun(userName) {
-    return getGender(userName) === "female" ? "she" : "he";
-}
-
 // ========================================
-// Read Status Functions
+// Firebase Read Status Functions
 // ========================================
-function markAsRead(articleId, status) {
-    const user = getCurrentUser();
-    if (!user || isCuratorAccess()) return; // Curator doesn't mark
-
-    return database.ref(`readStatus/${articleId}/${user}`).set(status);
-}
-
-function removeReadStatus(articleId) {
-    const user = getCurrentUser();
-    if (!user || isCuratorAccess()) return;
-
-    return database.ref(`readStatus/${articleId}/${user}`).remove();
-}
+let readStatusCache = {};
 
 function subscribeToReadStatus(callback) {
     database.ref('readStatus').on('value', (snapshot) => {
@@ -126,56 +103,29 @@ function subscribeToReadStatus(callback) {
     });
 }
 
-// Global read status cache
-let readStatusCache = {};
-
-function initReadStatusListener() {
+function initReadStatusListener(callback) {
     subscribeToReadStatus((data) => {
         readStatusCache = data;
-        // Re-render articles if we're in the app view
-        if (!appSection.classList.contains('hidden')) {
-            renderArticles();
-        }
-        // Update notice boards when data changes
-        if (typeof updateNoticeBoards === 'function') {
-            updateNoticeBoards();
-        }
+        if (callback) callback(data);
     });
 }
 
-function getArticleReadStatus(articleId) {
-    return readStatusCache[articleId] || {};
+function getReadStatusCache() {
+    return readStatusCache;
 }
 
-// Get all reactions for a specific user across all articles
-function getUserReactions(userName) {
-    const liked = [];
-    const neutral = [];
-    const disliked = [];
-
-    Object.entries(readStatusCache).forEach(([articleId, reactions]) => {
-        if (reactions[userName]) {
-            const status = reactions[userName];
-            const article = articles.find(a => a.id === parseInt(articleId));
-            if (article) {
-                if (status === 'liked') liked.push(article);
-                else if (status === 'neutral') neutral.push(article);
-                else if (status === 'disliked') disliked.push(article);
-            }
-        }
-    });
-
-    return { liked, neutral, disliked };
+// Save reaction to Firebase
+function saveReactionToFirebase(itemId, userName, reactionType) {
+    return database.ref(`readStatus/${itemId}/${userName}`).set(reactionType);
 }
 
-// Check if user has any activity
-function hasUserActivity(userName) {
-    const reactions = getUserReactions(userName);
-    return reactions.liked.length > 0 || reactions.neutral.length > 0 || reactions.disliked.length > 0;
+// Remove reaction from Firebase
+function removeReactionFromFirebase(itemId, userName) {
+    return database.ref(`readStatus/${itemId}/${userName}`).remove();
 }
 
 // ========================================
-// User Thoughts & Favorites
+// User Thoughts & Favorites (from old app)
 // ========================================
 let userThoughtsCache = {};
 
@@ -192,246 +142,6 @@ function initUserThoughtsListener() {
     });
 }
 
-function saveUserThoughts(userName, thoughts, favoriteArticleId) {
-    return database.ref(`userThoughts/${userName}`).set({
-        thoughts: thoughts || '',
-        favoriteArticleId: favoriteArticleId || null,
-        updatedAt: Date.now()
-    });
-}
-
 function getUserThoughts(userName) {
     return userThoughtsCache[userName] || { thoughts: '', favoriteArticleId: null };
-}
-
-// ========================================
-// Analytics Tracking
-// ========================================
-let analyticsCache = {};
-let sessionId = null;
-let sessionStartTime = null;
-
-function generateSessionId() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
-}
-
-function initAnalytics() {
-    const user = getCurrentUser();
-    if (!user || isCuratorAccess()) return; // Don't track curator
-
-    sessionId = generateSessionId();
-    sessionStartTime = Date.now();
-
-    // Record session start
-    const sessionRef = database.ref(`analytics/${user}/sessions/${sessionId}`);
-    sessionRef.set({
-        startTime: sessionStartTime,
-        endTime: null,
-        duration: 0,
-        pageViews: 0,
-        articleClicks: 0,
-        reactionsGiven: 0
-    });
-
-    // Update end time periodically and on page unload
-    const updateSession = () => {
-        if (!sessionId) return;
-        const now = Date.now();
-        const duration = Math.floor((now - sessionStartTime) / 1000); // in seconds
-        sessionRef.update({
-            endTime: now,
-            duration: duration
-        });
-    };
-
-    // Update every 30 seconds
-    setInterval(updateSession, 30000);
-
-    // Update on page visibility change
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden') {
-            updateSession();
-        }
-    });
-
-    // Update on beforeunload
-    window.addEventListener('beforeunload', updateSession);
-
-    // Increment visit count
-    database.ref(`analytics/${user}/totalVisits`).transaction(count => (count || 0) + 1);
-    database.ref(`analytics/${user}/lastVisit`).set(Date.now());
-}
-
-function trackPageView(pageName) {
-    const user = getCurrentUser();
-    if (!user || isCuratorAccess() || !sessionId) return;
-
-    // Increment page views for this session
-    database.ref(`analytics/${user}/sessions/${sessionId}/pageViews`).transaction(count => (count || 0) + 1);
-    database.ref(`analytics/${user}/totalPageViews`).transaction(count => (count || 0) + 1);
-}
-
-function trackArticleClick(articleId, articleTitle) {
-    const user = getCurrentUser();
-    if (!user || isCuratorAccess() || !sessionId) return;
-
-    // Increment article clicks for this session
-    database.ref(`analytics/${user}/sessions/${sessionId}/articleClicks`).transaction(count => (count || 0) + 1);
-    database.ref(`analytics/${user}/totalArticleClicks`).transaction(count => (count || 0) + 1);
-
-    // Log the specific article clicked
-    database.ref(`analytics/${user}/clickedArticles/${articleId}`).transaction(data => {
-        if (!data) {
-            return { title: articleTitle, clicks: 1, lastClicked: Date.now() };
-        }
-        return { ...data, clicks: (data.clicks || 0) + 1, lastClicked: Date.now() };
-    });
-}
-
-function trackReaction(articleId) {
-    const user = getCurrentUser();
-    if (!user || isCuratorAccess() || !sessionId) return;
-
-    database.ref(`analytics/${user}/sessions/${sessionId}/reactionsGiven`).transaction(count => (count || 0) + 1);
-    database.ref(`analytics/${user}/totalReactions`).transaction(count => (count || 0) + 1);
-}
-
-// Analytics data subscription for curator dashboard
-function subscribeToAnalytics(callback) {
-    database.ref('analytics').on('value', (snapshot) => {
-        const data = snapshot.val() || {};
-        callback(data);
-    });
-}
-
-function initAnalyticsListener() {
-    subscribeToAnalytics((data) => {
-        analyticsCache = data;
-        // Update dashboard if visible
-        if (typeof updateAnalyticsDashboard === 'function') {
-            updateAnalyticsDashboard();
-        }
-    });
-}
-
-function getAnalyticsForUser(userName) {
-    return analyticsCache[userName] || null;
-}
-
-function getAllAnalytics() {
-    return analyticsCache;
-}
-
-// Calculate summary stats for a user
-function getUserAnalyticsSummary(userName) {
-    const data = analyticsCache[userName];
-    if (!data) {
-        return {
-            totalVisits: 0,
-            totalPageViews: 0,
-            totalArticleClicks: 0,
-            totalReactions: 0,
-            avgSessionDuration: 0,
-            lastVisit: null
-        };
-    }
-
-    // Calculate average session duration
-    let totalDuration = 0;
-    let sessionCount = 0;
-    if (data.sessions) {
-        Object.values(data.sessions).forEach(session => {
-            if (session.duration) {
-                totalDuration += session.duration;
-                sessionCount++;
-            }
-        });
-    }
-
-    return {
-        totalVisits: data.totalVisits || 0,
-        totalPageViews: data.totalPageViews || 0,
-        totalArticleClicks: data.totalArticleClicks || 0,
-        totalReactions: data.totalReactions || 0,
-        avgSessionDuration: sessionCount > 0 ? Math.floor(totalDuration / sessionCount) : 0,
-        lastVisit: data.lastVisit || null,
-        sessionCount: sessionCount
-    };
-}
-
-// Get consolidated analytics across all users
-function getConsolidatedAnalytics() {
-    let totals = {
-        totalVisits: 0,
-        totalPageViews: 0,
-        totalArticleClicks: 0,
-        totalReactions: 0,
-        totalSessionDuration: 0,
-        sessionCount: 0,
-        activeUsers: 0
-    };
-
-    Object.entries(analyticsCache).forEach(([userName, data]) => {
-        totals.totalVisits += data.totalVisits || 0;
-        totals.totalPageViews += data.totalPageViews || 0;
-        totals.totalArticleClicks += data.totalArticleClicks || 0;
-        totals.totalReactions += data.totalReactions || 0;
-
-        if (data.sessions) {
-            Object.values(data.sessions).forEach(session => {
-                if (session.duration) {
-                    totals.totalSessionDuration += session.duration;
-                    totals.sessionCount++;
-                }
-            });
-        }
-
-        if (data.totalVisits > 0) {
-            totals.activeUsers++;
-        }
-    });
-
-    totals.avgSessionDuration = totals.sessionCount > 0
-        ? Math.floor(totals.totalSessionDuration / totals.sessionCount)
-        : 0;
-
-    return totals;
-}
-
-// ========================================
-// User Submissions
-// ========================================
-let userSubmissionsCache = {};
-
-function subscribeToUserSubmissions(callback) {
-    database.ref('userSubmissions').on('value', (snapshot) => {
-        callback(snapshot.val() || {});
-    });
-}
-
-function initUserSubmissionsListener() {
-    subscribeToUserSubmissions((data) => {
-        userSubmissionsCache = data;
-    });
-}
-
-function saveUserSubmission(userName, articleUrl) {
-    const submissionId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-    return database.ref(`userSubmissions/${userName}/${submissionId}`).set({
-        url: articleUrl,
-        submittedAt: Date.now()
-    });
-}
-
-function getUserSubmissions(userName) {
-    return userSubmissionsCache[userName] || {};
-}
-
-function getUserSubmissionCount(userName) {
-    const submissions = getUserSubmissions(userName);
-    return Object.keys(submissions).length;
-}
-
-function getAllSubmissions() {
-    return userSubmissionsCache;
 }

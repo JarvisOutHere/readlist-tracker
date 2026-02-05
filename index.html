@@ -4,363 +4,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReadList — Your Personal Reading Tracker</title>
-    <meta name="description"
-        content="Track articles you've read and loved. Organize by category, discover gems from your archive.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="index.css">
+    <title>Reading Archive</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <!-- Landing Page -->
-    <section id="landing" class="landing">
+    <div id="landing-page" class="landing-page">
         <div class="landing-content">
-            <h1 class="landing-title">ReadList</h1>
-            <p class="landing-subtitle">Archive of things I've read recently and found interesting</p>
-            <p class="landing-disclaimer">Interesting pieces. Not necessarily accurate or well written.</p>
+            <h1 class="main-title">Reading Archive</h1>
+            <p class="subtitle">Archive of things I've read recently and found interesting</p>
+            <p class="sub-subtitle"><em>Interesting pieces. Not necessarily accurate or well-written</em></p>
 
-            <div class="landing-sections">
-                <!-- Articles Section -->
-                <div class="landing-section" id="landing-articles">
-                    <h2 class="section-title">Articles</h2>
-                    <span class="section-stat-number" id="total-articles">0</span>
-                </div>
-
-                <!-- Books Section -->
-                <div class="landing-section" id="landing-books">
-                    <h2 class="section-title">Books</h2>
-                    <span class="section-stat-number" id="total-books">0</span>
-                </div>
-
-                <!-- YouTube Section -->
-                <div class="landing-section" id="landing-youtube">
-                    <h2 class="section-title">YouTube</h2>
-                    <span class="section-stat-number" id="total-youtube">0</span>
+            <div class="category-tiles">
+                <div class="category-tile">
+                    <h2>Articles</h2>
+                    <span class="count" id="articles-count">0</span>
                 </div>
             </div>
 
-            <button class="cta-button" id="explore-btn">
-                Browse Catalog
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M5 12h14M12 5l7 7-7 7" />
+            <button class="browse-btn" onclick="enterCatalog()">Browse Catalog</button>
+        </div>
+    </div>
+
+    <!-- Pillars Page (scrollable, contains pillars + nerds section) -->
+    <div id="pillars-page" class="pillars-page hidden">
+        <!-- Pillars Section (first screen) -->
+        <div class="pillars-section">
+            <button class="pillars-back-btn" onclick="showLanding()" title="Back to home">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="10" r="9.5" stroke="currentColor" />
+                    <path d="M11.5 6L7.5 10L11.5 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
+            <div class="pillars-greeting" id="pillars-greeting">Hi there</div>
+            <div id="pillars-container" class="pillars-container">
+                <!-- Pillars will be dynamically inserted here -->
+            </div>
+            <button class="corner-nav-btn" id="corner-nav-btn">
+                <span class="corner-nav-text">Meet the other nerds</span>
+                <svg class="corner-nav-arrow" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M7 2V12M7 12L3 8M7 12L11 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
                 </svg>
             </button>
         </div>
 
-        <!-- Inactive Invitees Board (top-left) -->
-        <div class="notice-board notice-board-left" id="inactive-board">
-            <div class="notice-board-toggle" id="inactive-toggle">
-                <span>Inactive Invitees</span>
-                <span class="toggle-arrow">▼</span>
-            </div>
-            <!-- Boo figure outside the collapsible box, visible when expanded -->
-            <div class="inactive-boo-figure hidden" id="boo-figure">
-                <svg width="200" height="180" viewBox="0 0 200 180" class="boo-stick-figure">
-                    <!-- Speech bubble with Booooooooooo - stays at top -->
-                    <text x="5" y="25" font-size="18" fill="var(--text-muted)" font-style="italic">Booooooooooo!</text>
-                    <!-- Simple stick figure (facing left towards the box) - moved down -->
-                    <circle cx="120" cy="70" r="20" fill="none" stroke="var(--text-muted)" stroke-width="3" />
-                    <line x1="120" y1="90" x2="120" y2="130" stroke="var(--text-muted)" stroke-width="3" />
-                    <line x1="120" y1="102" x2="96" y2="118" stroke="var(--text-muted)" stroke-width="3" />
-                    <line x1="120" y1="102" x2="144" y2="118" stroke="var(--text-muted)" stroke-width="3" />
-                    <line x1="120" y1="130" x2="100" y2="166" stroke="var(--text-muted)" stroke-width="3" />
-                    <line x1="120" y1="130" x2="140" y2="166" stroke="var(--text-muted)" stroke-width="3" />
-                </svg>
-            </div>
-            <div class="notice-board-content collapsed" id="inactive-content">
-                <div class="notice-board-users" id="inactive-users">
-                    <!-- Inactive users rendered by JS -->
-                </div>
+        <!-- Nerds Section (second screen, scrolled to) -->
+        <div id="nerds-section" class="nerds-section">
+            <div class="nerds-grid" id="nerds-grid">
+                <!-- Nerd tiles inserted by JS -->
             </div>
         </div>
 
-        <!-- Active Invitees Board (top-right) -->
-        <div class="notice-board notice-board-right" id="active-board">
-            <div class="notice-board-toggle" id="active-toggle">
-                <span>Invitees</span>
-                <span class="toggle-arrow">▼</span>
-            </div>
-            <div class="notice-board-content collapsed" id="active-content">
-                <div class="notice-board-users" id="active-users">
-                    <!-- Active users rendered by JS -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Analytics Dashboard (bottom-left, curator only) -->
-        <div class="analytics-dashboard hidden" id="analytics-dashboard">
-            <div class="analytics-toggle" id="analytics-toggle">
-                <span>📊 Analytics</span>
-                <span class="toggle-arrow">▲</span>
-            </div>
-            <div class="analytics-content collapsed" id="analytics-content">
-                <div class="analytics-tabs">
-                    <button class="analytics-tab active" data-tab="consolidated">All Users</button>
-                    <button class="analytics-tab" data-tab="individual">By User</button>
-                </div>
-
-                <!-- Consolidated View -->
-                <div class="analytics-panel" id="consolidated-panel">
-                    <div class="analytics-grid" id="consolidated-stats">
-                        <!-- Stats rendered by JS -->
-                    </div>
-                </div>
-
-                <!-- Individual User View -->
-                <div class="analytics-panel hidden" id="individual-panel">
-                    <select class="analytics-user-select" id="analytics-user-select">
-                        <option value="">-- Select User --</option>
-                    </select>
-                    <div class="analytics-grid" id="user-stats">
-                        <!-- User stats rendered by JS -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Main App -->
-    <main id="app" class="app hidden">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <button class="back-arrow-btn" id="sidebar-home-btn" title="Back to Home">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="15 18 9 12 15 6" />
-                    </svg>
-                </button>
-            </div>
-            <nav class="category-nav">
-                <!-- Articles Section (Collapsible) -->
-                <div class="nav-section" data-section="articles">
-                    <button class="nav-toggle" data-toggle="articles">
-                        <span class="toggle-label">Articles</span>
-                        <span class="toggle-count" id="count-articles-total">0</span>
-                    </button>
-                    <div class="subcategory-list collapsed" id="articles-subcategories">
-                        <button class="category-item" data-category="interesting-businesses">
-                            <span class="category-name">Interesting Businesses</span>
-                            <span class="category-count" id="count-interesting-businesses">0</span>
-                        </button>
-                        <button class="category-item" data-category="ai">
-                            <span class="category-name">AI</span>
-                            <span class="category-count" id="count-ai">0</span>
-                        </button>
-                        <button class="category-item" data-category="intrapersonal">
-                            <span class="category-name">Intrapersonal</span>
-                            <span class="category-count" id="count-intrapersonal">0</span>
-                        </button>
-                        <button class="category-item" data-category="fin-econ-geopolity">
-                            <span class="category-name">Fin-Econ-(Geo)Polity</span>
-                            <span class="category-count" id="count-fin-econ-geopolity">0</span>
-                        </button>
-                        <button class="category-item" data-category="food-for-thought">
-                            <span class="category-name">Food for Thought</span>
-                            <span class="category-count" id="count-food-for-thought">0</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Books -->
-                <div class="nav-section" data-section="books">
-                    <button class="nav-toggle nav-toggle-direct" data-category="books">
-                        <span class="toggle-label">Books</span>
-                        <span class="toggle-count" id="count-books">0</span>
-                    </button>
-                </div>
-
-                <!-- YouTube -->
-                <div class="nav-section" data-section="youtube">
-                    <button class="nav-toggle nav-toggle-direct" data-category="yt-long-form">
-                        <span class="toggle-label">YouTube</span>
-                        <span class="toggle-count" id="count-yt-long-form">0</span>
-                    </button>
-                </div>
-            </nav>
-
-            <!-- Bottom Section: User Submissions -->
-            <div class="sidebar-bottom-nav">
-                <div class="nav-section" data-section="submissions">
-                    <button class="nav-toggle nav-toggle-direct" id="user-submissions-btn">
-                        <span class="toggle-label">User Submissions</span>
-                    </button>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <header class="content-header">
-                <h1 class="content-title" id="current-category">Your Reading List</h1>
-            </header>
-            <div class="articles-grid" id="articles-grid">
-                <!-- Articles will be rendered here -->
-            </div>
-        </div>
-    </main>
-
-    <!-- Add Article Modal -->
-    <div class="modal-overlay hidden" id="modal-overlay">
-        <div class="modal">
-            <div class="modal-header">
-                <h3>Add New Article</h3>
-                <button class="modal-close" id="modal-close">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 6L6 18M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <form class="modal-form" id="add-form">
-                <div class="form-group">
-                    <label for="article-url">Article URL</label>
-                    <div class="url-input-group">
-                        <input type="url" id="article-url" placeholder="https://example.com/article" required>
-                        <button type="button" class="fetch-btn" id="fetch-btn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M21 12a9 9 0 11-9-9" />
-                                <path d="M21 3v6h-6" />
-                            </svg>
-                            Auto-fill
-                        </button>
-                    </div>
-                    <span class="form-hint">Paste a URL and click Auto-fill to fetch details</span>
-                </div>
-                <div class="form-group">
-                    <label for="article-title">Title</label>
-                    <input type="text" id="article-title" placeholder="Article title" required>
-                </div>
-                <div class="form-group">
-                    <label for="article-description">Description</label>
-                    <textarea id="article-description" placeholder="Brief description..." rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="article-category">Category</label>
-                    <select id="article-category" required>
-                        <option value="">Select category</option>
-                        <option value="interesting-businesses">Interesting Businesses</option>
-                        <option value="ai">AI</option>
-                        <option value="intrapersonal">Intrapersonal</option>
-                        <option value="core-finance">Core Finance</option>
-                        <option value="institution-building">Institution Building</option>
-                        <option value="food-for-thought">Food for Thought</option>
-                    </select>
-                </div>
-                <button type="submit" class="submit-btn">Add Article</button>
-            </form>
-        </div>
-    </div>
-    <!-- User Picker Modal -->
-    <div class="modal-overlay hidden" id="user-picker-overlay">
-        <div class="modal user-picker-modal">
-            <div class="modal-header">
-                <h3>Who's Reading?</h3>
-            </div>
-            <div class="user-picker-content">
-                <p class="user-picker-subtitle">Select your name to track what you've read</p>
-                <div class="user-buttons" id="user-buttons">
-                    <!-- User buttons will be rendered here -->
-                </div>
+        <!-- Profile Pane (popup on nerd click) -->
+        <div class="profile-overlay hidden" id="profile-overlay">
+            <div class="profile-pane" id="profile-pane">
+                <!-- Populated by JS -->
             </div>
         </div>
     </div>
 
-    <!-- User Submissions Modal -->
-    <div class="modal-overlay hidden" id="submissions-overlay">
-        <div class="modal submissions-modal">
-            <div class="modal-header">
-                <h3>User Submissions</h3>
-                <button class="modal-close-btn" id="close-submissions-btn">✕</button>
-            </div>
-            <div class="submissions-content">
-                <!-- Empty state -->
-                <div class="submissions-empty" id="submissions-empty">
-                    <div class="submissions-empty-icon">📝</div>
-                    <p>No user submissions yet.</p>
-                    <p class="submissions-hint">Click below to add an article.</p>
-                </div>
-
-                <!-- Submissions list -->
-                <div class="submissions-list hidden" id="submissions-list">
-                    <!-- Submissions will be rendered here -->
-                </div>
-
-                <!-- Add submission section -->
-                <div class="add-submission-section" id="add-submission-section">
-                    <button class="add-submission-btn" id="add-submission-btn">+ Add Article</button>
-                </div>
-
-                <!-- Submission form (hidden by default) -->
-                <div class="submission-form hidden" id="submission-form">
-                    <label for="article-url-input">Article Link:</label>
-                    <input type="url" id="article-url-input" placeholder="https://..." class="submission-input">
-                    <div class="submission-form-actions">
-                        <button class="submit-article-btn" id="submit-article-btn">Submit</button>
-                        <button class="cancel-submission-btn" id="cancel-submission-btn">Cancel</button>
-                    </div>
-                </div>
-
-                <!-- Confirmation message -->
-                <div class="submission-confirmation hidden" id="submission-confirmation">
-                    <div class="confirmation-icon">✓</div>
-                    <p>Your article has been submitted and will be updated soon!</p>
-                </div>
-
-                <!-- Limit reached message -->
-                <div class="submission-limit hidden" id="submission-limit">
-                    <p>You have reached the maximum of 2 submissions.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Current User Indicator -->
-    <div class="current-user-badge hidden" id="current-user-badge">
-        <div class="badge-main" id="badge-main-clickable">
-            <span class="user-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M4 0l16 12.279-6.951 1.17 4.325 8.817-3.596 1.734-4.35-8.879-5.428 4.702z" />
-                </svg></span>
-            <span class="user-name" id="current-user-name"></span>
-            <button class="change-user-btn" id="change-user-btn" title="Change user">✕</button>
-        </div>
-    </div>
-
-    <!-- Global Popups (work on both landing and app views) -->
-    <!-- User Reactions Popup -->
-    <div class="user-reactions-overlay hidden" id="reactions-overlay"></div>
-    <div class="user-reactions-popup hidden" id="reactions-popup">
-        <div class="user-reactions-header">
-            <span class="user-reactions-title" id="reactions-popup-title">User's Reactions</span>
-            <button class="user-reactions-close" id="reactions-popup-close">✕</button>
-        </div>
-        <div class="user-reactions-content" id="reactions-popup-content">
-            <!-- Content rendered by JS -->
-        </div>
-    </div>
-
-    <!-- Favorite Article Popup -->
-    <div class="thoughts-popup hidden" id="thoughts-popup">
-        <div class="thoughts-popup-header">
-            <span class="thoughts-popup-title">Select Your Favorite</span>
-            <button class="thoughts-popup-close" id="thoughts-popup-close">✕</button>
-        </div>
-        <div class="thoughts-popup-content">
-            <label class="thoughts-label">Favorite Article</label>
-            <select id="favorite-article-select" class="thoughts-select">
-                <option value="">-- Select your favorite --</option>
-            </select>
-            <button id="save-thoughts-btn" class="thoughts-save-btn">Save</button>
+    <!-- Scroll View Page -->
+    <div id="scroll-page" class="scroll-page hidden">
+        <button class="scroll-back-btn" onclick="showPillars()" title="Back to pillars">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="9.5" stroke="currentColor" />
+                <path d="M11.5 6L7.5 10L11.5 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+        </button>
+        <h2 class="scroll-category-title" id="scroll-category-title"></h2>
+        <div id="scroll-container" class="scroll-container">
+            <!-- Article cards will be dynamically inserted here -->
         </div>
     </div>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script src="app.js"></script>
 </body>
