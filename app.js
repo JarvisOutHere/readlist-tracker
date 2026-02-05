@@ -67,8 +67,13 @@ function getAllReactionsForItem(itemId) {
 }
 
 // Get item ID for reactions
+// Firebase doesn't allow: . $ # [ ] / in path keys
+// Also remove: : ? and other special chars for safety
 function getItemId(item) {
-    return `${item.title}-${item.author}`.replace(/\s+/g, '-').toLowerCase();
+    return `${item.title}-${item.author}`
+        .replace(/[.$#\[\]\/\:?]/g, '') // Remove Firebase-invalid chars
+        .replace(/\s+/g, '-')
+        .toLowerCase();
 }
 
 // Data — articles only (no books/youtube in v2)
