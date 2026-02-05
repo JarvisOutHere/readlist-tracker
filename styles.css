@@ -317,6 +317,7 @@ body {
         opacity: 0;
         transform-origin: bottom;
     }
+
     to {
         transform: scaleY(1);
         opacity: 1;
@@ -459,12 +460,16 @@ body {
 }
 
 @keyframes booWobble {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: translateY(0) rotate(0deg);
     }
+
     25% {
         transform: translateY(-5px) rotate(-3deg);
     }
+
     75% {
         transform: translateY(-5px) rotate(3deg);
     }
@@ -719,6 +724,73 @@ body {
     z-index: 20;
 }
 
+/* Favorite button: top-right, aligned with cross button */
+.card-favorite-wrapper {
+    position: absolute;
+    top: -18px;
+    right: 2rem;
+    z-index: 20;
+}
+
+.card-favorite-btn {
+    height: 36px;
+    min-width: 36px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(139, 115, 85, 0.3);
+    background: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.card-favorite-btn .btn-icon {
+    font-size: 1.1rem;
+}
+
+.card-favorite-btn .btn-label {
+    max-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-width 0.2s ease, opacity 0.15s ease, margin 0.2s ease;
+    font-size: 13px;
+    font-weight: 500;
+    margin-left: 0;
+}
+
+.card-favorite-btn:hover .btn-label {
+    max-width: 80px;
+    opacity: 1;
+    margin-left: 6px;
+}
+
+.card-favorite-btn:hover {
+    z-index: 1;
+    background: #f5ebe0;
+    border-color: #8B6914;
+    color: #8B6914;
+}
+
+.card-favorite-btn.active {
+    background: #8B6914;
+    border-color: #8B6914;
+    color: white;
+}
+
+.card-favorite-btn.active:hover {
+    background: #6d5310;
+    border-color: #6d5310;
+}
+
+
 .card-reaction-btn {
     height: 36px;
     min-width: 36px;
@@ -890,6 +962,7 @@ body {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);

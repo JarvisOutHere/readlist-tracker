@@ -203,3 +203,14 @@ function initUserThoughtsListener() {
 function getUserThoughts(userName) {
     return userThoughtsCache[userName] || { thoughts: '', favoriteArticleId: null };
 }
+
+// Save favorite article to Firebase
+function saveFavoriteToFirebase(userName, articleId) {
+    return database.ref(`userThoughts/${userName}/favoriteArticleId`).set(articleId);
+}
+
+// Clear favorite article from Firebase
+function clearFavoriteFromFirebase(userName) {
+    return database.ref(`userThoughts/${userName}/favoriteArticleId`).remove();
+}
+

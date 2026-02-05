@@ -495,8 +495,19 @@ function buildScrollCard(item, imgW, imgH) {
 
     const isHorizontal = item.layout === 'horizontal' || item.layout === 'horizontal-square';
 
+    // Check if this article is the user's favorite
+    const userThoughts = getUserThoughts(currentUserName);
+    const isFavorite = userThoughts.favoriteArticleId === itemId;
+    const favoriteActive = isFavorite ? 'active' : '';
+
     card.innerHTML = `
         <div class="card-window">
+            <div class="card-favorite-wrapper">
+                <button class="card-favorite-btn ${favoriteActive}" title="Favorite">
+                    <span class="btn-icon">★</span>
+                    <span class="btn-label">Favorite</span>
+                </button>
+            </div>
             <div class="card-reactions">
                 <button class="card-reaction-btn positive ${positiveActive}" title="Nice"><span class="btn-icon">✓</span><span class="btn-label">Nice</span></button>
                 <button class="card-reaction-btn neutral ${neutralActive}" title="Meh"><span class="btn-icon">—</span><span class="btn-label">Meh</span></button>
@@ -512,6 +523,7 @@ function buildScrollCard(item, imgW, imgH) {
             </div>
         </div>
     `;
+
 
     const win = card.querySelector('.card-window');
 
@@ -573,12 +585,13 @@ function buildScrollCard(item, imgW, imgH) {
         card.querySelector('.card-image').style.background = item.imageBg;
     }
 
-    // Click card to open article (except reaction buttons)
+    // Click card to open article (except reaction/favorite buttons)
     win.addEventListener('click', (e) => {
-        if (!e.target.closest('.card-reaction-btn') && item.url) {
+        if (!e.target.closest('.card-reaction-btn') && !e.target.closest('.card-favorite-btn') && item.url) {
             window.open(item.url, '_blank');
         }
     });
+
     if (item.url) {
         win.style.cursor = 'pointer';
     }
@@ -597,8 +610,15 @@ function buildScrollCard(item, imgW, imgH) {
         handleReaction(item, 'negative', card);
     });
 
+    // Favorite button handler
+    card.querySelector('.card-favorite-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        handleFavorite(item, card);
+    });
+
     return card;
 }
+
 
 // Handle reaction - saves to Firebase
 function handleReaction(item, reactionType, card) {
@@ -623,6 +643,48 @@ function handleReaction(item, reactionType, card) {
 
     // UI update will happen via Firebase listener callback
 }
+
+// Handle favorite - saves to Firebase
+function handleFavorite(item, card) {
+    const itemId = getItemId(item);
+    const currentUserName = getActiveUser();
+
+    // Get current favorite from cache
+    const userThoughts = getUserThoughts(currentUserName);
+    const currentFavorite = userThoughts.favoriteArticleId;
+
+    // Toggle logic: if already favorite, remove it; otherwise set as new favorite
+    if (currentFavorite === itemId) {
+        // Remove favorite
+        clearFavoriteFromFirebase(currentUserName);
+    } else {
+        // Set new favorite
+        saveFavoriteToFirebase(currentUserName, itemId);
+    }
+
+    // Update UI immediately (don't wait for Firebase callback for responsiveness)
+    updateFavoriteButtonStates();
+}
+
+// Update all favorite button states based on current user's favorite
+function updateFavoriteButtonStates() {
+    const currentUserName = getActiveUser();
+    const userThoughts = getUserThoughts(currentUserName);
+    const favoriteId = userThoughts.favoriteArticleId;
+
+    document.querySelectorAll('.scroll-card').forEach(card => {
+        const cardItemId = card.dataset.itemId;
+        const favBtn = card.querySelector('.card-favorite-btn');
+        if (favBtn) {
+            if (cardItemId === favoriteId) {
+                favBtn.classList.add('active');
+            } else {
+                favBtn.classList.remove('active');
+            }
+        }
+    });
+}
+
 
 // ==========================================
 // NERD PERSONAS (including Kashvi)
