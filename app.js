@@ -585,7 +585,7 @@ const nerds = [
     {
         id: "himadri",
         name: "Himadri",
-        subtitle: "finbro"
+        subtitle: "Finbro"
     },
     {
         id: "avantheka",
@@ -600,7 +600,7 @@ const nerds = [
     {
         id: "kashvi",
         name: "Kashvi",
-        subtitle: "BaroC President"
+        subtitle: "Crochet Enthusiast"
     },
     {
         id: "achyut",
