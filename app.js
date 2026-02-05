@@ -575,48 +575,37 @@ function handleReaction(item, reactionType, card) {
 // ==========================================
 // NERD PERSONAS (including Kashvi)
 // ==========================================
+// Note: favorites are now pulled from Firebase userThoughts, not hardcoded
 const nerds = [
     {
         id: "tanmay",
         name: "Tanmay",
-        subtitle: "Reads everything, retains selectively",
-        favoriteArticle: "AI and Leviathan: Part I",
-        favoriteAuthor: "Second Best"
+        subtitle: "Reads everything, retains selectively"
     },
     {
         id: "himadri",
         name: "Himadri",
-        subtitle: "Quietly knows more than you",
-        favoriteArticle: "The Adolescence of Technology",
-        favoriteAuthor: "Dario Amodei"
+        subtitle: "Quietly knows more than you"
     },
     {
         id: "avantheka",
         name: "Avantheka",
-        subtitle: "Will debate you on anything",
-        favoriteArticle: "The Stable Marriage Problem",
-        favoriteAuthor: "Acotra"
+        subtitle: "Will debate you on anything"
     },
     {
         id: "cicily",
         name: "Cicily",
-        subtitle: "Finds the gems no one else reads",
-        favoriteArticle: "Make Something Heavy",
-        favoriteAuthor: "Working Theorys"
+        subtitle: "Finds the gems no one else reads"
     },
     {
         id: "kashvi",
         name: "Kashvi",
-        subtitle: "Curates with quiet intensity",
-        favoriteArticle: "What Makes a Person Interesting?",
-        favoriteAuthor: "Angel Cake"
+        subtitle: "Curates with quiet intensity"
     },
     {
         id: "achyut",
         name: "Achyut",
-        subtitle: "Charts and contrarian takes",
-        favoriteArticle: "Evolution of a Value Investor",
-        favoriteAuthor: "Sage Saigal"
+        subtitle: "Charts and contrarian takes"
     }
 ];
 
@@ -677,18 +666,30 @@ function openNerdProfile(nerd) {
     const reviews = getNerdReviews(nerd.name);
     const totalReviews = reviews.positive + reviews.neutral + reviews.negative;
 
+    // Get favorite from Firebase userThoughts
+    const userThoughts = getUserThoughts(nerd.name);
+    const hasFavorite = userThoughts.favoriteArticleId !== null;
+
+    // Find article title from favoriteArticleId if set
+    let favoriteTitle = 'Not set yet';
+    let favoriteAuthor = '';
+    if (hasFavorite) {
+        // favoriteArticleId might be a numeric ID from the old app
+        // We'll just show what's there or 'Not set yet'
+        favoriteTitle = userThoughts.favoriteArticleId || 'Not set yet';
+    }
+
     pane.innerHTML = `
         <button class="profile-close" onclick="closeNerdProfile()">&times;</button>
         <div class="profile-avatar">${nerd.name.charAt(0)}</div>
         <h3 class="profile-name">${nerd.name}</h3>
         <p class="profile-subtitle">${nerd.subtitle}</p>
         <div class="profile-divider"></div>
-        <div class="profile-section">
+        ${hasFavorite ? `<div class="profile-section">
             <div class="profile-section-label">Favorite Article</div>
-            <div class="profile-favorite-title">${nerd.favoriteArticle}</div>
-            <div class="profile-favorite-author">by ${nerd.favoriteAuthor}</div>
+            <div class="profile-favorite-title">${favoriteTitle}</div>
         </div>
-        <div class="profile-divider"></div>
+        <div class="profile-divider"></div>` : ''}
         <div class="profile-section">
             <div class="profile-section-label">Reviews So Far</div>
             ${totalReviews === 0
@@ -797,14 +798,47 @@ function updateGreeting() {
     }
 }
 
-// Callback when Firebase data updates
+// Callback when Firebase data updates - update button states in-place to preserve scroll
 function onFirebaseDataUpdate(data) {
-    // Re-render current view if in scroll view
+    // Update reaction button states in-place (don't re-render to preserve scroll)
     if (currentCategoryKey && !document.getElementById('scroll-page').classList.contains('hidden')) {
-        renderScrollCards(currentCategoryKey);
+        updateReactionButtonStates();
     }
-    // Update nerd tiles reviews if profile is open
-    // (Profile will show stale data until reopened, which is acceptable)
+}
+
+// Update reaction button states without re-rendering the entire view
+function updateReactionButtonStates() {
+    const container = document.getElementById('scroll-container');
+    if (!container) return;
+
+    const cards = container.querySelectorAll('.scroll-card');
+    const cache = getReadStatusCache();
+    const currentUserName = getActiveUser();
+
+    cards.forEach(card => {
+        // Get item ID from card data
+        const titleEl = card.querySelector('.card-title');
+        const authorEl = card.querySelector('.card-author');
+        if (!titleEl || !authorEl) return;
+
+        const itemId = `${titleEl.textContent}-${authorEl.textContent}`.replace(/\s+/g, '-').toLowerCase();
+
+        // Get current reaction for this user
+        const itemReactions = cache[itemId] || {};
+        const userReaction = itemReactions[currentUserName];
+        const mappedReaction = userReaction ? mapFirebaseReactionToApp(userReaction) : null;
+
+        // Update button states
+        const btns = card.querySelectorAll('.card-reaction-btn');
+        btns.forEach(btn => {
+            btn.classList.remove('active');
+            if (mappedReaction) {
+                if (btn.classList.contains(mappedReaction)) {
+                    btn.classList.add('active');
+                }
+            }
+        });
+    });
 }
 
 // Initialize
@@ -815,6 +849,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupCornerNav();
     setupProfileOverlay();
 
-    // Initialize Firebase listener
+    // Initialize Firebase listeners
     initReadStatusListener(onFirebaseDataUpdate);
+    initUserThoughtsListener(); // Load favorites from Firebase
 });
