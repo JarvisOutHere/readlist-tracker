@@ -875,7 +875,7 @@ function buildNerdTiles() {
         tile.className = 'nerd-tile';
         tile.dataset.nerd = nerd.id;
         tile.innerHTML = createTileHTML(nerd);
-        tile.addEventListener('click', () => openNerdProfile(nerd));
+        // No click handler - tiles show full profile info
         grid.appendChild(tile);
     });
 
@@ -885,8 +885,9 @@ function buildNerdTiles() {
 
 // Infinite scroll: when reaching edge, jump to duplicate set
 function setupInfiniteScroll(grid, originalCount) {
-    const tileWidth = 160 + 28; // tile width + gap
+    const tileWidth = 280 + 28; // tile width + gap
     const jumpThreshold = tileWidth * 2;
+
 
     grid.addEventListener('scroll', () => {
         const scrollLeft = grid.scrollLeft;
