@@ -931,8 +931,9 @@ function openNerdProfile(nerd) {
                 closeNerdProfile();
                 // Navigate to the article's category
                 setTimeout(() => {
-                    showScrollPage(article.category);
+                    openScrollView(article.category);
                 }, 350); // Wait for profile close animation
+
             }
         });
     }
