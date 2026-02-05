@@ -424,6 +424,7 @@ function buildScrollCard(item, imgW, imgH) {
     card.className = 'scroll-card';
 
     const itemId = getItemId(item);
+    card.dataset.itemId = itemId; // Store for updateReactionButtonStates
     const currentUserName = getActiveUser();
 
     // Get current user's reaction from Firebase cache
@@ -634,12 +635,52 @@ function getArticleTitleById(articleId) {
     return null;
 }
 
-// Get reviews for a specific nerd from Firebase
+// Get all valid item IDs from current article data
+function getAllValidItemIds() {
+    const validIds = new Set();
+    for (const category in data.articles) {
+        for (const article of data.articles[category]) {
+            validIds.add(getItemId(article));
+        }
+    }
+    return validIds;
+}
+
+// One-time cleanup: remove orphaned entries from Firebase
+// Call this from browser console: cleanupOrphanedFirebaseEntries()
+async function cleanupOrphanedFirebaseEntries() {
+    const cache = getReadStatusCache();
+    const validItemIds = getAllValidItemIds();
+
+    const orphanedIds = Object.keys(cache).filter(id => !validItemIds.has(id));
+
+    console.log(`Found ${orphanedIds.length} orphaned entries to remove:`);
+    console.log(orphanedIds);
+
+    if (orphanedIds.length === 0) {
+        console.log('No orphaned entries to clean up!');
+        return;
+    }
+
+    // Remove each orphaned entry
+    for (const itemId of orphanedIds) {
+        console.log(`Removing: ${itemId}`);
+        await removeItemFromFirebase(itemId);
+    }
+
+    console.log('Cleanup complete! Refresh the page to see updated counts.');
+}
+
+// Get reviews for a specific nerd from Firebase (only counts current articles)
 function getNerdReviews(nerdName) {
     const cache = getReadStatusCache();
     const reviews = { positive: 0, neutral: 0, negative: 0 };
+    const validItemIds = getAllValidItemIds();
 
     for (const itemId in cache) {
+        // Only count reactions for articles that currently exist
+        if (!validItemIds.has(itemId)) continue;
+
         const itemReactions = cache[itemId];
         if (itemReactions[nerdName]) {
             const reaction = mapFirebaseReactionToApp(itemReactions[nerdName]);
@@ -852,12 +893,9 @@ function updateReactionButtonStates() {
     const currentUserName = getActiveUser();
 
     cards.forEach(card => {
-        // Get item ID from card data
-        const titleEl = card.querySelector('.card-title');
-        const authorEl = card.querySelector('.card-author');
-        if (!titleEl || !authorEl) return;
-
-        const itemId = `${titleEl.textContent}-${authorEl.textContent}`.replace(/\s+/g, '-').toLowerCase();
+        // Get item ID from card's data attribute (set in buildScrollCard)
+        const itemId = card.dataset.itemId;
+        if (!itemId) return;
 
         // Get current reaction for this user
         const itemReactions = cache[itemId] || {};

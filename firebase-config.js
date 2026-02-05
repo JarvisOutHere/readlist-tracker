@@ -124,6 +124,11 @@ function removeReactionFromFirebase(itemId, userName) {
     return database.ref(`readStatus/${itemId}/${userName}`).remove();
 }
 
+// Remove entire item from Firebase (for cleanup)
+function removeItemFromFirebase(itemId) {
+    return database.ref(`readStatus/${itemId}`).remove();
+}
+
 // ========================================
 // User Thoughts & Favorites (from old app)
 // ========================================
