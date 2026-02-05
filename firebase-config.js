@@ -40,14 +40,16 @@ const USER_TOKENS = {
     "c4w8j": "Cicily",
     "h5d2m": "Himadri",
     "k7v9f": "Kashvi",
-    "y3m8q": "Achyut"
+    "y3m8q": "Achyut",
+    "v1bhu": "Vibhu"
 };
 
 // Curator/parent access token
 const CURATOR_TOKEN = "curator_x7z9q";
 
 // All invitees for the notice board
-const INVITEES = ["Tanmay", "Avantheka", "Cicily", "Himadri", "Kashvi", "Achyut"];
+const INVITEES = ["Tanmay", "Avantheka", "Cicily", "Himadri", "Kashvi", "Achyut", "Vibhu"];
+
 
 // Check URL for magic link token
 function getUserFromToken() {
