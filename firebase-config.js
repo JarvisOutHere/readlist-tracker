@@ -114,13 +114,27 @@ function getReadStatusCache() {
     return readStatusCache;
 }
 
-// Save reaction to Firebase
-function saveReactionToFirebase(itemId, userName, reactionType) {
-    return database.ref(`readStatus/${itemId}/${userName}`).set(reactionType);
+// Save reaction to Firebase with article metadata for robustness
+// Stores: { reaction: "liked", title: "...", author: "...", timestamp: ... }
+function saveReactionToFirebase(itemId, userName, reactionType, articleTitle, articleAuthor) {
+    const reactionData = {
+        reaction: reactionType,
+        title: articleTitle || null,
+        author: articleAuthor || null,
+        updatedAt: Date.now()
+    };
+
+    // Also backup to localStorage
+    backupReactionToLocalStorage(itemId, userName, reactionData);
+
+    return database.ref(`readStatus/${itemId}/${userName}`).set(reactionData);
 }
 
 // Remove reaction from Firebase
 function removeReactionFromFirebase(itemId, userName) {
+    // Also remove from localStorage backup
+    removeReactionFromLocalStorage(itemId, userName);
+
     return database.ref(`readStatus/${itemId}/${userName}`).remove();
 }
 
@@ -128,6 +142,45 @@ function removeReactionFromFirebase(itemId, userName) {
 function removeItemFromFirebase(itemId) {
     return database.ref(`readStatus/${itemId}`).remove();
 }
+
+// ========================================
+// LocalStorage Backup for Reactions
+// ========================================
+const REACTIONS_BACKUP_KEY = 'readingArchive_reactionsBackup';
+
+function getReactionsBackup() {
+    try {
+        return JSON.parse(localStorage.getItem(REACTIONS_BACKUP_KEY) || '{}');
+    } catch {
+        return {};
+    }
+}
+
+function backupReactionToLocalStorage(itemId, userName, reactionData) {
+    const backup = getReactionsBackup();
+    if (!backup[itemId]) backup[itemId] = {};
+    backup[itemId][userName] = reactionData;
+    localStorage.setItem(REACTIONS_BACKUP_KEY, JSON.stringify(backup));
+}
+
+function removeReactionFromLocalStorage(itemId, userName) {
+    const backup = getReactionsBackup();
+    if (backup[itemId]) {
+        delete backup[itemId][userName];
+        if (Object.keys(backup[itemId]).length === 0) {
+            delete backup[itemId];
+        }
+        localStorage.setItem(REACTIONS_BACKUP_KEY, JSON.stringify(backup));
+    }
+}
+
+// Export backup for manual recovery (call from console: exportReactionsBackup())
+function exportReactionsBackup() {
+    const backup = getReactionsBackup();
+    console.log('Reactions Backup:', JSON.stringify(backup, null, 2));
+    return backup;
+}
+
 
 // ========================================
 // User Thoughts & Favorites (from old app)

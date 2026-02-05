@@ -37,7 +37,12 @@ function loadReactions() {
 }
 
 // Map Firebase reaction types to app types
-function mapFirebaseReactionToApp(firebaseReaction) {
+function mapFirebaseReactionToApp(firebaseData) {
+    // Handle both new object format {reaction: 'liked', ...} and legacy string format 'liked'
+    const reactionValue = (typeof firebaseData === 'object' && firebaseData !== null && firebaseData.reaction)
+        ? firebaseData.reaction
+        : firebaseData;
+
     // Firebase uses: liked, neutral, disliked
     // App uses: positive, neutral, negative
     const mapping = {
@@ -47,8 +52,9 @@ function mapFirebaseReactionToApp(firebaseReaction) {
         'positive': 'positive',
         'negative': 'negative'
     };
-    return mapping[firebaseReaction] || firebaseReaction;
+    return mapping[reactionValue] || reactionValue;
 }
+
 
 // Map app reaction types to Firebase types
 function mapAppReactionToFirebase(appReaction) {
@@ -76,7 +82,60 @@ function getItemId(item) {
         .toLowerCase();
 }
 
-// Data — articles only (no books/youtube in v2)
+// ==========================================
+// IMAGE PRELOADING SYSTEM
+// ==========================================
+// Cache for preloaded images { imagePath: { loaded: boolean, width: number, height: number } }
+const imageCache = {};
+let preloadingStarted = false;
+
+// Preload all images on app init (called when landing page loads)
+function preloadAllImages() {
+    if (preloadingStarted) return;
+    preloadingStarted = true;
+
+    // Collect all images from all categories
+    const allImages = [];
+    for (const category in data.articles) {
+        data.articles[category].forEach(item => {
+            if (item.image) {
+                allImages.push(item.image);
+            }
+        });
+    }
+
+    console.log(`Preloading ${allImages.length} images...`);
+
+    allImages.forEach(imagePath => {
+        if (imageCache[imagePath]) return; // Already cached
+
+        const img = new Image();
+        imageCache[imagePath] = { loaded: false, width: 0, height: 0 };
+
+        img.onload = () => {
+            imageCache[imagePath] = {
+                loaded: true,
+                width: img.naturalWidth,
+                height: img.naturalHeight
+            };
+        };
+        img.onerror = () => {
+            imageCache[imagePath] = { loaded: true, width: 0, height: 0 };
+        };
+        img.src = imagePath;
+    });
+}
+
+// Get cached image dimensions (returns null if not yet loaded)
+function getCachedImageDimensions(imagePath) {
+    const cached = imageCache[imagePath];
+    if (cached && cached.loaded) {
+        return { w: cached.width, h: cached.height };
+    }
+    return null;
+}
+
+
 const data = {
     articles: {
         "interesting-businesses": [
@@ -356,67 +415,54 @@ function openScrollView(categoryKey) {
     renderScrollCards(categoryKey);
 }
 
-// Render scroll cards (separated for re-rendering on Firebase update)
+// Render scroll cards with PROGRESSIVE LOADING
+// Cards render immediately using cached dimensions or placeholders
 function renderScrollCards(categoryKey) {
     const container = document.getElementById('scroll-container');
     container.innerHTML = '';
 
     const items = data.articles[categoryKey];
 
-    // Pre-load all images, then build cards
-    let loaded = 0;
-    const imageDimensions = {};
+    // Build all cards immediately - use cached dimensions if available
+    items.forEach((item, index) => {
+        let imgDims = { w: 0, h: 0 };
 
-    const itemsWithImages = items.filter(item => item.image);
-    const totalImages = itemsWithImages.length;
+        if (item.image) {
+            const cached = getCachedImageDimensions(item.image);
+            if (cached) {
+                // Image already preloaded - use cached dimensions
+                imgDims = cached;
+            } else {
+                // Image not ready yet - use default dimensions, load in background
+                imgDims = { w: 400, h: 300 }; // Default aspect ratio
 
-    if (totalImages === 0) {
-        // No images to load — build immediately
-        items.forEach(item => {
-            const card = buildScrollCard(item, 0, 0);
-            container.appendChild(card);
-        });
-        // Stagger animation
-        requestAnimationFrame(() => {
-            container.querySelectorAll('.scroll-card').forEach((card, i) => {
-                card.style.animationDelay = `${i * 0.1}s`;
-                card.classList.add('visible');
-            });
-        });
-        return;
-    }
+                // Start loading this image and update card when ready
+                const img = new Image();
+                img.onload = () => {
+                    // Update card dimensions when image loads
+                    imageCache[item.image] = {
+                        loaded: true,
+                        width: img.naturalWidth,
+                        height: img.naturalHeight
+                    };
+                };
+                img.src = item.image;
+            }
+        }
 
-    itemsWithImages.forEach(item => {
-        const img = new Image();
-        img.onload = () => {
-            imageDimensions[item.title] = { w: img.naturalWidth, h: img.naturalHeight };
-            loaded++;
-            if (loaded === totalImages) buildAllCards();
-        };
-        img.onerror = () => {
-            imageDimensions[item.title] = { w: 0, h: 0 };
-            loaded++;
-            if (loaded === totalImages) buildAllCards();
-        };
-        img.src = item.image;
+        const card = buildScrollCard(item, imgDims.w, imgDims.h);
+        container.appendChild(card);
     });
 
-    function buildAllCards() {
-        items.forEach(item => {
-            const dims = imageDimensions[item.title] || { w: 0, h: 0 };
-            const card = buildScrollCard(item, dims.w, dims.h);
-            container.appendChild(card);
+    // Stagger entrance animation (immediate, no waiting for images)
+    requestAnimationFrame(() => {
+        container.querySelectorAll('.scroll-card').forEach((card, i) => {
+            card.style.animationDelay = `${i * 0.08}s`; // Slightly faster stagger
+            card.classList.add('visible');
         });
-
-        // Stagger entrance animation
-        requestAnimationFrame(() => {
-            container.querySelectorAll('.scroll-card').forEach((card, i) => {
-                card.style.animationDelay = `${i * 0.1}s`;
-                card.classList.add('visible');
-            });
-        });
-    }
+    });
 }
+
 
 // Build a single scroll card
 function buildScrollCard(item, imgW, imgH) {
@@ -570,9 +616,9 @@ function handleReaction(item, reactionType, card) {
         // Remove reaction
         removeReactionFromFirebase(itemId, currentUserName);
     } else {
-        // Set new reaction
+        // Set new reaction with article metadata for robustness
         const firebaseReaction = mapAppReactionToFirebase(reactionType);
-        saveReactionToFirebase(itemId, currentUserName, firebaseReaction);
+        saveReactionToFirebase(itemId, currentUserName, firebaseReaction, item.title, item.author);
     }
 
     // UI update will happen via Firebase listener callback
@@ -923,7 +969,11 @@ document.addEventListener('DOMContentLoaded', () => {
     setupCornerNav();
     setupProfileOverlay();
 
+    // Start preloading all images immediately (before user clicks anything)
+    preloadAllImages();
+
     // Initialize Firebase listeners
     initReadStatusListener(onFirebaseDataUpdate);
     initUserThoughtsListener(); // Load favorites from Firebase
 });
+
