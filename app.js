@@ -839,46 +839,6 @@ function buildNerdTiles() {
         return 0;
     });
 
-    // Create tile HTML for a nerd
-    function createTileHTML(nerd) {
-        const reviews = getNerdReviews(nerd.name);
-        const userThoughts = getUserThoughts(nerd.name);
-        const hasFavorite = userThoughts.favoriteArticleId !== null && userThoughts.favoriteArticleId !== undefined;
-        let favoriteTitle = 'Not set yet';
-        if (hasFavorite) {
-            favoriteTitle = getArticleTitleById(userThoughts.favoriteArticleId) || 'Unknown';
-            // Truncate if too long
-            if (favoriteTitle.length > 35) {
-                favoriteTitle = favoriteTitle.substring(0, 32) + '...';
-            }
-        }
-
-        return `
-            <div class="tile-avatar">${nerd.name.charAt(0)}</div>
-            <div class="tile-name">${nerd.name}</div>
-            <div class="tile-subtitle">${nerd.subtitle || ''}</div>
-            <div class="tile-favorite-section">
-                <span class="tile-favorite-label">Favorite:</span>
-                <span class="tile-favorite-title">${favoriteTitle}</span>
-            </div>
-            <div class="tile-reviews">
-                <div class="tile-review positive">
-                    <span class="review-label">Nice</span>
-                    <span class="review-count">${reviews.positive}</span>
-                </div>
-                <div class="tile-review neutral">
-                    <span class="review-label">Meh</span>
-                    <span class="review-count">${reviews.neutral}</span>
-                </div>
-                <div class="tile-review negative">
-                    <span class="review-label">Nope</span>
-                    <span class="review-count">${reviews.negative}</span>
-                </div>
-            </div>
-        `;
-    }
-
-
     // Add tiles twice for infinite scroll effect
     const allTiles = [...sorted, ...sorted];
 
@@ -886,8 +846,15 @@ function buildNerdTiles() {
         const tile = document.createElement('div');
         tile.className = 'nerd-tile';
         tile.dataset.nerd = nerd.id;
-        tile.innerHTML = createTileHTML(nerd);
-        // No click handler - tiles show full profile info
+
+        // Simple tile with just initial and name
+        tile.innerHTML = `
+            <div class="nerd-initial">${nerd.name.charAt(0)}</div>
+            <div class="nerd-name">${nerd.name}</div>
+        `;
+
+        // Click to open full profile popup (connected to Firebase)
+        tile.addEventListener('click', () => openNerdProfile(nerd));
         grid.appendChild(tile);
     });
 
@@ -895,9 +862,10 @@ function buildNerdTiles() {
     setupInfiniteScroll(grid, sorted.length);
 }
 
+
 // Infinite scroll: when reaching edge, jump to duplicate set
 function setupInfiniteScroll(grid, originalCount) {
-    const tileWidth = 320 + 24; // tile width + gap
+    const tileWidth = 180 + 28; // tile width + gap
     const jumpThreshold = tileWidth * 2;
     grid.addEventListener('scroll', () => {
         const scrollLeft = grid.scrollLeft;
