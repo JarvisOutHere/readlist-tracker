@@ -720,8 +720,14 @@ const nerds = [
         id: "achyut",
         name: "Achyut",
         subtitle: "Resident Fin-Econ-(Geo)Policy Expert"
+    },
+    {
+        id: "vibhu",
+        name: "Vibhu",
+        subtitle: ""
     }
 ];
+
 
 // Helper function to get article title by ID (handles both numeric and string IDs)
 function getArticleTitleById(articleId) {
