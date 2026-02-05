@@ -711,12 +711,14 @@ const nerds = [
         name: "Cicily",
         subtitle: "MBG"
     },
+    // BACKUP - Kashvi removed temporarily per user request
+    // {
+    //     id: "kashvi",
+    //     name: "Kashvi",
+    //     subtitle: "Crochet Enthusiast"
+    // },
     {
-        id: "kashvi",
-        name: "Kashvi",
-        subtitle: "Crochet Enthusiast"
-    },
-    {
+
         id: "achyut",
         name: "Achyut",
         subtitle: "Resident Fin-Econ-(Geo)Policy Expert"
@@ -839,10 +841,8 @@ function buildNerdTiles() {
         return 0;
     });
 
-    // Add tiles twice for infinite scroll effect
-    const allTiles = [...sorted, ...sorted];
-
-    allTiles.forEach((nerd, i) => {
+    // Add tiles (no duplication needed - tiles fit in screen)
+    sorted.forEach((nerd) => {
         const tile = document.createElement('div');
         tile.className = 'nerd-tile';
         tile.dataset.nerd = nerd.id;
@@ -857,10 +857,8 @@ function buildNerdTiles() {
         tile.addEventListener('click', () => openNerdProfile(nerd));
         grid.appendChild(tile);
     });
-
-    // Setup infinite scroll loop
-    setupInfiniteScroll(grid, sorted.length);
 }
+
 
 
 // Infinite scroll: when reaching edge, jump to duplicate set

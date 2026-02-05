@@ -334,57 +334,28 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 6rem 2rem;
+    padding: 4rem 2rem;
+    gap: 2rem;
 }
 
-/* Slider container with gradient hints */
-.nerds-slider-container {
-    position: relative;
-    /* 3 tiles (180px each) + 2 gaps (1.8rem) + 2 half tiles (90px each) + padding */
-    width: calc(180px * 3 + 1.8rem * 2 + 90px * 2 + 4rem);
-    max-width: 95vw;
+/* Title for the nerds section */
+.nerds-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    text-align: center;
 }
 
-
-.nerds-slider-container::before,
-.nerds-slider-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 100px;
-    z-index: 10;
-    pointer-events: none;
-}
-
-.nerds-slider-container::before {
-    left: 0;
-    background: linear-gradient(to right, var(--bg-main) 0%, transparent 100%);
-}
-
-.nerds-slider-container::after {
-    right: 0;
-    background: linear-gradient(to left, var(--bg-main) 0%, transparent 100%);
-}
-
+/* Grid layout - horizontal fit, no scroll */
 .nerds-grid {
     display: flex;
-    gap: 1.8rem;
-
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    padding: 1rem 2rem 2rem 2rem;
-    scrollbar-width: none;
-    /* Firefox */
-    -ms-overflow-style: none;
-    /* IE/Edge */
-}
-
-.nerds-grid::-webkit-scrollbar {
-    display: none;
-    /* Chrome/Safari */
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+    padding: 1rem;
+    max-width: 1200px;
 }
 
 
