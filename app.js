@@ -711,7 +711,20 @@ function openNerdProfile(nerd) {
         <div class="profile-section">
             <div class="profile-section-label">Reviews So Far</div>
             ${totalReviews === 0
-            ? '<div class="profile-no-reviews">No reviews yet</div>'
+            ? `<div class="profile-empty-reviews">
+                    <div class="boo-container">
+                        <svg width="120" height="140" viewBox="0 0 200 180" class="boo-stick-figure">
+                            <text x="20" y="25" font-size="16" fill="var(--text-muted)" font-style="italic">Booooooooooo!</text>
+                            <circle cx="120" cy="60" r="18" fill="none" stroke="var(--text-muted)" stroke-width="3" />
+                            <line x1="120" y1="78" x2="120" y2="115" stroke="var(--text-muted)" stroke-width="3" />
+                            <line x1="120" y1="90" x2="98" y2="105" stroke="var(--text-muted)" stroke-width="3" />
+                            <line x1="120" y1="90" x2="142" y2="105" stroke="var(--text-muted)" stroke-width="3" />
+                            <line x1="120" y1="115" x2="102" y2="145" stroke="var(--text-muted)" stroke-width="3" />
+                            <line x1="120" y1="115" x2="138" y2="145" stroke="var(--text-muted)" stroke-width="3" />
+                        </svg>
+                    </div>
+                    <div class="profile-empty-text">No reviews yet</div>
+                </div>`
             : `<div class="profile-reviews-grid">
                     <div class="profile-review-item positive">
                         <span class="profile-review-icon">✓</span>

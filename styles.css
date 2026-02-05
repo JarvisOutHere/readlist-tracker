@@ -428,7 +428,7 @@ body {
     background: var(--bg-card);
     border-radius: 18px;
     padding: 2.5rem 2.5rem 2rem;
-    width: 340px;
+    width: 400px;
     max-width: 90vw;
     box-shadow: 0 24px 80px rgba(0, 0, 0, 0.18);
     position: relative;
@@ -439,6 +439,41 @@ body {
 
 .profile-overlay.active .profile-pane {
     transform: scale(1) translateY(0);
+}
+
+/* Boo animation for empty reviews */
+.profile-empty-reviews {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 0;
+}
+
+.boo-container {
+    margin-bottom: 0.5rem;
+}
+
+.boo-stick-figure {
+    opacity: 0.7;
+    animation: booWobble 1.5s ease-in-out infinite;
+}
+
+@keyframes booWobble {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-5px) rotate(-3deg);
+    }
+    75% {
+        transform: translateY(-5px) rotate(3deg);
+    }
+}
+
+.profile-empty-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-style: italic;
 }
 
 .profile-close {
