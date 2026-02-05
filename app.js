@@ -842,15 +842,14 @@ function buildNerdTiles() {
     // Create tile HTML for a nerd
     function createTileHTML(nerd) {
         const reviews = getNerdReviews(nerd.name);
-        const totalReviews = reviews.positive + reviews.neutral + reviews.negative;
         const userThoughts = getUserThoughts(nerd.name);
         const hasFavorite = userThoughts.favoriteArticleId !== null && userThoughts.favoriteArticleId !== undefined;
-        let favoriteTitle = 'Not set';
+        let favoriteTitle = 'Not set yet';
         if (hasFavorite) {
             favoriteTitle = getArticleTitleById(userThoughts.favoriteArticleId) || 'Unknown';
             // Truncate if too long
-            if (favoriteTitle.length > 25) {
-                favoriteTitle = favoriteTitle.substring(0, 22) + '...';
+            if (favoriteTitle.length > 35) {
+                favoriteTitle = favoriteTitle.substring(0, 32) + '...';
             }
         }
 
@@ -858,14 +857,27 @@ function buildNerdTiles() {
             <div class="tile-avatar">${nerd.name.charAt(0)}</div>
             <div class="tile-name">${nerd.name}</div>
             <div class="tile-subtitle">${nerd.subtitle || ''}</div>
-            ${hasFavorite ? `<div class="tile-favorite">★ ${favoriteTitle}</div>` : ''}
+            <div class="tile-favorite-section">
+                <span class="tile-favorite-label">Favorite:</span>
+                <span class="tile-favorite-title">${favoriteTitle}</span>
+            </div>
             <div class="tile-reviews">
-                <span class="tile-review positive">✓ ${reviews.positive}</span>
-                <span class="tile-review neutral">— ${reviews.neutral}</span>
-                <span class="tile-review negative">✗ ${reviews.negative}</span>
+                <div class="tile-review positive">
+                    <span class="review-label">Nice</span>
+                    <span class="review-count">${reviews.positive}</span>
+                </div>
+                <div class="tile-review neutral">
+                    <span class="review-label">Meh</span>
+                    <span class="review-count">${reviews.neutral}</span>
+                </div>
+                <div class="tile-review negative">
+                    <span class="review-label">Nope</span>
+                    <span class="review-count">${reviews.negative}</span>
+                </div>
             </div>
         `;
     }
+
 
     // Add tiles twice for infinite scroll effect
     const allTiles = [...sorted, ...sorted];
@@ -885,10 +897,8 @@ function buildNerdTiles() {
 
 // Infinite scroll: when reaching edge, jump to duplicate set
 function setupInfiniteScroll(grid, originalCount) {
-    const tileWidth = 280 + 28; // tile width + gap
+    const tileWidth = 320 + 24; // tile width + gap
     const jumpThreshold = tileWidth * 2;
-
-
     grid.addEventListener('scroll', () => {
         const scrollLeft = grid.scrollLeft;
         const scrollWidth = grid.scrollWidth;
