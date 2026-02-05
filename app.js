@@ -724,8 +724,9 @@ const nerds = [
     {
         id: "vibhu",
         name: "Vibhu",
-        subtitle: ""
+        subtitle: "Sea Link"
     }
+
 ];
 
 
