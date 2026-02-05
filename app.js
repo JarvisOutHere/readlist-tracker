@@ -824,7 +824,7 @@ function getNerdReviews(nerdName) {
     return reviews;
 }
 
-// Build nerd tiles (current user first)
+// Build nerd tiles (current user first) - full profile cards with infinite scroll
 function buildNerdTiles() {
     const grid = document.getElementById('nerds-grid');
     if (!grid) return;
@@ -839,21 +839,78 @@ function buildNerdTiles() {
         return 0;
     });
 
-    sorted.forEach((nerd, i) => {
+    // Create tile HTML for a nerd
+    function createTileHTML(nerd) {
+        const reviews = getNerdReviews(nerd.name);
+        const totalReviews = reviews.positive + reviews.neutral + reviews.negative;
+        const userThoughts = getUserThoughts(nerd.name);
+        const hasFavorite = userThoughts.favoriteArticleId !== null && userThoughts.favoriteArticleId !== undefined;
+        let favoriteTitle = 'Not set';
+        if (hasFavorite) {
+            favoriteTitle = getArticleTitleById(userThoughts.favoriteArticleId) || 'Unknown';
+            // Truncate if too long
+            if (favoriteTitle.length > 25) {
+                favoriteTitle = favoriteTitle.substring(0, 22) + '...';
+            }
+        }
+
+        return `
+            <div class="tile-avatar">${nerd.name.charAt(0)}</div>
+            <div class="tile-name">${nerd.name}</div>
+            <div class="tile-subtitle">${nerd.subtitle || ''}</div>
+            ${hasFavorite ? `<div class="tile-favorite">★ ${favoriteTitle}</div>` : ''}
+            <div class="tile-reviews">
+                <span class="tile-review positive">✓ ${reviews.positive}</span>
+                <span class="tile-review neutral">— ${reviews.neutral}</span>
+                <span class="tile-review negative">✗ ${reviews.negative}</span>
+            </div>
+        `;
+    }
+
+    // Add tiles twice for infinite scroll effect
+    const allTiles = [...sorted, ...sorted];
+
+    allTiles.forEach((nerd, i) => {
         const tile = document.createElement('div');
         tile.className = 'nerd-tile';
         tile.dataset.nerd = nerd.id;
-        tile.style.animationDelay = `${i * 0.08}s`;
-
-        tile.innerHTML = `
-            <div class="nerd-initial">${nerd.name.charAt(0)}</div>
-            <div class="nerd-name">${nerd.name}</div>
-        `;
-
+        tile.innerHTML = createTileHTML(nerd);
         tile.addEventListener('click', () => openNerdProfile(nerd));
         grid.appendChild(tile);
     });
+
+    // Setup infinite scroll loop
+    setupInfiniteScroll(grid, sorted.length);
 }
+
+// Infinite scroll: when reaching edge, jump to duplicate set
+function setupInfiniteScroll(grid, originalCount) {
+    const tileWidth = 160 + 28; // tile width + gap
+    const jumpThreshold = tileWidth * 2;
+
+    grid.addEventListener('scroll', () => {
+        const scrollLeft = grid.scrollLeft;
+        const scrollWidth = grid.scrollWidth;
+        const clientWidth = grid.clientWidth;
+        const maxScroll = scrollWidth - clientWidth;
+        const halfPoint = maxScroll / 2;
+
+        // If scrolled past middle (into duplicates), jump back
+        if (scrollLeft > halfPoint + jumpThreshold) {
+            grid.scrollLeft = scrollLeft - halfPoint;
+        }
+        // If scrolled before start, jump to duplicates
+        else if (scrollLeft < jumpThreshold && scrollLeft > 0) {
+            grid.scrollLeft = scrollLeft + halfPoint;
+        }
+    });
+
+    // Start in the middle (at original set)
+    setTimeout(() => {
+        grid.scrollLeft = 0;
+    }, 100);
+}
+
 
 // Open nerd profile pane
 function openNerdProfile(nerd) {
