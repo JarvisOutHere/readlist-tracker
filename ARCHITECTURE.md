@@ -2,100 +2,303 @@
 
 > [!CAUTION]
 > **ANY LLM INSTANCE MUST READ THIS FILE BEFORE MAKING CHANGES TO THIS CODEBASE.**
-> This documentation exists to prevent data loss and ensure context preservation across LLM session resets.
+> This documentation prevents data loss and preserves context across LLM session resets.
 
-## Overview
+---
 
-The Reading Tracker is a single-page web application for curating and sharing reading recommendations. Users can browse articles, react to them (Nice/Meh/Nope), and set favorite articles.
+## Update Policy
+
+| Content Type | How Often to Update |
+|--------------|---------------------|
+| Code structure, functions, invariants | When code changes |
+| User data (reviews, favorites) | **Never hardcode** - always fetch live from Firebase |
+| Article list | When articles are added/removed |
+
+---
+
+## Quick Reference
+
+| Item | Value |
+|------|-------|
+| **Live URL** | https://readlist-tracker.vercel.app |
+| **GitHub** | https://github.com/JarvisOutHere/readlist-tracker |
+| **Deploy** | Auto on push to `main` (Vercel) |
+| **Firebase Project** | `readingtracker-ai` |
+
+---
 
 ## Critical Invariants
 
 > [!WARNING]
-> Never change these without understanding the consequences:
+> Breaking these will cause data loss or corruption:
 
-1. **Article IDs are STABLE** - Each article has a permanent `id` field that MUST NOT change. Changing an article's ID will orphan all reactions stored in Firebase under that ID.
-
-2. **Firebase schema is locked** - The Firebase paths (`readStatus/{articleId}/{userName}` and `userThoughts/{userName}`) must not be restructured.
-
-3. **User names are case-sensitive** - "Tanmay" ≠ "tanmay" in Firebase. Use exact names.
-
-## Data Model
-
-### Article Structure
+### 1. Article IDs are IMMUTABLE
 ```javascript
+// Each article has a permanent 'id' field
 {
-    id: "stable-unique-id-never-changes",  // CRITICAL: Stable ID for Firebase
-    title: "Article Title",                 // Can be edited freely
-    author: "Author Name",                  // Can be edited freely
-    description: "...",
-    url: "https://...",
-    image: "images/filename.png",           // Optional
-    layout: "horizontal"                    // Optional
+    id: "compared-to-what-adam-golding",  // NEVER CHANGE THIS
+    title: "Compared to What?",           // Can edit freely
+    author: "Adam Golding"                // Can edit freely
+}
+```
+Changing an `id` orphans all Firebase reactions stored under that ID.
+
+### 2. Firebase Paths are Locked
+```
+readStatus/{articleId}/{userName}    → Stores reactions
+userThoughts/{userName}              → Stores favorites
+```
+
+### 3. User Names are Case-Sensitive
+`"Tanmay"` ≠ `"tanmay"` in Firebase. The exact names are:
+- Tanmay, Himadri, Avantheka, Cicily, Kashvi, Achyut, Vibhu
+
+### 4. getItemId() Logic Must Not Change
+```javascript
+function getItemId(item) {
+    if (item.id) return item.id;  // Use stable ID (preferred)
+    return `${item.title}-${item.author}`  // Legacy fallback
+        .replace(/[.$#\[\]\/\:?]/g, '')
+        .replace(/\s+/g, '-')
+        .toLowerCase();
 }
 ```
 
-### Firebase Schema
+---
 
-**readStatus/{articleId}/{userName}**
+## Architecture Overview
+
+### Application Flow
+```
+┌─────────────┐      ┌──────────────┐      ┌─────────────┐
+│  Landing    │ ──▶  │   Pillars    │ ──▶  │   Scroll    │
+│  Page       │      │   View       │      │   View      │
+└─────────────┘      └──────────────┘      └─────────────┘
+       │                    │                     │
+       │                    │                     ▼
+       │                    │              ┌─────────────┐
+       │                    │              │  Article    │
+       │                    │              │  Cards      │
+       │                    │              └─────────────┘
+       │                    │                     │
+       ▼                    ▼                     ▼
+┌─────────────────────────────────────────────────────────┐
+│              "Say Hi to Others" Section                 │
+│         (Horizontal slider of profile cards)            │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Data Flow
+```
+┌──────────────────┐         ┌─────────────────────┐
+│  Firebase RTDB   │ ──────▶ │  Local Caches       │
+│  (Source of      │         │  - readStatusCache  │
+│   Truth)         │         │  - userThoughtsCache│
+└──────────────────┘         └─────────────────────┘
+                                      │
+                                      ▼
+                            ┌─────────────────────┐
+                            │  UI Renders from    │
+                            │  Cached Data        │
+                            └─────────────────────┘
+```
+
+---
+
+## File Structure
+
+| File | Purpose | Lines |
+|------|---------|-------|
+| `app.js` | Main logic, article data, UI rendering | ~1200 |
+| `firebase-config.js` | Firebase init, listeners, caching | ~210 |
+| `styles.css` | All styling (dark theme, glassmorphism) | ~1100 |
+| `index.html` | Entry point, minimal HTML structure | ~80 |
+| `ARCHITECTURE.md` | This file | - |
+
+---
+
+## Data Models
+
+### Article Object (in `app.js`)
+```javascript
+{
+    id: "stable-id-never-changes",     // REQUIRED - Stable Firebase key
+    title: "Article Title",             // Display name (editable)
+    author: "Author Name",              // Display author (editable)
+    description: "Summary text...",     // Card description
+    url: "https://...",                 // Link to article
+    image: "images/filename.png",       // Optional - card image
+    imageBg: "#f5f4f0",                 // Optional - image background
+    layout: "horizontal"                // Optional - "horizontal" or "horizontal-square"
+}
+```
+
+### Firebase: readStatus/{articleId}/{userName}
 ```json
 {
     "reaction": "liked" | "neutral" | "disliked",
     "timestamp": 1234567890,
-    "title": "Article Title"
+    "title": "Article Title (for debugging)"
 }
 ```
 
-**userThoughts/{userName}**
+### Firebase: userThoughts/{userName}
 ```json
 {
-    "favoriteArticleId": "article-id",
+    "favoriteArticleId": "article-stable-id",
     "updatedAt": 1234567890
 }
 ```
 
-## User Data Snapshot (Source of Truth)
+---
 
-Last verified: 2026-02-06
+## Categories
 
-| User | Nice | Meh | Nope | Favorite Article ID |
-|------|------|-----|------|---------------------|
-| Tanmay | 17 | 5 | 0 | `compared-to-what-adam-golding` |
-| Cicily | 12 | 4 | 0 | `technology-in-1776-christian-keil` |
-| Avantheka | 2 | 0 | 0 | `make-something-heavy-working-theorys` |
-| Himadri | 0 | 0 | 0 | None |
-| Kashvi | 0 | 0 | 0 | None |
-| Achyut | 0 | 0 | 0 | None |
-| Vibhu | 0 | 0 | 0 | None |
+| Key | Display Name | Description |
+|-----|--------------|-------------|
+| `interesting-businesses` | Interesting Businesses | Company deep-dives, startup stories |
+| `ai` | AI | AI safety, agents, forecasts |
+| `intrapersonal` | Intrapersonal | Self-improvement, philosophy |
+| `fin-econ-geopolity` | Fin-Econ-(Geo)Polity | Economics, geopolitics |
+| `food-for-thought` | Food for Thought | Miscellaneous insights |
+
+---
 
 ## Key Functions
 
+### Core Data Functions (app.js)
+
 | Function | Purpose |
 |----------|---------|
-| `getItemId(item)` | Returns stable `id` if present, else generates from title-author |
-| `getNerdReviews(name)` | Counts reactions for a user from Firebase cache |
-| `getUserThoughts(name)` | Gets favorites from `userThoughtsCache` |
-| `buildNerdTiles()` | Renders profile cards (called on Firebase data update) |
+| `getItemId(item)` | Returns stable `id` or generates legacy ID |
+| `getAllValidItemIds()` | Returns Set of all current article IDs |
+| `getNerdReviews(name)` | Counts Nice/Meh/Nope for a user |
+| `getUserThoughts(name)` | Gets favorite article from cache |
+| `getArticleTitleById(id)` | Looks up article title from ID |
 
-## Files
+### UI Functions (app.js)
 
-- **app.js** - Main application logic, article data, UI rendering
-- **firebase-config.js** - Firebase initialization and listeners
-- **styles.css** - All styling
-- **index.html** - Entry point
+| Function | Purpose |
+|----------|---------|
+| `showLanding()` | Show landing page |
+| `enterCatalog()` | Navigate to pillars view |
+| `openScrollView(categoryKey)` | Open article scroll for category |
+| `buildNerdTiles()` | Render profile cards (call after data load) |
+| `renderScrollCards(categoryKey)` | Render article cards |
+
+### Firebase Functions (firebase-config.js)
+
+| Function | Purpose |
+|----------|---------|
+| `initReadStatusListener(callback)` | Subscribe to reaction updates |
+| `initUserThoughtsListener(callback)` | Subscribe to favorites updates |
+| `getReadStatusCache()` | Get cached reactions |
+| `setReaction(itemId, userName, reaction)` | Save reaction to Firebase |
+| `setFavoriteArticle(userName, articleId)` | Save favorite to Firebase |
+
+### Critical Callbacks
+
+```javascript
+// Called when Firebase data updates - rebuilds UI
+function onFirebaseDataUpdate(data) {
+    updateReactionButtonStates();
+    buildNerdTiles();  // IMPORTANT: Rebuilds profile cards
+}
+
+// Initialize with callback to rebuild tiles after data loads
+initUserThoughtsListener(buildNerdTiles);
+```
+
+---
+
+## Users
+
+The app has 7 registered users. **Do not hardcode their stats** - they change as people use the live site.
+
+| Name | Subtitle | Avatar |
+|------|----------|--------|
+| Tanmay | "Reads everything, retains nothing" | T |
+| Himadri | "Finbro" | H |
+| Avantheka | "Will debate you on everything" | A |
+| Cicily | "Actually finishes books" | C |
+| Kashvi | "The skeptic" | K |
+| Achyut | (hidden from UI) | - |
+| Vibhu | (hidden from UI) | - |
+
+### How to Get Current User Stats
+
+Run this in browser console on the live site:
+```javascript
+['Tanmay', 'Cicily', 'Avantheka', 'Himadri', 'Kashvi'].forEach(name => {
+    const r = getNerdReviews(name);
+    const t = getUserThoughts(name);
+    console.log(`${name}: ${r.positive}👍 ${r.neutral}😐 ${r.negative}👎 | Fav: ${t.favoriteArticleId || 'none'}`);
+});
+```
+
+---
 
 ## Adding New Articles
 
-When adding a new article:
-1. Generate a stable ID: `title-author` in lowercase with hyphens
-2. Add the `id` field FIRST in the article object
-3. Never reuse an existing ID
+1. **Generate stable ID**: `title-author` in lowercase, hyphens for spaces
+   ```
+   "My Article" by "John Doe" → "my-article-john-doe"
+   ```
 
-## Troubleshooting
+2. **Add to correct category** in `data.articles`:
+   ```javascript
+   {
+       id: "my-article-john-doe",  // MUST BE FIRST
+       title: "My Article",
+       author: "John Doe",
+       description: "...",
+       url: "https://..."
+   }
+   ```
 
-**"Reviews not showing"**
-- Firebase data loads async; `buildNerdTiles()` is called on data update
-- Check if `getItemId(article)` matches the Firebase key
+3. **Never reuse an existing ID**
 
-**"Favorites incorrect"**
-- Check `userThoughtsCache` for the exact `favoriteArticleId`
-- Verify the ID matches an article's `id` field
+---
+
+## Common Issues & Fixes
+
+### "Reviews not showing on profile cards"
+- **Cause**: Race condition - cards rendered before Firebase loaded
+- **Fix**: `buildNerdTiles()` is called in `onFirebaseDataUpdate()` and after `initUserThoughtsListener()`
+
+### "Favorite article shows wrong title"
+- **Cause**: `favoriteArticleId` in Firebase doesn't match any article's `id`
+- **Fix**: Check `userThoughtsCache` for the stored ID, verify it exists in current articles
+
+### "Article reactions disappeared after editing"
+- **Cause**: Article `id` was changed (or removed), orphaning Firebase data
+- **Fix**: Find the old ID in Firebase, update article to use that ID
+
+### "Page scrolls to top when clicking reaction"
+- **Cause**: UI re-renders on data update
+- **Fix**: `updateReactionButtonStates()` updates in-place without re-rendering cards
+
+---
+
+## Gotchas & Edge Cases
+
+1. **Special characters in IDs**: Some articles have IDs with:
+   - Apostrophes: `the-puzzle-of-pakistan's-poverty-rohit-shinde`
+   - Diacritics: `the-böckenförde-dilemma-jason-zhao`
+
+2. **Fallback ID generation**: If an article lacks `id` field, `getItemId()` generates one from title-author. This is legacy support only.
+
+3. **Kashvi data backup**: Kashvi was removed from visible UI but data exists in Firebase.
+
+4. **Firebase mapping**: `"liked"` (Firebase) = `"positive"` (app), `"disliked"` = `"negative"`
+
+---
+
+## Changelog
+
+| Date | Change |
+|------|--------|
+| 2026-02-06 | Added stable `id` field to all 25 articles |
+| 2026-02-06 | Created ARCHITECTURE.md |
+| 2026-02-05 | Fixed race condition for profile card stats |
+| 2026-02-05 | Implemented horizontal slider for profile cards |
