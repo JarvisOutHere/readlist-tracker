@@ -73,9 +73,13 @@ function getAllReactionsForItem(itemId) {
 }
 
 // Get item ID for reactions
+// IMPORTANT: Uses stable 'id' field if present to prevent data loss when titles change
 // Firebase doesn't allow: . $ # [ ] / in path keys
-// Also remove: : ? and other special chars for safety
 function getItemId(item) {
+    // Use stable ID if present (preferred - never changes)
+    if (item.id) return item.id;
+
+    // Fallback to legacy title-based ID (for backward compatibility)
     return `${item.title}-${item.author}`
         .replace(/[.$#\[\]\/\:?]/g, '') // Remove Firebase-invalid chars
         .replace(/\s+/g, '-')
@@ -140,6 +144,7 @@ const data = {
     articles: {
         "interesting-businesses": [
             {
+                id: "picturetime-the-balloon-and-the-box-office-tiger-feathers",
                 title: "PictureTime: The Balloon And The Box Office",
                 author: "Tiger Feathers",
                 description: "Inflatable cinema theatres bringing Bollywood to villages that never had a screen.",
@@ -147,6 +152,7 @@ const data = {
                 image: "images/picturetime.png"
             },
             {
+                id: "airbound-delivering-abundance-tiger-feathers",
                 title: "Airbound: Delivering Abundance",
                 author: "Tiger Feathers",
                 description: "A Bangalore startup betting that drone delivery isn't a gimmick but a fundamental reimagining of logistics. If they crack it, one-rupee delivery could change everything.",
@@ -154,6 +160,7 @@ const data = {
                 image: "images/airbound.png"
             },
             {
+                id: "a16z-the-power-brokers-not-boring",
                 title: "a16z: The Power Brokers",
                 author: "Not Boring",
                 description: "How a venture firm became a cultural and political force. A 16,000-word deep dive into the machine that Marc and Ben built, and what it means to broker power in Silicon Valley.",
@@ -162,6 +169,7 @@ const data = {
                 imageBg: "#f5f4f0"
             },
             {
+                id: "the-palantirization-of-everything-a16z",
                 title: "The Palantirization of Everything",
                 author: "a16z",
                 description: "Everyone wants to copy Palantir—embed FDEs with customers, build custom workflows, operate like special forces. But most companies copying the aesthetic are setting themselves up to become expensive services businesses with software multiples.",
@@ -172,6 +180,7 @@ const data = {
         ],
         "ai": [
             {
+                id: "ai-and-leviathan-part-i-second-best",
                 title: "AI and Leviathan: Part I",
                 author: "Second Best",
                 description: "What happens when intelligence becomes abundant? This series applies institutional economics to AI, asking whether we're heading toward a new state of nature or something stranger still.",
@@ -180,6 +189,7 @@ const data = {
                 layout: "horizontal-square"
             },
             {
+                id: "ai-2027-ai-2027",
                 title: "AI 2027",
                 author: "AI 2027",
                 description: "A research-backed scenario forecast that feels uncomfortably plausible. From stumbling agents to superhuman researchers in under three years—a timeline that demands you engage with it.",
@@ -188,6 +198,7 @@ const data = {
                 layout: "horizontal-square"
             },
             {
+                id: "import-ai-441-my-agents-are-working-are-yours-jack-clark",
                 title: "Import AI 441: My Agents Are Working. Are Yours?",
                 author: "Jack Clark",
                 description: "We've crossed an inflection point where teams of AI agents can read thousands of papers while you hike, compiling reports better than you could. It feels surreal—like having a fleet of tireless researchers on call. The future of knowledge work may already be here.",
@@ -195,6 +206,7 @@ const data = {
                 image: "images/import-ai.png"
             },
             {
+                id: "agi-ruin-a-list-of-lethalities-eliezer-yudkowsky",
                 title: "AGI Ruin: A List of Lethalities",
                 author: "Eliezer Yudkowsky",
                 description: "A few dozen reasons why AGI alignment is an extremely difficult problem we are not on track to solve. The big ask isn't perfect alignment—it's obtaining by any strategy whatsoever a significant chance of there being any survivors.",
@@ -202,6 +214,7 @@ const data = {
                 image: "images/agi-ruin.png"
             },
             {
+                id: "the-adolescence-of-technology-dario-amodei",
                 title: "The Adolescence of Technology",
                 author: "Dario Amodei",
                 description: "Exploring risks as AI approaches a 'country of geniuses in a datacenter.' Five concerns: autonomy risks, misuse for destruction, misuse for power, economic disruption, and destabilizing effects. Advocates pragmatic responses through constitutional AI, interpretability research, and surgical regulation.",
@@ -212,30 +225,35 @@ const data = {
         ],
         "intrapersonal": [
             {
+                id: "safety-is-making-you-depressed-conquer",
                 title: "Safety Is Making You Depressed",
                 author: "Conquer",
                 description: "Modern psychology treats all intense dedication as trauma response. But when you avoid all pain, you accidentally avoid all high emotions too. The positive and negative are linked. Life became electric only when I accepted the chase and let suffering have direction.",
                 url: "https://conquer1.substack.com/p/safety-is-making-you-depressed"
             },
             {
+                id: "the-stable-marriage-problem-acotra",
                 title: "The Stable Marriage Problem",
                 author: "Acotra",
                 description: "Intelligence is choosing what you truly want, acting to get it, and learning fast. Most people drift in a 'river' of others' goals. Agency means stepping out, being honest about your nature, starting before you're ready, risking looking foolish, testing, failing, adjusting, and shipping imperfectly until results match your aims.",
                 url: "https://acotra.substack.com/p/the-stable-marriage-problem"
             },
             {
+                id: "how-to-live-an-intellectually-rich-life-utsav-mamoria",
                 title: "How to Live an Intellectually Rich Life",
                 author: "Utsav Mamoria",
                 description: "95% of Wikipedia paths lead to Philosophy. This isn't trivia—it's a map. Epistemic anxiety is what you feel when you sense the truth is out there but can't reach it. The antidote is structured curiosity.",
                 url: "https://utsavmamoria.substack.com/p/how-to-live-an-intellectually-rich"
             },
             {
+                id: "what-makes-a-person-interesting-angel-cake",
                 title: "What Makes a Person Interesting?",
                 author: "Angel Cake",
                 description: "Curiosity is the root of everything interesting. It's not about Prada sneakers or Oscar films—it's whether you chew your food before swallowing. A Salt & Straw employee judges people by whether they season before tasting.",
                 url: "https://angelcake.substack.com/p/what-makes-a-person-interesting"
             },
             {
+                id: "make-something-heavy-working-theorys",
                 title: "Make Something Heavy",
                 author: "Working Theorys",
                 description: "We create more than ever, but it weighs nothing. The internet rewards movement, so we keep going—99% dopamine, near-zero serotonin, no trace of oxytocin. You don't feel like a true creator because light things don't count, and deep down, you know it. Heavy doesn't mean big—it means dense, defining, durable.",
@@ -244,6 +262,7 @@ const data = {
         ],
         "fin-econ-geopolity": [
             {
+                id: "evolution-of-a-value-investor-sage-saigal",
                 title: "Evolution of a Value Investor",
                 author: "Sage Saigal",
                 description: "How value investing philosophy evolves when held seriously over decades. Not the Warren Buffett mythology, but the messy reality of changing your mind while staying principled.",
@@ -251,24 +270,28 @@ const data = {
                 image: "images/value-investor.png"
             },
             {
+                id: "the-puzzle-of-pakistans-poverty-rohit-shinde",
                 title: "The Puzzle of Pakistan's Poverty",
                 author: "Rohit Shinde",
                 description: "Religious fundamentalism alone doesn't explain Pakistan's economic underperformance. Structural factors—high fertility, remittance dependency creating Dutch disease, military rent extraction, and geopolitical aid dependency—matter more than ideology in explaining why reforms never stick.",
                 url: "https://rshinde.substack.com/p/the-puzzle-of-pakistans-poverty"
             },
             {
+                id: "for-india-only-economic-growth-matters-rohit-shinde",
                 title: "For India, Only Economic Growth Matters",
                 author: "Rohit Shinde",
                 description: "India must prioritize growth above all else to achieve developed-nation status. Currency appreciation, expensive electricity, labor unions, and restrictive construction norms hinder manufacturing. With declining fertility, there's urgency—economic growth automatically improves every other outcome you care about.",
                 url: "https://rshinde.substack.com/p/for-india-only-economic-growth-matters"
             },
             {
+                id: "is-india-following-china's-path-to-prosperity-rohit-shinde",
                 title: "Is India Following China's Path to Prosperity?",
                 author: "Rohit Shinde",
                 description: "Comparing India and China's development trajectories since the 1970s. India is adopting similar strategies—infrastructure, PLI schemes, education reforms—but faces de-globalization headwinds. Sustained 8% growth for two decades is needed to reach high-income status.",
                 url: "https://rshinde.substack.com/p/is-india-following-chinas-path-to"
             },
             {
+                id: "china's-broken-balance-sheet-why-china-will-invade-taiwan-before-2030-rohit-shinde",
                 title: "China's Broken Balance Sheet: Why China Will Invade Taiwan before 2030",
                 author: "Rohit Shinde",
                 description: "China faces an unprecedented economic crisis from investment-driven growth funded through shadow banking. With traditional engines exhausted and no access to advanced semiconductors, Beijing may pursue military action against Taiwan to seize TSMC's sub-7nm manufacturing ecosystem.",
@@ -277,36 +300,42 @@ const data = {
         ],
         "food-for-thought": [
             {
+                id: "compared-to-what-adam-golding",
                 title: "Compared to What?",
                 author: "Adam Golding",
                 description: "The Paradox of Absolutism—many seemingly absolute statements actually require comparison to be meaningful. Asking 'compared to what?' helps resolve apparent paradoxes across epistemology, color perception, and metaphysics. Absolute claims often trap people in unproductive loops; calibrating statements through comparative frameworks allows for meaningful resolution.",
                 url: "https://adamgolding.substack.com/p/compared-to-what"
             },
             {
+                id: "india-in-charts---the-house-view-tiger-feathers",
                 title: "India In Charts - The House View",
                 author: "Tiger Feathers",
                 description: "A visual essay on India's trajectory—consumption patterns, infrastructure bets, demographic tailwinds. The kind of synthesis that makes you see a country differently.",
                 url: "https://www.tigerfeathers.in/p/india-in-charts-the-house-view"
             },
             {
+                id: "the-great-differentiation-not-boring",
                 title: "The Great Differentiation",
                 author: "Not Boring",
                 description: "When sameness is cheap, differentiation is valuable. But how do you remain differentiated when copying is free? The salvation from slop is making copying expensive—peacocking for the AI age.",
                 url: "https://www.notboring.co/p/the-great-differentiation"
             },
             {
+                id: "the-böckenförde-dilemma-jason-zhao",
                 title: "The Böckenförde Dilemma",
                 author: "Jason Zhao",
                 description: "Liberal democracies rely on shared cultural values to flourish, yet they cannot replenish those very values. A case for spiritual renewal in the West—diagnosing the malaise of American political life.",
                 url: "https://jasonzhao.substack.com/p/the-bockenforde-dilemma"
             },
             {
+                id: "notes-on-india-jason-zhao",
                 title: "Notes on India",
                 author: "Jason Zhao",
                 description: "Initial observations from a week in New Delhi, Bangalore, and Darjeeling. On culture, politics, and economy—the nation as perhaps the most striking experiment in democratic history.",
                 url: "https://jasonzhao.substack.com/p/notes-on-india"
             },
             {
+                id: "technology-in-1776-christian-keil",
                 title: "Technology in 1776",
                 author: "Christian Keil",
                 description: "Contrasting life in 1776 with 2026 to show extraordinary material progress. Technologies transformed water, food, shelter, medicine, and energy—often invisibly making us safer, healthier, and more productive. Recognizing these achievements should inspire confidence that America can overcome current challenges.",
