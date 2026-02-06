@@ -824,7 +824,7 @@ function getNerdReviews(nerdName) {
     return reviews;
 }
 
-// Build nerd tiles (current user first) - full profile cards with infinite scroll
+// Build nerd tiles (current user first) - full profile cards in horizontal slider
 function buildNerdTiles() {
     const grid = document.getElementById('nerds-grid');
     if (!grid) return;
@@ -839,23 +839,97 @@ function buildNerdTiles() {
         return 0;
     });
 
-    // Add tiles (no duplication needed - tiles fit in screen)
+    // Add full-size profile cards
     sorted.forEach((nerd) => {
-        const tile = document.createElement('div');
-        tile.className = 'nerd-tile';
-        tile.dataset.nerd = nerd.id;
-
-        // Tile with initial, name, and subtitle
-        tile.innerHTML = `
-            <div class="nerd-initial">${nerd.name.charAt(0)}</div>
-            <div class="nerd-name">${nerd.name}</div>
-            <div class="nerd-subtitle">${nerd.subtitle || ''}</div>
-        `;
-
-        // Click to open full profile popup (connected to Firebase)
-        tile.addEventListener('click', () => openNerdProfile(nerd));
-        grid.appendChild(tile);
+        const card = buildFullProfileCard(nerd);
+        grid.appendChild(card);
     });
+}
+
+// Build a full-size profile card (same content as the popup)
+function buildFullProfileCard(nerd) {
+    const card = document.createElement('div');
+    card.className = 'nerd-profile-card';
+    card.dataset.nerd = nerd.id;
+
+    const reviews = getNerdReviews(nerd.name);
+    const totalReviews = reviews.positive + reviews.neutral + reviews.negative;
+
+    // Get favorite from Firebase userThoughts
+    const userThoughts = getUserThoughts(nerd.name);
+    const hasFavorite = userThoughts.favoriteArticleId !== null && userThoughts.favoriteArticleId !== undefined;
+
+    // Find article details from favoriteArticleId
+    let favoriteTitle = 'Not set yet';
+    let favoriteArticleId = null;
+    if (hasFavorite) {
+        favoriteArticleId = userThoughts.favoriteArticleId;
+        favoriteTitle = getArticleTitleById(favoriteArticleId) || favoriteArticleId;
+    }
+
+    card.innerHTML = `
+        <div class="profile-avatar">${nerd.name.charAt(0)}</div>
+        <h3 class="profile-name">${nerd.name}</h3>
+        <p class="profile-subtitle">${nerd.subtitle}</p>
+        <div class="profile-divider"></div>
+        ${hasFavorite ? `<div class="profile-section">
+            <div class="profile-section-label">Favorite Article</div>
+            <div class="profile-favorite-title clickable" data-article-id="${favoriteArticleId}">${favoriteTitle}</div>
+        </div>
+        <div class="profile-divider"></div>` : ''}
+        <div class="profile-section">
+            <div class="profile-section-label">Reviews So Far</div>
+            ${totalReviews === 0
+            ? `<div class="profile-empty-reviews">
+                    <div class="boo-container">
+                        <svg width="80" height="90" viewBox="0 0 200 180" class="boo-stick-figure">
+                            <text x="20" y="25" font-size="16" fill="var(--text-muted)" font-style="italic">Booooooooooo!</text>
+                            <circle cx="120" cy="60" r="18" fill="none" stroke="var(--text-muted)" stroke-width="3" />
+                            <line x1="120" y1="78" x2="120" y2="115" stroke="var(--text-muted)" stroke-width="3" />
+                            <line x1="120" y1="90" x2="98" y2="105" stroke="var(--text-muted)" stroke-width="3" />
+                            <line x1="120" y1="90" x2="142" y2="105" stroke="var(--text-muted)" stroke-width="3" />
+                            <line x1="120" y1="115" x2="102" y2="145" stroke="var(--text-muted)" stroke-width="3" />
+                            <line x1="120" y1="115" x2="138" y2="145" stroke="var(--text-muted)" stroke-width="3" />
+                        </svg>
+                    </div>
+                    <div class="profile-empty-text">No reviews yet</div>
+                </div>`
+            : `<div class="profile-reviews-grid">
+                    <div class="profile-review-item positive">
+                        <span class="profile-review-icon">✓</span>
+                        <span class="profile-review-count">${reviews.positive}</span>
+                        <span class="profile-review-label">Nice</span>
+                    </div>
+                    <div class="profile-review-item neutral">
+                        <span class="profile-review-icon">—</span>
+                        <span class="profile-review-count">${reviews.neutral}</span>
+                        <span class="profile-review-label">Meh</span>
+                    </div>
+                    <div class="profile-review-item negative">
+                        <span class="profile-review-icon">✗</span>
+                        <span class="profile-review-count">${reviews.negative}</span>
+                        <span class="profile-review-label">Nope</span>
+                    </div>
+                  </div>`
+        }
+        </div>
+    `;
+
+    // Add click handler for favorite title to navigate to article
+    const favoriteEl = card.querySelector('.profile-favorite-title.clickable');
+    if (favoriteEl) {
+        favoriteEl.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const articleId = favoriteEl.dataset.articleId;
+            const article = getArticleById(articleId);
+            if (article && article.category) {
+                // Navigate to the article's category
+                openScrollView(article.category);
+            }
+        });
+    }
+
+    return card;
 }
 
 

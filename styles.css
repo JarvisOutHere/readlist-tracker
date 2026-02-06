@@ -334,7 +334,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4rem 2rem;
+    padding: 4rem 0;
     gap: 2rem;
 }
 
@@ -346,19 +346,92 @@ body {
     color: var(--text-primary);
     margin: 0;
     text-align: center;
+    padding: 0 2rem;
 }
 
-/* Grid layout - horizontal fit, no scroll */
+/* Horizontal slider layout */
 .nerds-grid {
     display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    justify-content: center;
-    padding: 1rem;
-    max-width: 1200px;
+    gap: 2rem;
+    padding: 2rem 4rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
 }
 
+/* Hide scrollbar completely but keep functionality */
+.nerds-grid::-webkit-scrollbar {
+    display: none;
+}
 
+.nerds-grid {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+/* Full-size profile card (matches popup design) */
+.nerd-profile-card {
+    scroll-snap-align: center;
+    flex-shrink: 0;
+    width: 340px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 18px;
+    padding: 2rem 2rem 1.5rem;
+    box-shadow: var(--shadow-card);
+    text-align: center;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.nerd-profile-card:first-child {
+    margin-left: calc(50vw - 170px);
+}
+
+.nerd-profile-card:last-child {
+    margin-right: calc(50vw - 170px);
+}
+
+.nerd-profile-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-hover);
+}
+
+/* Reuse existing profile styles within cards */
+.nerd-profile-card .profile-avatar {
+    margin: 0 auto 1rem;
+}
+
+.nerd-profile-card .profile-name {
+    margin-bottom: 0.25rem;
+}
+
+.nerd-profile-card .profile-subtitle {
+    margin-bottom: 0.5rem;
+}
+
+.nerd-profile-card .profile-divider {
+    margin: 1rem auto;
+}
+
+.nerd-profile-card .profile-section {
+    margin-bottom: 0.5rem;
+}
+
+.nerd-profile-card .profile-empty-reviews {
+    padding: 0.5rem 0;
+}
+
+.nerd-profile-card .boo-container {
+    margin-bottom: 0.25rem;
+}
+
+/* Legacy small tile styles - kept for reference */
 .nerd-tile {
     scroll-snap-align: center;
     flex-shrink: 0;
