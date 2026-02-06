@@ -1140,6 +1140,8 @@ function onFirebaseDataUpdate(data) {
     if (currentCategoryKey && !document.getElementById('scroll-page').classList.contains('hidden')) {
         updateReactionButtonStates();
     }
+    // Rebuild nerd tiles to show updated reviews
+    buildNerdTiles();
 }
 
 // Update reaction button states without re-rendering the entire view
@@ -1187,6 +1189,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize Firebase listeners
     initReadStatusListener(onFirebaseDataUpdate);
-    initUserThoughtsListener(); // Load favorites from Firebase
+    initUserThoughtsListener(buildNerdTiles); // Load favorites from Firebase
 });
 

@@ -196,9 +196,10 @@ function subscribeToUserThoughts(callback) {
     });
 }
 
-function initUserThoughtsListener() {
+function initUserThoughtsListener(onUpdate) {
     subscribeToUserThoughts((data) => {
         userThoughtsCache = data;
+        if (onUpdate) onUpdate();
     });
 }
 
