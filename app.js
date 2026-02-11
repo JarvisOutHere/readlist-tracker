@@ -412,14 +412,19 @@ function buildPillars() {
     categories.forEach((catKey, index) => {
         const pillar = document.createElement('div');
         const isUserSubmissions = catKey === 'user-submissions';
-        pillar.className = isUserSubmissions ? 'pillar pillar-inverted' : 'pillar';
-        pillar.style.animationDelay = `${index * 0.08}s`;
-
         const count = data.articles[catKey].length;
+        const isEmpty = count === 0;
+
+        // Build class list
+        let classes = 'pillar';
+        if (isUserSubmissions) classes += ' pillar-inverted';
+        if (isEmpty) classes += ' pillar-empty';
+        pillar.className = classes;
+        pillar.style.animationDelay = `${index * 0.08}s`;
 
         // Proportional height (0 articles = minimal line at bottom)
         let heightPct;
-        if (count === 0) {
+        if (isEmpty) {
             heightPct = 2; // Minimal height - just a horizontal line
         } else {
             heightPct = minPct + ((count / maxCount) * (maxPct - minPct));

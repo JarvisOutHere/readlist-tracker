@@ -345,6 +345,13 @@ body {
     opacity: 0.85;
 }
 
+/* Empty inverted pillar - text floats above thin line, needs dark color for beige background */
+.pillar-inverted.pillar-empty .pillar-count,
+.pillar-inverted.pillar-empty .pillar-name {
+    color: var(--accent-primary);
+    opacity: 1;
+}
+
 /* ============================================
    NERDS SECTION (second screen in pillars page)
    ============================================ */
