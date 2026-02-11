@@ -167,6 +167,8 @@ function getItemId(item) {
 - First 5 categories display in standard beige/white style
 - User Submissions is always the 6th (rightmost) pillar with inverted colors (brown background, beige text)
 - First two categories are fixed; middle three are randomized on each load
+- Pillar height is proportional to article count (40%-90% range)
+- Empty categories (0 articles) render as a minimal horizontal line at the bottom (2% height)
 
 ---
 

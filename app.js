@@ -417,11 +417,10 @@ function buildPillars() {
 
         const count = data.articles[catKey].length;
 
-        // Proportional height (user-submissions uses average height if empty)
+        // Proportional height (0 articles = minimal line at bottom)
         let heightPct;
-        if (isUserSubmissions && count === 0) {
-            // Use middle height for empty user-submissions
-            heightPct = (minPct + maxPct) / 2;
+        if (count === 0) {
+            heightPct = 2; // Minimal height - just a horizontal line
         } else {
             heightPct = minPct + ((count / maxCount) * (maxPct - minPct));
         }
