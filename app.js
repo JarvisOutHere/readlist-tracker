@@ -425,7 +425,7 @@ function buildPillars() {
         // Proportional height (0 articles = minimal line at bottom)
         let heightPct;
         if (isEmpty) {
-            heightPct = 2; // Minimal height - just a horizontal line
+            heightPct = 0.5; // Minimal height - just a thin line
         } else {
             heightPct = minPct + ((count / maxCount) * (maxPct - minPct));
         }

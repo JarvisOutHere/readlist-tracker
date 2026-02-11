@@ -345,7 +345,28 @@ body {
     opacity: 0.85;
 }
 
-/* Empty inverted pillar - text floats above thin line, needs dark color for beige background */
+/* Empty pillar - content overflows above the thin line */
+.pillar-empty {
+    overflow: visible;
+    padding: 0;
+}
+
+.pillar-empty .pillar-count,
+.pillar-empty .pillar-name {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.pillar-empty .pillar-count {
+    bottom: calc(100% + 0.5rem);
+}
+
+.pillar-empty .pillar-name {
+    bottom: calc(100% + 3.5rem);
+}
+
+/* Empty inverted pillar - text needs dark color for beige background */
 .pillar-inverted.pillar-empty .pillar-count,
 .pillar-inverted.pillar-empty .pillar-name {
     color: var(--accent-primary);
