@@ -341,6 +341,9 @@ const data = {
                 description: "Contrasting life in 1776 with 2026 to show extraordinary material progress. Technologies transformed water, food, shelter, medicine, and energy—often invisibly making us safer, healthier, and more productive. Recognizing these achievements should inspire confidence that America can overcome current challenges.",
                 url: "https://www.a16z.news/p/technology-in-1776"
             }
+        ],
+        "user-submissions": [
+            // Articles submitted by users will go here
         ]
     }
 };
@@ -351,7 +354,8 @@ const categoryNames = {
     "ai": "AI",
     "intrapersonal": "Intrapersonal",
     "fin-econ-geopolity": "Fin-Econ-(Geo)Polity",
-    "food-for-thought": "Food for Thought"
+    "food-for-thought": "Food for Thought",
+    "user-submissions": "User Submissions"
 };
 
 // Show landing page
@@ -385,21 +389,21 @@ function shuffleArray(arr) {
     return a;
 }
 
-// Build the 5 vertical pillars
+// Build the 6 vertical pillars
 function buildPillars() {
     const container = document.getElementById('pillars-container');
     container.innerHTML = '';
 
-    const allKeys = Object.keys(data.articles);
+    const allKeys = Object.keys(data.articles).filter(k => k !== 'user-submissions');
 
-    // Keep first two fixed, randomize the rest
+    // Keep first two fixed, randomize the rest (excluding user-submissions)
     const fixedKeys = allKeys.slice(0, 2); // interesting-businesses, ai
     const restKeys = shuffleArray(allKeys.slice(2)); // intrapersonal, fin-econ, food-for-thought
-    const categories = [...fixedKeys, ...restKeys];
+    const categories = [...fixedKeys, ...restKeys, 'user-submissions']; // user-submissions always last
 
-    // Find max article count for proportional heights
-    const counts = categories.map(k => data.articles[k].length);
-    const maxCount = Math.max(...counts);
+    // Find max article count for proportional heights (exclude user-submissions from max calc)
+    const mainCounts = categories.filter(k => k !== 'user-submissions').map(k => data.articles[k].length);
+    const maxCount = Math.max(...mainCounts);
 
     // Height range: min 40%, max 90% of container
     const minPct = 40;
@@ -407,13 +411,20 @@ function buildPillars() {
 
     categories.forEach((catKey, index) => {
         const pillar = document.createElement('div');
-        pillar.className = 'pillar';
+        const isUserSubmissions = catKey === 'user-submissions';
+        pillar.className = isUserSubmissions ? 'pillar pillar-inverted' : 'pillar';
         pillar.style.animationDelay = `${index * 0.08}s`;
 
         const count = data.articles[catKey].length;
 
-        // Proportional height
-        const heightPct = minPct + ((count / maxCount) * (maxPct - minPct));
+        // Proportional height (user-submissions uses average height if empty)
+        let heightPct;
+        if (isUserSubmissions && count === 0) {
+            // Use middle height for empty user-submissions
+            heightPct = (minPct + maxPct) / 2;
+        } else {
+            heightPct = minPct + ((count / maxCount) * (maxPct - minPct));
+        }
         pillar.style.height = heightPct + '%';
 
         pillar.innerHTML = `

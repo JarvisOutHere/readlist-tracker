@@ -161,6 +161,12 @@ function getItemId(item) {
 | `intrapersonal` | Intrapersonal | Self-improvement, philosophy |
 | `fin-econ-geopolity` | Fin-Econ-(Geo)Polity | Economics, geopolitics |
 | `food-for-thought` | Food for Thought | Miscellaneous insights |
+| `user-submissions` | User Submissions | Articles submitted by users (inverted color pillar) |
+
+### Pillar Layout
+- First 5 categories display in standard beige/white style
+- User Submissions is always the 6th (rightmost) pillar with inverted colors (brown background, beige text)
+- First two categories are fixed; middle three are randomized on each load
 
 ---
 
@@ -299,6 +305,7 @@ Run this in browser console on the live site:
 
 | Date | Change |
 |------|--------|
+| 2026-02-12 | Added 6th pillar "User Submissions" with inverted colors |
 | 2026-02-12 | Added Shubhangi as new user with magic link |
 | 2026-02-12 | Sort nerd tiles: active users first, then blanks (current user first in their group) |
 | 2026-02-06 | Added stable `id` field to all 25 articles |

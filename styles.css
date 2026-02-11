@@ -325,6 +325,26 @@ body {
     }
 }
 
+/* Inverted pillar (User Submissions) - brown background, beige text */
+.pillar-inverted {
+    background: var(--accent-primary);
+    border-color: var(--accent-tertiary);
+}
+
+.pillar-inverted:hover {
+    background: var(--accent-tertiary);
+    border-color: var(--accent-tertiary);
+}
+
+.pillar-inverted .pillar-count {
+    color: var(--bg-main);
+}
+
+.pillar-inverted .pillar-name {
+    color: var(--bg-main);
+    opacity: 0.85;
+}
+
 /* ============================================
    NERDS SECTION (second screen in pillars page)
    ============================================ */
