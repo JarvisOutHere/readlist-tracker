@@ -758,7 +758,7 @@ const nerds = [
     {
         id: "shubhangi",
         name: "Shubhangi",
-        subtitle: "The newest nerd"
+        subtitle: "Laundry"
     }
 
 
@@ -866,10 +866,30 @@ function buildNerdTiles() {
 
     const currentUserName = getActiveUser();
 
-    // Put current user first
+    // Helper to check if a user has any activity (reactions or favorite)
+    const hasActivity = (nerd) => {
+        const reviews = getNerdReviews(nerd.name);
+        const totalReviews = reviews.positive + reviews.neutral + reviews.negative;
+        const userThoughts = getUserThoughts(nerd.name);
+        const hasFavorite = userThoughts.favoriteArticleId !== null && userThoughts.favoriteArticleId !== undefined;
+        return totalReviews > 0 || hasFavorite;
+    };
+
+    // Sort: active users first, then blanks. Current user first within their group.
     const sorted = [...nerds].sort((a, b) => {
-        if (a.name === currentUserName) return -1;
-        if (b.name === currentUserName) return 1;
+        const aActive = hasActivity(a);
+        const bActive = hasActivity(b);
+        const aIsCurrent = a.name === currentUserName;
+        const bIsCurrent = b.name === currentUserName;
+
+        // First separate by activity status
+        if (aActive && !bActive) return -1;
+        if (!aActive && bActive) return 1;
+
+        // Within same activity group, current user comes first
+        if (aIsCurrent) return -1;
+        if (bIsCurrent) return 1;
+
         return 0;
     });
 
