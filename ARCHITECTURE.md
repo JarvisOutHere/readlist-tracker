@@ -183,7 +183,7 @@ function getItemId(item) {
 | `showLanding()` | Show landing page |
 | `enterCatalog()` | Navigate to pillars view |
 | `openScrollView(categoryKey)` | Open article scroll for category |
-| `buildNerdTiles()` | Render profile cards (call after data load) |
+| `buildNerdTiles()` | Render profile cards (active users first, then blanks; current user first in their group) |
 | `renderScrollCards(categoryKey)` | Render article cards |
 
 ### Firebase Functions (firebase-config.js)
@@ -213,17 +213,18 @@ initUserThoughtsListener(buildNerdTiles);
 
 ## Users
 
-The app has 7 registered users. **Do not hardcode their stats** - they change as people use the live site.
+The app has 8 registered users. **Do not hardcode their stats** - they change as people use the live site.
 
 | Name | Subtitle | Avatar |
 |------|----------|--------|
 | Tanmay | "Reads everything, retains nothing" | T |
 | Himadri | "Finbro" | H |
-| Avantheka | "Will debate you on everything" | A |
-| Cicily | "Actually finishes books" | C |
-| Kashvi | "The skeptic" | K |
-| Achyut | (hidden from UI) | - |
-| Vibhu | (hidden from UI) | - |
+| Avantheka | "Will debate you on anything" | A |
+| Cicily | "MBG" | C |
+| Kashvi | "Crochet Enthusiast" | K |
+| Achyut | "Resident Fin-Econ-(Geo)Policy Expert" | A |
+| Vibhu | "Sea Link" | V |
+| Shubhangi | "Laundry" | S |
 
 ### How to Get Current User Stats
 
@@ -298,6 +299,8 @@ Run this in browser console on the live site:
 
 | Date | Change |
 |------|--------|
+| 2026-02-12 | Added Shubhangi as new user with magic link |
+| 2026-02-12 | Sort nerd tiles: active users first, then blanks (current user first in their group) |
 | 2026-02-06 | Added stable `id` field to all 25 articles |
 | 2026-02-06 | Created ARCHITECTURE.md |
 | 2026-02-05 | Fixed race condition for profile card stats |
