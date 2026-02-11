@@ -358,12 +358,14 @@ body {
     transform: translateX(-50%);
 }
 
-.pillar-empty .pillar-count {
-    bottom: calc(100% + 0.5rem);
+/* Name at bottom (just above the line), count above it - matching normal pillar layout */
+.pillar-empty .pillar-name {
+    bottom: calc(100% + 0.75rem);
 }
 
-.pillar-empty .pillar-name {
-    bottom: calc(100% + 3.5rem);
+.pillar-empty .pillar-count {
+    bottom: calc(100% + 2.75rem);
+    margin-bottom: 0;
 }
 
 /* Empty inverted pillar - text needs dark color for beige background */
