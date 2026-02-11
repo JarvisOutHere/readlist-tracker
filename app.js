@@ -754,6 +754,11 @@ const nerds = [
         id: "v1bhu",
         name: "Vibhu",
         subtitle: "Sea Link"
+    },
+    {
+        id: "shubhangi",
+        name: "Shubhangi",
+        subtitle: "The newest nerd"
     }
 
 
