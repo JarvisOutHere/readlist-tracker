@@ -1199,7 +1199,11 @@ function updateGreeting() {
     const greetingEl = document.getElementById('pillars-greeting');
     if (greetingEl) {
         const userName = getActiveUser();
-        greetingEl.textContent = `Hi ${userName}`;
+        if (userName === 'Guest') {
+            greetingEl.textContent = `Welcome, Guest`;
+        } else {
+            greetingEl.textContent = `Hi ${userName}`;
+        }
     }
 }
 
