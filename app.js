@@ -528,7 +528,7 @@ function buildReactionPane(item) {
                 <div class="reaction-col-names">${renderNames(meh)}</div>
             </div>
             <div class="reaction-col reaction-col-no">
-                <div class="reaction-col-label">There Is Absolutely No</div>
+                <div class="reaction-col-label">Absolutely Not</div>
                 <div class="reaction-col-names">${renderNames(no)}</div>
             </div>
         </div>
