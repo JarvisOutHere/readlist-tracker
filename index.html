@@ -78,9 +78,16 @@
                     stroke-linejoin="round" />
             </svg>
         </button>
-        <h2 class="scroll-category-title" id="scroll-category-title"></h2>
-        <div id="scroll-container" class="scroll-container">
-            <!-- Article cards will be dynamically inserted here -->
+        <div class="scroll-layout">
+            <div id="scroll-sidebar" class="scroll-sidebar">
+                <h2 class="scroll-sidebar-heading" id="scroll-category-title"></h2>
+                <div id="scroll-sidebar-list" class="scroll-sidebar-list">
+                    <!-- Mini article items populated by JS -->
+                </div>
+            </div>
+            <div id="scroll-main" class="scroll-main">
+                <!-- Full article card shown here -->
+            </div>
         </div>
     </div>
 

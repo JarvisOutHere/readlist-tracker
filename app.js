@@ -459,57 +459,72 @@ function openScrollView(categoryKey) {
     renderScrollCards(categoryKey);
 }
 
-// Render scroll cards with PROGRESSIVE LOADING
-// Cards render immediately using cached dimensions or placeholders
+// Render sidebar list and auto-select first article in the panel
 function renderScrollCards(categoryKey) {
-    const container = document.getElementById('scroll-container');
-    container.innerHTML = '';
+    const sidebarList = document.getElementById('scroll-sidebar-list');
+    sidebarList.innerHTML = '';
 
     const items = data.articles[categoryKey];
 
-    // Build all cards immediately - use cached dimensions if available
-    items.forEach((item, index) => {
-        let imgDims = { w: 0, h: 0 };
+    if (items.length === 0) {
+        sidebarList.innerHTML = '<div class="sidebar-empty">No articles yet</div>';
+        document.getElementById('scroll-main').innerHTML = '';
+        return;
+    }
 
-        if (item.image) {
-            const cached = getCachedImageDimensions(item.image);
-            if (cached) {
-                // Image already preloaded - use cached dimensions
-                imgDims = cached;
-            } else {
-                // Image not ready yet - use default dimensions, load in background
-                imgDims = { w: 400, h: 300 }; // Default aspect ratio
-
-                // Start loading this image and update card when ready
-                const img = new Image();
-                img.onload = () => {
-                    // Update card dimensions when image loads
-                    imageCache[item.image] = {
-                        loaded: true,
-                        width: img.naturalWidth,
-                        height: img.naturalHeight
-                    };
-                };
-                img.src = item.image;
-            }
-        }
-
-        const card = buildScrollCard(item, imgDims.w, imgDims.h);
-        container.appendChild(card);
-    });
-
-    // Stagger entrance animation (immediate, no waiting for images)
-    requestAnimationFrame(() => {
-        container.querySelectorAll('.scroll-card').forEach((card, i) => {
-            card.style.animationDelay = `${i * 0.08}s`; // Slightly faster stagger
-            card.classList.add('visible');
+    items.forEach((item) => {
+        const el = document.createElement('div');
+        el.className = 'sidebar-article-item';
+        el.innerHTML = `
+            <div class="sidebar-article-title">${item.title}</div>
+            <div class="sidebar-article-author">${item.author}</div>
+        `;
+        el.addEventListener('click', () => {
+            document.querySelectorAll('.sidebar-article-item').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+            showArticleInPanel(item);
         });
+        sidebarList.appendChild(el);
     });
+
+    // Auto-select first article
+    const firstEl = sidebarList.querySelector('.sidebar-article-item');
+    if (firstEl) {
+        firstEl.classList.add('active');
+        showArticleInPanel(items[0]);
+    }
+}
+
+// Show a full article card in the right panel
+function showArticleInPanel(item) {
+    const main = document.getElementById('scroll-main');
+    main.innerHTML = '';
+
+    let imgW = 0, imgH = 0;
+    if (item.image) {
+        const cached = getCachedImageDimensions(item.image);
+        if (cached) {
+            imgW = cached.w;
+            imgH = cached.h;
+        } else {
+            imgW = 800;
+            imgH = 600;
+        }
+    }
+
+    // Size card based on panel dimensions so aspect ratio is preserved correctly
+    const panelW = main.clientWidth;
+    const panelH = main.clientHeight;
+    const card = buildScrollCard(item, imgW, imgH, panelW, panelH);
+
+    main.appendChild(card);
+    requestAnimationFrame(() => card.classList.add('visible'));
 }
 
 
 // Build a single scroll card
-function buildScrollCard(item, imgW, imgH) {
+// containerW/containerH: optional — pass panel dimensions to size card for that context
+function buildScrollCard(item, imgW, imgH, containerW, containerH) {
     const card = document.createElement('div');
     card.className = 'scroll-card';
 
@@ -578,9 +593,9 @@ function buildScrollCard(item, imgW, imgH) {
 
     // Dynamically size card based on image aspect ratio
     if (imgW > 0 && imgH > 0) {
-        const vw = window.innerWidth;
+        const vw = containerW || window.innerWidth;
         const maxW = vw * 0.88;
-        const maxH = window.innerHeight * 0.82;
+        const maxH = (containerH || window.innerHeight) * 0.82;
         const textSize = 120;
 
         if (isHorizontal) {
@@ -1219,7 +1234,7 @@ function onFirebaseDataUpdate(data) {
 
 // Update reaction button states without re-rendering the entire view
 function updateReactionButtonStates() {
-    const container = document.getElementById('scroll-container');
+    const container = document.getElementById('scroll-main');
     if (!container) return;
 
     const cards = container.querySelectorAll('.scroll-card');
