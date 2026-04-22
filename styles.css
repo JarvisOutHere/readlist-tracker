@@ -907,21 +907,107 @@ body {
     text-align: center;
 }
 
-/* Right panel: 80% */
+/* Right panel: 80% — vertical stack, scrolls to reveal reaction pane */
 .scroll-main {
     flex: 1;
     height: 100vh;
-    overflow: auto;
-    padding: 3rem 2.5rem 4rem 2rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 3rem 2.5rem 6rem 2rem;
     background: var(--bg-main);
     display: flex;
-    align-items: flex-start;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
 }
 
 /* Safety: no-image cards default to 80vw which can overflow the narrower panel */
 .scroll-main .card-window {
     max-width: 100%;
+}
+
+/* ============================================
+   REACTION PANE (below article card in Config 2)
+   ============================================ */
+.reaction-pane {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+    flex-shrink: 0;
+}
+
+.reaction-pane-header {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.reaction-columns {
+    display: flex;
+    gap: 1rem;
+}
+
+.reaction-col {
+    flex: 1;
+    border-radius: 10px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    min-height: 160px;
+}
+
+.reaction-col-nice {
+    background: rgba(90, 138, 90, 0.07);
+    border: 1px solid rgba(90, 138, 90, 0.22);
+}
+
+.reaction-col-meh {
+    background: rgba(140, 134, 128, 0.07);
+    border: 1px solid rgba(140, 134, 128, 0.22);
+}
+
+.reaction-col-no {
+    background: rgba(184, 92, 92, 0.07);
+    border: 1px solid rgba(184, 92, 92, 0.22);
+}
+
+.reaction-col-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.25rem;
+    flex-shrink: 0;
+}
+
+.reaction-col-nice .reaction-col-label { color: var(--reaction-positive); }
+.reaction-col-meh .reaction-col-label  { color: var(--text-muted); }
+.reaction-col-no  .reaction-col-label  { color: var(--reaction-negative); }
+
+.reaction-col-names {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.reaction-person-name {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    line-height: 1.3;
+}
+
+.reaction-empty {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-style: italic;
 }
 
 /* ============================================

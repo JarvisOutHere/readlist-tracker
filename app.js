@@ -444,8 +444,9 @@ function buildPillars() {
     });
 }
 
-// Track current category for re-rendering
+// Track current category and panel item for re-rendering
 let currentCategoryKey = null;
+let currentPanelItem = null;
 
 // Open the scroll view for a category
 function openScrollView(categoryKey) {
@@ -495,10 +496,52 @@ function renderScrollCards(categoryKey) {
     }
 }
 
-// Show a full article card in the right panel
+// Build the reaction pane showing who reacted with Nice / Meh / Absolutely No
+function buildReactionPane(item) {
+    const itemId = getItemId(item);
+    const allReactions = getAllReactionsForItem(itemId);
+
+    const nice = [], meh = [], no = [];
+
+    for (const userName in allReactions) {
+        const reaction = mapFirebaseReactionToApp(allReactions[userName]);
+        if (reaction === 'positive') nice.push(userName);
+        else if (reaction === 'neutral') meh.push(userName);
+        else if (reaction === 'negative') no.push(userName);
+    }
+
+    const renderNames = (names) => names.length
+        ? names.map(n => `<span class="reaction-person-name">${n}</span>`).join('')
+        : `<span class="reaction-empty">—</span>`;
+
+    const pane = document.createElement('div');
+    pane.className = 'reaction-pane';
+    pane.innerHTML = `
+        <div class="reaction-pane-header">Reactions</div>
+        <div class="reaction-columns">
+            <div class="reaction-col reaction-col-nice">
+                <div class="reaction-col-label">Nice</div>
+                <div class="reaction-col-names">${renderNames(nice)}</div>
+            </div>
+            <div class="reaction-col reaction-col-meh">
+                <div class="reaction-col-label">Meh</div>
+                <div class="reaction-col-names">${renderNames(meh)}</div>
+            </div>
+            <div class="reaction-col reaction-col-no">
+                <div class="reaction-col-label">There Is Absolutely No</div>
+                <div class="reaction-col-names">${renderNames(no)}</div>
+            </div>
+        </div>
+    `;
+    return pane;
+}
+
+// Show a full article card in the right panel, with reaction pane below
 function showArticleInPanel(item) {
+    currentPanelItem = item;
     const main = document.getElementById('scroll-main');
     main.innerHTML = '';
+    main.scrollTop = 0;
 
     let imgW = 0, imgH = 0;
     if (item.image) {
@@ -516,9 +559,20 @@ function showArticleInPanel(item) {
     const panelW = main.clientWidth;
     const panelH = main.clientHeight;
     const card = buildScrollCard(item, imgW, imgH, panelW, panelH);
-
     main.appendChild(card);
-    requestAnimationFrame(() => card.classList.add('visible'));
+
+    // Reaction pane matches the article card width
+    const reactionPane = buildReactionPane(item);
+    main.appendChild(reactionPane);
+
+    requestAnimationFrame(() => {
+        card.classList.add('visible');
+        // Match reaction pane width to the actual rendered card window
+        const cardWin = card.querySelector('.card-window');
+        if (cardWin && cardWin.offsetWidth > 0) {
+            reactionPane.style.width = cardWin.offsetWidth + 'px';
+        }
+    });
 }
 
 
@@ -1224,11 +1278,18 @@ function updateGreeting() {
 
 // Callback when Firebase data updates - update button states in-place to preserve scroll
 function onFirebaseDataUpdate(data) {
-    // Update reaction button states in-place (don't re-render to preserve scroll)
     if (currentCategoryKey && !document.getElementById('scroll-page').classList.contains('hidden')) {
         updateReactionButtonStates();
+        // Refresh reaction pane with latest Firebase data
+        if (currentPanelItem) {
+            const oldPane = document.querySelector('.reaction-pane');
+            if (oldPane) {
+                const newPane = buildReactionPane(currentPanelItem);
+                newPane.style.width = oldPane.style.width;
+                oldPane.replaceWith(newPane);
+            }
+        }
     }
-    // Rebuild nerd tiles to show updated reviews
     buildNerdTiles();
 }
 
