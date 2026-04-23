@@ -260,7 +260,8 @@ const data = {
                 author: "Working Theorys",
                 description: "We create more than ever, but it weighs nothing. The internet rewards movement, so we keep going—99% dopamine, near-zero serotonin, no trace of oxytocin. You don't feel like a true creator because light things don't count, and deep down, you know it. Heavy doesn't mean big—it means dense, defining, durable.",
                 url: "https://www.workingtheorys.com/p/make-something-heavy",
-                image: "images/make-something-heavy.jpg"
+                image: "images/make-something-heavy.jpg",
+                layout: "horizontal-4-3"
             }
         ],
         "fin-econ-geopolity": [
@@ -597,7 +598,7 @@ function buildScrollCard(item, imgW, imgH, containerW, containerH) {
                 </svg>
            </div>`;
 
-    const isHorizontal = item.layout === 'horizontal' || item.layout === 'horizontal-square';
+    const isHorizontal = item.layout === 'horizontal' || item.layout === 'horizontal-square' || item.layout === 'horizontal-4-3';
 
     // Check if this article is the user's favorite
     const userThoughts = getUserThoughts(currentUserName);
@@ -633,7 +634,8 @@ function buildScrollCard(item, imgW, imgH, containerW, containerH) {
 
     // Apply layout mode
     if (item.layout) {
-        win.classList.add(item.layout);
+        // horizontal-4-3 reuses the horizontal CSS flex layout
+        win.classList.add(item.layout === 'horizontal-4-3' ? 'horizontal' : item.layout);
     }
 
     // Dynamically size card based on image aspect ratio
@@ -643,7 +645,23 @@ function buildScrollCard(item, imgW, imgH, containerW, containerH) {
         const maxH = (containerH || window.innerHeight) * 0.82;
         const textSize = 120;
 
-        if (isHorizontal) {
+        if (item.layout === 'horizontal-4-3') {
+            const targetAspect = 4 / 3;
+            const textPanelW = 280;
+            let totalW = Math.min(maxW, maxH * targetAspect);
+            let totalH = totalW / targetAspect;
+            const imgAreaW = totalW - textPanelW;
+
+            win.style.width = totalW + 'px';
+            win.style.height = totalH + 'px';
+
+            const imgPct = (imgAreaW / totalW * 100);
+            const textPct = 100 - imgPct;
+            card.querySelector('.card-image').style.width = imgPct + '%';
+            card.querySelector('.card-image').style.flex = 'none';
+            card.querySelector('.card-bottom').style.width = textPct + '%';
+            card.querySelector('.card-bottom').style.flex = 'none';
+        } else if (isHorizontal) {
             const textPanelW = 250;
             const imgAspect = imgW / imgH;
             let imgAreaH = maxH;
