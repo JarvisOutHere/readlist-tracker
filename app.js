@@ -229,7 +229,8 @@ const data = {
                 title: "Safety Is Making You Depressed",
                 author: "Conquer",
                 description: "Modern psychology treats all intense dedication as trauma response. But when you avoid all pain, you accidentally avoid all high emotions too. The positive and negative are linked. Life became electric only when I accepted the chase and let suffering have direction.",
-                url: "https://conquer1.substack.com/p/safety-is-making-you-depressed"
+                url: "https://conquer1.substack.com/p/safety-is-making-you-depressed",
+                image: "images/safety-depressed.jpg"
             },
             {
                 id: "the-stable-marriage-problem-acotra",
@@ -250,14 +251,16 @@ const data = {
                 title: "What Makes a Person Interesting?",
                 author: "Angel Cake",
                 description: "Curiosity is the root of everything interesting. It's not about Prada sneakers or Oscar films—it's whether you chew your food before swallowing. A Salt & Straw employee judges people by whether they season before tasting.",
-                url: "https://angelcake.substack.com/p/what-makes-a-person-interesting"
+                url: "https://angelcake.substack.com/p/what-makes-a-person-interesting",
+                image: "images/what-makes-interesting.jpg"
             },
             {
                 id: "make-something-heavy-working-theorys",
                 title: "Make Something Heavy",
                 author: "Working Theorys",
                 description: "We create more than ever, but it weighs nothing. The internet rewards movement, so we keep going—99% dopamine, near-zero serotonin, no trace of oxytocin. You don't feel like a true creator because light things don't count, and deep down, you know it. Heavy doesn't mean big—it means dense, defining, durable.",
-                url: "https://www.workingtheorys.com/p/make-something-heavy"
+                url: "https://www.workingtheorys.com/p/make-something-heavy",
+                image: "images/make-something-heavy.jpg"
             }
         ],
         "fin-econ-geopolity": [
