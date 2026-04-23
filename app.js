@@ -270,25 +270,11 @@ const data = {
                 image: "images/value-investor.png"
             },
             {
-                id: "the-puzzle-of-pakistans-poverty-rohit-shinde",
-                title: "The Puzzle of Pakistan's Poverty",
-                author: "Rohit Shinde",
-                description: "Religious fundamentalism alone doesn't explain Pakistan's economic underperformance. Structural factors—high fertility, remittance dependency creating Dutch disease, military rent extraction, and geopolitical aid dependency—matter more than ideology in explaining why reforms never stick.",
-                url: "https://rshinde.substack.com/p/the-puzzle-of-pakistans-poverty"
-            },
-            {
                 id: "for-india-only-economic-growth-matters-rohit-shinde",
                 title: "For India, Only Economic Growth Matters",
                 author: "Rohit Shinde",
                 description: "India must prioritize growth above all else to achieve developed-nation status. Currency appreciation, expensive electricity, labor unions, and restrictive construction norms hinder manufacturing. With declining fertility, there's urgency—economic growth automatically improves every other outcome you care about.",
                 url: "https://rshinde.substack.com/p/for-india-only-economic-growth-matters"
-            },
-            {
-                id: "is-india-following-china's-path-to-prosperity-rohit-shinde",
-                title: "Is India Following China's Path to Prosperity?",
-                author: "Rohit Shinde",
-                description: "Comparing India and China's development trajectories since the 1970s. India is adopting similar strategies—infrastructure, PLI schemes, education reforms—but faces de-globalization headwinds. Sustained 8% growth for two decades is needed to reach high-income status.",
-                url: "https://rshinde.substack.com/p/is-india-following-chinas-path-to"
             },
             {
                 id: "china's-broken-balance-sheet-why-china-will-invade-taiwan-before-2030-rohit-shinde",
@@ -311,14 +297,16 @@ const data = {
                 title: "India In Charts - The House View",
                 author: "Tiger Feathers",
                 description: "A visual essay on India's trajectory—consumption patterns, infrastructure bets, demographic tailwinds. The kind of synthesis that makes you see a country differently.",
-                url: "https://www.tigerfeathers.in/p/india-in-charts-the-house-view"
+                url: "https://www.tigerfeathers.in/p/india-in-charts-the-house-view",
+                image: "images/india-in-charts.jpg"
             },
             {
                 id: "the-great-differentiation-not-boring",
                 title: "The Great Differentiation",
                 author: "Not Boring",
                 description: "When sameness is cheap, differentiation is valuable. But how do you remain differentiated when copying is free? The salvation from slop is making copying expensive—peacocking for the AI age.",
-                url: "https://www.notboring.co/p/the-great-differentiation"
+                url: "https://www.notboring.co/p/the-great-differentiation",
+                image: "images/great-differentiation.jpg"
             },
             {
                 id: "the-böckenförde-dilemma-jason-zhao",
