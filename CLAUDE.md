@@ -78,6 +78,22 @@ curl -X PUT -d '"liked"' "https://readlist-tracker-default-rtdb.firebaseio.com/r
 curl -X DELETE "https://readlist-tracker-default-rtdb.firebaseio.com/readStatus/{articleId}/{user}.json"
 ```
 
+### Connection resilience
+
+Firebase's WebSocket auto-reconnects on network drops, but browsers throttle backgrounded tabs aggressively and the socket can silently die. `firebase-config.js` adds three layers so the client stays live indefinitely:
+
+1. **`keepSynced(true)`** on `readStatus` and `userThoughts` — SDK holds a live subscription to those paths even when no UI listener is attached, so the in-memory cache never goes stale.
+2. **Visibility + online event handlers** — call `database.goOffline(); database.goOnline()` the moment the tab becomes visible or the network reports "online," forcing a fresh WebSocket handshake.
+3. **Keep-alive ping every 4 minutes** — a cheap `.info/serverTimeOffset` read keeps ISPs / proxies from closing an idle WebSocket.
+
+Connection state is tracked via `.info/connected` and logged to the browser console with `[Firebase]` prefix. For manual debugging from DevTools:
+
+```js
+firebaseDebug.isConnected()   // bool
+firebaseDebug.reconnect()     // force a reconnect cycle
+firebaseDebug.db              // raw database ref
+```
+
 ### Security rules
 
 Current rules (in `Rules` tab of console):

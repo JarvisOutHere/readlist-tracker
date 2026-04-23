@@ -220,3 +220,58 @@ function clearFavoriteFromFirebase(userName) {
     return database.ref(`userThoughts/${userName}/favoriteArticleId`).remove();
 }
 
+
+// ============================================
+// Perpetual Connection: Keep Firebase Always Synced
+// ============================================
+// The Firebase SDK auto-reconnects on network drops, but browsers aggressively
+// throttle WebSockets in backgrounded tabs and may silently let the socket die.
+// The block below adds three layers of resilience:
+//   1. keepSynced(true) — SDK maintains a live subscription to these paths even
+//      when no UI listener is attached, so the cache never goes stale.
+//   2. Visibility / online event handlers — force a reconnect cycle the moment
+//      the tab becomes visible or the network returns.
+//   3. Keep-alive ping — a cheap roundtrip every 4 minutes prevents idle
+//      intermediaries (ISPs, proxies) from closing the WebSocket.
+
+// 1. Keep the reaction + favorites tree synced globally.
+database.ref('readStatus').keepSynced(true);
+database.ref('userThoughts').keepSynced(true);
+
+// 2. Track and log connection state.
+let firebaseIsConnected = false;
+database.ref('.info/connected').on('value', (snapshot) => {
+    const wasConnected = firebaseIsConnected;
+    firebaseIsConnected = snapshot.val() === true;
+    if (firebaseIsConnected && !wasConnected) {
+        console.log('[Firebase] Connected');
+    } else if (!firebaseIsConnected && wasConnected) {
+        console.warn('[Firebase] Disconnected — SDK will auto-reconnect');
+    }
+});
+
+// Force reconnection when the tab becomes visible again.
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        database.goOffline();
+        database.goOnline();
+    }
+});
+
+// Force reconnection on network recovery.
+window.addEventListener('online', () => {
+    database.goOffline();
+    database.goOnline();
+});
+
+// 3. Keep-alive ping every 4 minutes.
+setInterval(() => {
+    database.ref('.info/serverTimeOffset').once('value').catch(() => {});
+}, 4 * 60 * 1000);
+
+// Expose for manual debugging from the console.
+window.firebaseDebug = {
+    isConnected: () => firebaseIsConnected,
+    reconnect: () => { database.goOffline(); database.goOnline(); },
+    db: database
+};
