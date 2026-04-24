@@ -875,7 +875,7 @@ body {
 .sidebar-article-item::after {
     content: '';
     display: block;
-    width: 36px;
+    width: 100%;
     height: 1px;
     background: #9b7055;
     margin-top: 0.5rem;
