@@ -259,7 +259,7 @@ const data = {
                 id: "make-something-heavy-working-theorys",
                 title: "Make Something Heavy",
                 author: "Working Theorys",
-                description: "Consumption can push you only so far.",
+                description: "Consumption can take you only so far.",
                 url: "https://www.workingtheorys.com/p/make-something-heavy",
                 image: "images/make-something-heavy.jpg",
                 layout: "horizontal-4-3"
