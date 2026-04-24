@@ -270,7 +270,7 @@ const data = {
                 id: "evolution-of-a-value-investor-sage-saigal",
                 title: "Evolution of a Value Investor",
                 author: "Sage Saigal",
-                description: "What kind of mental model do you need for developing mental models for value investing?",
+                description: "What kind of a mental model do you need for developing mental models for value investing?",
                 url: "https://sagesaigal.substack.com/p/evolution-of-a-value-investor-presentation",
                 image: "images/value-investor.png"
             },
@@ -288,6 +288,24 @@ const data = {
                 description: "Fun takes all around.",
                 url: "https://substack.com/home/post/p-181489135",
                 image: "images/taiwan-exercises.jpg",
+                layout: "horizontal"
+            },
+            {
+                id: "rewiring-the-energy-debate-electrotech-revolution",
+                title: "Rewiring the Energy Debate",
+                author: "Electrotech Revolution",
+                description: "Can't wait for the air to be breathable again.",
+                url: "https://www.electrotech-revolution.com/p/rewiring-the-energy-debate",
+                image: "images/electrotech-revolution.png",
+                layout: "horizontal"
+            },
+            {
+                id: "finding-your-investment-lodestar-aswath-damodaran",
+                title: "Finding Your Investment Lodestar",
+                author: "Aswath Damodaran",
+                description: "From the man, the myth, the legend himself.",
+                url: "https://aswathdamodaran.substack.com/p/finding-your-investment-lodestar",
+                image: "images/damodaran-lodestar.jpg",
                 layout: "horizontal"
             }
         ],
