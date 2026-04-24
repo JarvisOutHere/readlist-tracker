@@ -192,7 +192,7 @@ const data = {
                 id: "ai-2027-ai-2027",
                 title: "AI 2027",
                 author: "AI 2027",
-                description: "The piece that got me hooked on AI. An AI prediction timeline that really tracks so far.",
+                description: "The piece that got me hooked on AI. A prediction timeline that has tracked so far.",
                 url: "https://ai-2027.com/",
                 image: "images/ai2027.png",
                 layout: "horizontal-square"
@@ -201,7 +201,7 @@ const data = {
                 id: "import-ai-441-my-agents-are-working-are-yours-jack-clark",
                 title: "Import AI 441: My Agents Are Working. Are Yours?",
                 author: "Jack Clark",
-                description: "We've crossed an inflection point where teams of AI agents can read thousands of papers while you hike, compiling reports better than you could. It feels surreal—like having a fleet of tireless researchers on call. The future of knowledge work may already be here.",
+                description: "It feels a little surreal.",
                 url: "https://jack-clark.net/2026/01/19/import-ai-441-my-agents-are-working-are-yours/",
                 image: "images/import-ai.png"
             },
@@ -243,7 +243,7 @@ const data = {
                 id: "how-to-live-an-intellectually-rich-life-utsav-mamoria",
                 title: "How to Live an Intellectually Rich Life",
                 author: "Utsav Mamoria",
-                description: "95% of Wikipedia paths lead to Philosophy. This isn't trivia—it's a map. Epistemic anxiety is what you feel when you sense the truth is out there but can't reach it. The antidote is structured curiosity.",
+                description: "The actual piece isn't as pretentious as it sounds.",
                 url: "https://utsavmamoria.substack.com/p/how-to-live-an-intellectually-rich",
                 image: "images/intellectually-rich.png"
             },
@@ -323,7 +323,7 @@ const data = {
                 id: "india-in-charts---the-house-view-tiger-feathers",
                 title: "India In Charts - The House View",
                 author: "Tiger Feathers",
-                description: "A visual essay on India's trajectory—consumption patterns, infrastructure bets, demographic tailwinds. The kind of synthesis that makes you see a country differently.",
+                description: "A visual essay on India. If you think you know what to expect, you don't.",
                 url: "https://www.tigerfeathers.in/p/india-in-charts-the-house-view",
                 image: "images/india-in-charts.jpg"
             },
@@ -331,7 +331,7 @@ const data = {
                 id: "the-great-differentiation-not-boring",
                 title: "The Great Differentiation",
                 author: "Not Boring",
-                description: "Kind of funny that in the slop era, we have the most powerful tools to create something tasteful.",
+                description: "Kind of funny that it's the slop era that might just lead to some of the most interesting art we've ever seen.",
                 url: "https://www.notboring.co/p/the-great-differentiation",
                 image: "images/great-differentiation.jpg"
             },
