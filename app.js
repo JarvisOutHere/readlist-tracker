@@ -296,7 +296,8 @@ const data = {
                 author: "Adam Golding",
                 description: "The Paradox of Absolutism—many seemingly absolute statements actually require comparison to be meaningful. Asking 'compared to what?' helps resolve apparent paradoxes across epistemology, color perception, and metaphysics. Absolute claims often trap people in unproductive loops; calibrating statements through comparative frameworks allows for meaningful resolution.",
                 url: "https://adamgolding.substack.com/p/compared-to-what",
-                image: "images/compared-to-what.png"
+                image: "images/compared-to-what.png",
+                imagePosition: "top"
             },
             {
                 id: "india-in-charts---the-house-view-tiger-feathers",
@@ -709,6 +710,12 @@ function buildScrollCard(item, imgW, imgH, containerW, containerH) {
     // Apply custom background color
     if (item.imageBg) {
         card.querySelector('.card-image').style.background = item.imageBg;
+    }
+
+    // Apply custom image crop position (e.g. "top" to anchor the top of the image)
+    if (item.imagePosition) {
+        const imgEl = card.querySelector('.card-image img');
+        if (imgEl) imgEl.style.objectPosition = item.imagePosition;
     }
 
     // Click card to open article (except reaction/favorite buttons)
