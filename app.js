@@ -172,7 +172,7 @@ const data = {
                 id: "the-palantirization-of-everything-a16z",
                 title: "The Palantirization of Everything",
                 author: "a16z",
-                description: "Everyone wants to copy Palantir—embed FDEs with customers, build custom workflows, operate like special forces. But most companies copying the aesthetic are setting themselves up to become expensive services businesses with software multiples.",
+                description: "It's a very interesting system they have going over there. How do you scale a bespoke solution?",
                 url: "https://www.a16z.news/p/the-palantirization-of-everything",
                 image: "images/palantirization.png",
                 layout: "horizontal"
@@ -192,7 +192,7 @@ const data = {
                 id: "ai-2027-ai-2027",
                 title: "AI 2027",
                 author: "AI 2027",
-                description: "A research-backed scenario forecast that feels uncomfortably plausible. From stumbling agents to superhuman researchers in under three years—a timeline that demands you engage with it.",
+                description: "The piece that got me hooked on AI. An AI prediction timeline that really tracks so far.",
                 url: "https://ai-2027.com/",
                 image: "images/ai2027.png",
                 layout: "horizontal-square"
@@ -209,7 +209,7 @@ const data = {
                 id: "agi-ruin-a-list-of-lethalities-eliezer-yudkowsky",
                 title: "AGI Ruin: A List of Lethalities",
                 author: "Eliezer Yudkowsky",
-                description: "A few dozen reasons why AGI alignment is an extremely difficult problem we are not on track to solve. The big ask isn't perfect alignment—it's obtaining by any strategy whatsoever a significant chance of there being any survivors.",
+                description: "If the field of AI alignment had a bible, it would be this.",
                 url: "https://www.lesswrong.com/posts/uMQ3cqWDPHhjtiesc/agi-ruin-a-list-of-lethalities",
                 image: "images/agi-ruin.png"
             },
@@ -217,7 +217,7 @@ const data = {
                 id: "the-adolescence-of-technology-dario-amodei",
                 title: "The Adolescence of Technology",
                 author: "Dario Amodei",
-                description: "Exploring risks as AI approaches a 'country of geniuses in a datacenter.' Five concerns: autonomy risks, misuse for destruction, misuse for power, economic disruption, and destabilizing effects. Advocates pragmatic responses through constitutional AI, interpretability research, and surgical regulation.",
+                description: "In Carl Sagan's Contact, the astronomer considered to meet the aliens is asked by the panel: if you could ask them just one question, what would it be? Her reply: how did you do it? How did you survive this technological adolescence without destroying yourself?",
                 url: "https://www.darioamodei.com/essay/the-adolescence-of-technology",
                 image: "images/adolescence-of-tech.png",
                 layout: "horizontal"
@@ -228,7 +228,7 @@ const data = {
                 id: "safety-is-making-you-depressed-conquer",
                 title: "Safety Is Making You Depressed",
                 author: "Conquer",
-                description: "Modern psychology treats all intense dedication as trauma response. But when you avoid all pain, you accidentally avoid all high emotions too. The positive and negative are linked. Life became electric only when I accepted the chase and let suffering have direction.",
+                description: "There's something very romantic about giving something your all. It's the era of the maxxer.",
                 url: "https://conquer1.substack.com/p/safety-is-making-you-depressed",
                 image: "images/safety-depressed.jpg"
             },
@@ -236,7 +236,7 @@ const data = {
                 id: "the-stable-marriage-problem-acotra",
                 title: "The Stable Marriage Problem",
                 author: "Acotra",
-                description: "Intelligence is choosing what you truly want, acting to get it, and learning fast. Most people drift in a 'river' of others' goals. Agency means stepping out, being honest about your nature, starting before you're ready, risking looking foolish, testing, failing, adjusting, and shipping imperfectly until results match your aims.",
+                description: "If I could have any trait in life, bias for action would be #2.",
                 url: "https://acotra.substack.com/p/the-stable-marriage-problem"
             },
             {
@@ -251,7 +251,7 @@ const data = {
                 id: "what-makes-a-person-interesting-angel-cake",
                 title: "What Makes a Person Interesting?",
                 author: "Angel Cake",
-                description: "Curiosity is the root of everything interesting. It's not about Prada sneakers or Oscar films—it's whether you chew your food before swallowing. A Salt & Straw employee judges people by whether they season before tasting.",
+                description: "And curiosity #1.",
                 url: "https://angelcake.substack.com/p/what-makes-a-person-interesting",
                 image: "images/what-makes-interesting.jpg"
             },
@@ -259,7 +259,7 @@ const data = {
                 id: "make-something-heavy-working-theorys",
                 title: "Make Something Heavy",
                 author: "Working Theorys",
-                description: "We create more than ever, but it weighs nothing. The internet rewards movement, so we keep going—99% dopamine, near-zero serotonin, no trace of oxytocin. You don't feel like a true creator because light things don't count, and deep down, you know it. Heavy doesn't mean big—it means dense, defining, durable.",
+                description: "Consumption can push you only so far.",
                 url: "https://www.workingtheorys.com/p/make-something-heavy",
                 image: "images/make-something-heavy.jpg",
                 layout: "horizontal-4-3"
@@ -270,7 +270,7 @@ const data = {
                 id: "evolution-of-a-value-investor-sage-saigal",
                 title: "Evolution of a Value Investor",
                 author: "Sage Saigal",
-                description: "How value investing philosophy evolves when held seriously over decades. Not the Warren Buffett mythology, but the messy reality of changing your mind while staying principled.",
+                description: "What kind of mental model do you need for developing mental models for value investing?",
                 url: "https://sagesaigal.substack.com/p/evolution-of-a-value-investor-presentation",
                 image: "images/value-investor.png"
             },
@@ -278,15 +278,17 @@ const data = {
                 id: "for-india-only-economic-growth-matters-rohit-shinde",
                 title: "For India, Only Economic Growth Matters",
                 author: "Rohit Shinde",
-                description: "India must prioritize growth above all else to achieve developed-nation status. Currency appreciation, expensive electricity, labor unions, and restrictive construction norms hinder manufacturing. With declining fertility, there's urgency—economic growth automatically improves every other outcome you care about.",
+                description: "I guess this is why they call it economically right and politically left.",
                 url: "https://rshinde.substack.com/p/for-india-only-economic-growth-matters"
             },
             {
                 id: "china's-broken-balance-sheet-why-china-will-invade-taiwan-before-2030-rohit-shinde",
                 title: "China's Broken Balance Sheet: Why China Will Invade Taiwan before 2030",
                 author: "Rohit Shinde",
-                description: "China faces an unprecedented economic crisis from investment-driven growth funded through shadow banking. With traditional engines exhausted and no access to advanced semiconductors, Beijing may pursue military action against Taiwan to seize TSMC's sub-7nm manufacturing ecosystem.",
-                url: "https://substack.com/home/post/p-181489135"
+                description: "Fun takes all around.",
+                url: "https://substack.com/home/post/p-181489135",
+                image: "images/taiwan-exercises.jpg",
+                layout: "horizontal"
             }
         ],
         "food-for-thought": [
@@ -294,7 +296,7 @@ const data = {
                 id: "compared-to-what-adam-golding",
                 title: "Compared to What?",
                 author: "Adam Golding",
-                description: "The Paradox of Absolutism—many seemingly absolute statements actually require comparison to be meaningful. Asking 'compared to what?' helps resolve apparent paradoxes across epistemology, color perception, and metaphysics. Absolute claims often trap people in unproductive loops; calibrating statements through comparative frameworks allows for meaningful resolution.",
+                description: "A very fun exercise.",
                 url: "https://adamgolding.substack.com/p/compared-to-what",
                 image: "images/compared-to-what.png",
                 imagePosition: "top"
@@ -311,7 +313,7 @@ const data = {
                 id: "the-great-differentiation-not-boring",
                 title: "The Great Differentiation",
                 author: "Not Boring",
-                description: "When sameness is cheap, differentiation is valuable. But how do you remain differentiated when copying is free? The salvation from slop is making copying expensive—peacocking for the AI age.",
+                description: "Kind of funny that in the slop era, we have the most powerful tools to create something tasteful.",
                 url: "https://www.notboring.co/p/the-great-differentiation",
                 image: "images/great-differentiation.jpg"
             },
@@ -319,7 +321,7 @@ const data = {
                 id: "the-böckenförde-dilemma-jason-zhao",
                 title: "The Böckenförde Dilemma",
                 author: "Jason Zhao",
-                description: "Liberal democracies rely on shared cultural values to flourish, yet they cannot replenish those very values. A case for spiritual renewal in the West—diagnosing the malaise of American political life.",
+                description: "Liberal democracies rely on shared liberal-democratic cultural values to flourish, but the contradiction within is that these values are built around tolerating and welcoming other values, including ones that aren't these.",
                 url: "https://jasonzhao.substack.com/p/the-bockenforde-dilemma",
                 image: "images/bockenforde.jpg"
             },
@@ -327,7 +329,7 @@ const data = {
                 id: "technology-in-1776-christian-keil",
                 title: "Technology in 1776",
                 author: "Christian Keil",
-                description: "Contrasting life in 1776 with 2026 to show extraordinary material progress. Technologies transformed water, food, shelter, medicine, and energy—often invisibly making us safer, healthier, and more productive. Recognizing these achievements should inspire confidence that America can overcome current challenges.",
+                description: "Human progress is an exponential.",
                 url: "https://www.a16z.news/p/technology-in-1776",
                 image: "images/technology-1776.jpg"
             }
