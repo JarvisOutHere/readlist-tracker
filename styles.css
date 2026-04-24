@@ -869,7 +869,20 @@ body {
     cursor: pointer;
     transition: background 0.15s ease, border-color 0.15s ease;
     border: 1px solid transparent;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.45rem;
+}
+
+.sidebar-article-item::after {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 1px;
+    background: #9b7055;
+    margin-top: 0.5rem;
+}
+
+.sidebar-article-item:last-child::after {
+    display: none;
 }
 
 .sidebar-article-item:hover {

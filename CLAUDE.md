@@ -11,8 +11,9 @@ One git repo, three branches, three worktrees running three design-variant serve
 | `config-1` | `/Users/Tanmay/Documents/AG/reading-tracker-config1` | 8081 |
 | `config-2` | `/Users/Tanmay/Documents/AG/reading-tracker`         | 8080 |
 | `config-3` | `/Users/Tanmay/Documents/AG/reading-tracker-config3` | 8082 |
+| `config-4` | `/Users/Tanmay/Documents/AG/reading-tracker-config4` | 8083 |
 
-Config-2 is the canonical "main" variant — split-pane with reaction column. Config-1 is simpler (no reaction column), config-3 adds image thumbnails in the sidebar. When edits apply to "all three configs," apply them to each worktree and commit on that worktree's branch.
+Config-2 is the canonical "main" variant — split-pane with reaction column. Config-1 is simpler (no reaction column), config-3 adds image thumbnails in the sidebar. Config-4 is based on config-2 and adds brown separator lines + extra spacing between articles in the left sidebar. When edits apply to "all configs," apply them to each worktree and commit on that worktree's branch.
 
 ## Article data invariants
 
