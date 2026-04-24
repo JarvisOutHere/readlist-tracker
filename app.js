@@ -244,7 +244,8 @@ const data = {
                 title: "How to Live an Intellectually Rich Life",
                 author: "Utsav Mamoria",
                 description: "95% of Wikipedia paths lead to Philosophy. This isn't trivia—it's a map. Epistemic anxiety is what you feel when you sense the truth is out there but can't reach it. The antidote is structured curiosity.",
-                url: "https://utsavmamoria.substack.com/p/how-to-live-an-intellectually-rich"
+                url: "https://utsavmamoria.substack.com/p/how-to-live-an-intellectually-rich",
+                image: "images/intellectually-rich.png"
             },
             {
                 id: "what-makes-a-person-interesting-angel-cake",
@@ -294,7 +295,8 @@ const data = {
                 title: "Compared to What?",
                 author: "Adam Golding",
                 description: "The Paradox of Absolutism—many seemingly absolute statements actually require comparison to be meaningful. Asking 'compared to what?' helps resolve apparent paradoxes across epistemology, color perception, and metaphysics. Absolute claims often trap people in unproductive loops; calibrating statements through comparative frameworks allows for meaningful resolution.",
-                url: "https://adamgolding.substack.com/p/compared-to-what"
+                url: "https://adamgolding.substack.com/p/compared-to-what",
+                image: "images/compared-to-what.png"
             },
             {
                 id: "india-in-charts---the-house-view-tiger-feathers",
@@ -317,7 +319,8 @@ const data = {
                 title: "The Böckenförde Dilemma",
                 author: "Jason Zhao",
                 description: "Liberal democracies rely on shared cultural values to flourish, yet they cannot replenish those very values. A case for spiritual renewal in the West—diagnosing the malaise of American political life.",
-                url: "https://jasonzhao.substack.com/p/the-bockenforde-dilemma"
+                url: "https://jasonzhao.substack.com/p/the-bockenforde-dilemma",
+                image: "images/bockenforde.jpg"
             },
             {
                 id: "notes-on-india-jason-zhao",
@@ -331,7 +334,8 @@ const data = {
                 title: "Technology in 1776",
                 author: "Christian Keil",
                 description: "Contrasting life in 1776 with 2026 to show extraordinary material progress. Technologies transformed water, food, shelter, medicine, and energy—often invisibly making us safer, healthier, and more productive. Recognizing these achievements should inspire confidence that America can overcome current challenges.",
-                url: "https://www.a16z.news/p/technology-in-1776"
+                url: "https://www.a16z.news/p/technology-in-1776",
+                image: "images/technology-1776.jpg"
             }
         ],
         "user-submissions": [
