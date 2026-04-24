@@ -324,13 +324,6 @@ const data = {
                 image: "images/bockenforde.jpg"
             },
             {
-                id: "notes-on-india-jason-zhao",
-                title: "Notes on India",
-                author: "Jason Zhao",
-                description: "Initial observations from a week in New Delhi, Bangalore, and Darjeeling. On culture, politics, and economy—the nation as perhaps the most striking experiment in democratic history.",
-                url: "https://jasonzhao.substack.com/p/notes-on-india"
-            },
-            {
                 id: "technology-in-1776-christian-keil",
                 title: "Technology in 1776",
                 author: "Christian Keil",
