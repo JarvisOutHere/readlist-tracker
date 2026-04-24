@@ -489,6 +489,7 @@ function renderScrollCards(categoryKey) {
         el.innerHTML = `
             <div class="sidebar-article-title">${item.title}</div>
             <div class="sidebar-article-author">${item.author}</div>
+            ${item.description ? `<div class="sidebar-article-description">${item.description}</div>` : ''}
         `;
         el.addEventListener('click', () => {
             document.querySelectorAll('.sidebar-article-item').forEach(e => e.classList.remove('active'));
