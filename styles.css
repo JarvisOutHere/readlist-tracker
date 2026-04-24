@@ -827,10 +827,10 @@ body {
     height: 100vh;
 }
 
-/* Left sidebar: 20% */
+/* Left sidebar: 22% (10% wider than base 20%) */
 .scroll-sidebar {
-    width: 20%;
-    min-width: 200px;
+    width: 22%;
+    min-width: 220px;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -842,7 +842,7 @@ body {
 
 .scroll-sidebar-heading {
     font-family: 'Playfair Display', serif;
-    font-size: 0.8rem;
+    font-size: 0.88rem;
     font-weight: 600;
     color: var(--text-primary);
     padding: 5rem 1rem 0.75rem 1rem;
@@ -856,7 +856,7 @@ body {
 .scroll-sidebar-list {
     flex: 1;
     overflow-y: auto;
-    padding: 0.5rem;
+    padding: 0.55rem;
 }
 
 .scroll-sidebar-list::-webkit-scrollbar {
@@ -864,7 +864,7 @@ body {
 }
 
 .sidebar-article-item {
-    padding: 0.65rem 0.75rem;
+    padding: 0.72rem 0.83rem;
     border-radius: 8px;
     cursor: pointer;
     transition: background 0.15s ease, border-color 0.15s ease;
@@ -895,7 +895,7 @@ body {
 }
 
 .sidebar-article-title {
-    font-size: 0.78rem;
+    font-size: 0.86rem;
     font-weight: 500;
     color: var(--text-primary);
     line-height: 1.35;
@@ -907,13 +907,13 @@ body {
 }
 
 .sidebar-article-author {
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     color: var(--accent-secondary);
     font-weight: 500;
 }
 
 .sidebar-article-description {
-    font-size: 0.67rem;
+    font-size: 0.74rem;
     color: var(--text-muted);
     line-height: 1.45;
     margin-top: 0.35rem;
@@ -921,7 +921,7 @@ body {
 
 .sidebar-empty {
     padding: 1.5rem 1rem;
-    font-size: 0.82rem;
+    font-size: 0.9rem;
     color: var(--text-muted);
     font-style: italic;
     text-align: center;
