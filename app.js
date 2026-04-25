@@ -317,7 +317,6 @@ const data = {
                 description: "A very fun exercise.",
                 url: "https://adamgolding.substack.com/p/compared-to-what",
                 image: "images/compared-to-what.png",
-                imagePosition: "top"
             },
             {
                 id: "india-in-charts---the-house-view-tiger-feathers",
