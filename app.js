@@ -192,7 +192,7 @@ const data = {
                 id: "ai-2027-ai-2027",
                 title: "AI 2027",
                 author: "AI 2027",
-                description: "The piece that got me hooked on AI. A prediction timeline that has tracked so far.",
+                description: "Watershed moment for my interest in AI.",
                 url: "https://ai-2027.com/",
                 image: "images/ai2027.png",
                 layout: "horizontal-square"
@@ -274,6 +274,7 @@ const data = {
                 url: "https://sagesaigal.substack.com/p/evolution-of-a-value-investor-presentation",
                 image: "images/value-investor.png"
             },
+
             {
                 id: "for-india-only-economic-growth-matters-rohit-shinde",
                 title: "For India, Only Economic Growth Matters",
@@ -281,15 +282,17 @@ const data = {
                 description: "I guess this is why they call it economically right and politically left.",
                 url: "https://rshinde.substack.com/p/for-india-only-economic-growth-matters"
             },
+
             {
-                id: "china's-broken-balance-sheet-why-china-will-invade-taiwan-before-2030-rohit-shinde",
-                title: "China's Broken Balance Sheet: Why China Will Invade Taiwan before 2030",
-                author: "Rohit Shinde",
-                description: "Fun takes all around.",
-                url: "https://substack.com/home/post/p-181489135",
-                image: "images/taiwan-exercises.jpg",
+                id: "finding-your-investment-lodestar-aswath-damodaran",
+                title: "Finding Your Investment Lodestar",
+                author: "Aswath Damodaran",
+                description: "From the man, the myth, the legend himself.",
+                url: "https://aswathdamodaran.substack.com/p/finding-your-investment-lodestar",
+                image: "images/damodaran-lodestar.jpg",
                 layout: "horizontal"
             },
+
             {
                 id: "rewiring-the-energy-debate-electrotech-revolution",
                 title: "Rewiring the Energy Debate",
@@ -299,13 +302,14 @@ const data = {
                 image: "images/electrotech-revolution.png",
                 layout: "horizontal"
             },
+
             {
-                id: "finding-your-investment-lodestar-aswath-damodaran",
-                title: "Finding Your Investment Lodestar",
-                author: "Aswath Damodaran",
-                description: "From the man, the myth, the legend himself.",
-                url: "https://aswathdamodaran.substack.com/p/finding-your-investment-lodestar",
-                image: "images/damodaran-lodestar.jpg",
+                id: "china's-broken-balance-sheet-why-china-will-invade-taiwan-before-2030-rohit-shinde",
+                title: "China's Broken Balance Sheet: Why China Will Invade Taiwan before 2030",
+                author: "Rohit Shinde",
+                description: "Fun takes all around.",
+                url: "https://substack.com/home/post/p-181489135",
+                image: "images/taiwan-exercises.jpg",
                 layout: "horizontal"
             }
         ],

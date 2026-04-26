@@ -882,7 +882,7 @@ body {
 }
 
 .sidebar-article-item:last-child::after {
-    display: none;
+    display: block;
 }
 
 .sidebar-article-item:hover {
