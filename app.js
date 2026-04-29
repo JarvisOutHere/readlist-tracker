@@ -884,7 +884,7 @@ const nerds = [
     {
         id: "kunal",
         name: "Kunal",
-        subtitle: "Guest Reader",
+        subtitle: "The Owner",
         guestOnly: true
     }
 ];
@@ -1024,11 +1024,11 @@ function buildNerdTiles() {
         grid.appendChild(card);
     });
 
-    // Append guest-only cards at the bottom (only visible to guest users)
+    // Prepend guest-only cards at the top (only visible to guest users)
     if (currentUserName === 'Guest') {
-        nerds.filter(n => n.guestOnly).forEach(nerd => {
+        nerds.filter(n => n.guestOnly).reverse().forEach(nerd => {
             const card = buildFullProfileCard(nerd);
-            grid.appendChild(card);
+            grid.prepend(card);
         });
     }
 }
