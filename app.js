@@ -880,9 +880,13 @@ const nerds = [
         id: "shubhangi",
         name: "Shubhangi",
         subtitle: "Laundry"
+    },
+    {
+        id: "kunal",
+        name: "Kunal",
+        subtitle: "Guest Reader",
+        guestOnly: true
     }
-
-
 ];
 
 
@@ -997,7 +1001,7 @@ function buildNerdTiles() {
     };
 
     // Sort: active users first, then blanks. Current user first within their group.
-    const sorted = [...nerds].sort((a, b) => {
+    const sorted = [...nerds.filter(n => !n.guestOnly)].sort((a, b) => {
         const aActive = hasActivity(a);
         const bActive = hasActivity(b);
         const aIsCurrent = a.name === currentUserName;
@@ -1019,6 +1023,14 @@ function buildNerdTiles() {
         const card = buildFullProfileCard(nerd);
         grid.appendChild(card);
     });
+
+    // Append guest-only cards at the bottom (only visible to guest users)
+    if (currentUserName === 'Guest') {
+        nerds.filter(n => n.guestOnly).forEach(nerd => {
+            const card = buildFullProfileCard(nerd);
+            grid.appendChild(card);
+        });
+    }
 }
 
 // Build a full-size profile card (same content as the popup)
@@ -1306,7 +1318,7 @@ function updateGreeting() {
     if (greetingEl) {
         const userName = getActiveUser();
         if (userName === 'Guest') {
-            greetingEl.textContent = `Welcome, Guest`;
+            greetingEl.textContent = `Welcome, Guest User`;
         } else {
             greetingEl.textContent = `Hi ${userName}`;
         }
