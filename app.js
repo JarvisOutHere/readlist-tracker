@@ -880,12 +880,6 @@ const nerds = [
         id: "shubhangi",
         name: "Shubhangi",
         subtitle: "Laundry"
-    },
-    {
-        id: "kunal",
-        name: "Kunal",
-        subtitle: "The Owner",
-        guestOnly: true
     }
 ];
 
@@ -1001,7 +995,7 @@ function buildNerdTiles() {
     };
 
     // Sort: active users first, then blanks. Current user first within their group.
-    const sorted = [...nerds.filter(n => !n.guestOnly)].sort((a, b) => {
+    const sorted = [...nerds].sort((a, b) => {
         const aActive = hasActivity(a);
         const bActive = hasActivity(b);
         const aIsCurrent = a.name === currentUserName;
@@ -1024,13 +1018,6 @@ function buildNerdTiles() {
         grid.appendChild(card);
     });
 
-    // Prepend guest-only cards at the top (only visible to guest users)
-    if (currentUserName === 'Guest') {
-        nerds.filter(n => n.guestOnly).reverse().forEach(nerd => {
-            const card = buildFullProfileCard(nerd);
-            grid.prepend(card);
-        });
-    }
 }
 
 // Build a full-size profile card (same content as the popup)

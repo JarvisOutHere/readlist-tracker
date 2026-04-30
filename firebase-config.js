@@ -43,8 +43,7 @@ const USER_TOKENS = {
     "k7v9f": "Kashvi",
     "y3m8q": "Achyut",
     "v1bhu": "Vibhu",
-    "s8h4n": "Shubhangi",
-    "guest": "Guest"
+    "s8h4n": "Shubhangi"
 };
 
 // Curator/parent access token
