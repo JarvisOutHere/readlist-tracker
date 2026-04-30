@@ -1500,6 +1500,17 @@ function updateReactionButtonStates() {
     });
 }
 
+// ============================================
+// About Panel
+// ============================================
+function toggleAbout() {
+    const panel = document.getElementById('about-panel');
+    const toggleBtn = document.getElementById('about-toggle-btn');
+    if (!panel) return;
+    const isCollapsed = panel.classList.toggle('collapsed');
+    if (toggleBtn) toggleBtn.classList.toggle('visible', isCollapsed);
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     updateCounts();
@@ -1507,6 +1518,15 @@ document.addEventListener('DOMContentLoaded', () => {
     buildNerdTiles();
     setupCornerNav();
     setupProfileOverlay();
+
+    // About panel: start open on desktop, collapsed on mobile
+    const isMobile = window.innerWidth <= 640;
+    if (isMobile) {
+        const panel = document.getElementById('about-panel');
+        const toggleBtn = document.getElementById('about-toggle-btn');
+        if (panel) panel.classList.add('collapsed');
+        if (toggleBtn) toggleBtn.classList.add('visible');
+    }
 
     // Start preloading all images immediately (before user clicks anything)
     preloadAllImages();

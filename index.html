@@ -11,20 +11,46 @@
 <body>
     <!-- Landing Page -->
     <div id="landing-page" class="landing-page">
-        <button class="landing-login-btn" id="landing-login-btn" onclick="openLoginModal()">Login</button>
-        <div class="landing-content">
-            <h1 class="main-title">Reading Archive</h1>
-            <p class="subtitle">Archive of things I've read recently and found interesting</p>
-            <p class="sub-subtitle"><em>Interesting pieces. Not necessarily accurate or well-written</em></p>
 
-            <div class="category-tiles">
-                <div class="category-tile">
-                    <h2>Articles</h2>
-                    <span class="count" id="articles-count">0</span>
+        <!-- About Panel (left third, open by default) -->
+        <div class="about-panel" id="about-panel">
+            <button class="about-panel-close" onclick="toggleAbout()" title="Collapse">&#8592;</button>
+            <div class="about-letter">
+                <p class="about-salutation">Dear Reader,</p>
+                <p>I've had a lot of time on my hands, and ended up reading a lot. I used to share a lot of it with my friends as well. This was right around when Claude Code blew up, so I figured I'd check it out, and making a platform to share stuff with them seemed like a good idea.</p>
+                <p>I'd initially dropped it after marking it, but kept coming back to it every now and then when I was bored. This was never really meant to be posted publicly, but as I visited one last time before the unemployment arc ended, one of my friends convinced me to.</p>
+                <p>Take a look around, read some articles, share some if you'd like, and let me know if you have any ideas for the thing — hope it's fun.</p>
+                <p class="about-sign">With Love,<br>Tanmay</p>
+                <div class="about-links">
+                    <a href="https://www.instagram.com/not.muddy?igsh=MW84dGo1NmI1OGxhZw==" target="_blank" rel="noopener">Instagram</a>
+                    <span class="about-links-sep">·</span>
+                    <a href="https://substack.com/@tanmayjuyal" target="_blank" rel="noopener">Substack</a>
                 </div>
             </div>
+        </div>
 
-            <button class="browse-btn" onclick="enterCatalog()">Browse Catalog</button>
+        <!-- Toggle button shown when panel is collapsed -->
+        <button class="about-toggle-btn" id="about-toggle-btn" onclick="toggleAbout()">About</button>
+
+        <!-- Login button top-right -->
+        <button class="landing-login-btn" id="landing-login-btn" onclick="openLoginModal()">Login</button>
+
+        <!-- Main landing content -->
+        <div class="landing-main">
+            <div class="landing-content">
+                <h1 class="main-title">Reading Archive</h1>
+                <p class="subtitle">Archive of things I've read recently and found interesting</p>
+                <p class="sub-subtitle"><em>Interesting pieces. Not necessarily accurate or well-written</em></p>
+
+                <div class="category-tiles">
+                    <div class="category-tile">
+                        <h2>Articles</h2>
+                        <span class="count" id="articles-count">0</span>
+                    </div>
+                </div>
+
+                <button class="browse-btn" onclick="enterCatalog()">Browse Catalog</button>
+            </div>
         </div>
     </div>
 
