@@ -224,37 +224,7 @@ const data = {
             }
         ],
         "intrapersonal": [
-            {
-                id: "safety-is-making-you-depressed-conquer",
-                title: "Safety Is Making You Depressed",
-                author: "Conquer",
-                description: "There's something very romantic about giving something your all. It's the era of the maxxer.",
-                url: "https://conquer1.substack.com/p/safety-is-making-you-depressed",
-                image: "images/safety-depressed.jpg"
-            },
-            {
-                id: "the-stable-marriage-problem-acotra",
-                title: "The Stable Marriage Problem",
-                author: "Acotra",
-                description: "If I could have any trait in life, bias for action would be #2.",
-                url: "https://acotra.substack.com/p/the-stable-marriage-problem"
-            },
-            {
-                id: "how-to-live-an-intellectually-rich-life-utsav-mamoria",
-                title: "How to Live an Intellectually Rich Life",
-                author: "Utsav Mamoria",
-                description: "The actual piece isn't as pretentious as it sounds.",
-                url: "https://utsavmamoria.substack.com/p/how-to-live-an-intellectually-rich",
-                image: "images/intellectually-rich.png"
-            },
-            {
-                id: "what-makes-a-person-interesting-angel-cake",
-                title: "What Makes a Person Interesting?",
-                author: "Angel Cake",
-                description: "And curiosity #1.",
-                url: "https://angelcake.substack.com/p/what-makes-a-person-interesting",
-                image: "images/what-makes-interesting.jpg"
-            },
+
             {
                 id: "make-something-heavy-working-theorys",
                 title: "Make Something Heavy",
@@ -263,6 +233,41 @@ const data = {
                 url: "https://www.workingtheorys.com/p/make-something-heavy",
                 image: "images/make-something-heavy.jpg",
                 layout: "horizontal-4-3"
+            },
+            {
+                id: "safety-is-making-you-depressed-conquer",
+                title: "Safety Is Making You Depressed",
+                author: "Conquer",
+                description: "There's something very romantic about giving something your all. It's the era of the maxxer.",
+                url: "https://conquer1.substack.com/p/safety-is-making-you-depressed",
+                image: "images/safety-depressed.jpg"
+            },
+
+            {
+                id: "the-stable-marriage-problem-acotra",
+                title: "The Stable Marriage Problem",
+                author: "Acotra",
+                description: "If I could have any trait in life, bias for action would be #2.",
+                url: "https://acotra.substack.com/p/the-stable-marriage-problem",
+                image: "images/stable-marriage-problem.png"
+            },
+
+            {
+                id: "how-to-live-an-intellectually-rich-life-utsav-mamoria",
+                title: "How to Live an Intellectually Rich Life",
+                author: "Utsav Mamoria",
+                description: "The actual piece isn't as pretentious as it sounds.",
+                url: "https://utsavmamoria.substack.com/p/how-to-live-an-intellectually-rich",
+                image: "images/intellectually-rich.png"
+            },
+
+            {
+                id: "what-makes-a-person-interesting-angel-cake",
+                title: "What Makes a Person Interesting?",
+                author: "Angel Cake",
+                description: "And curiosity #1.",
+                url: "https://angelcake.substack.com/p/what-makes-a-person-interesting",
+                image: "images/what-makes-interesting.jpg"
             }
         ],
         "fin-econ-geopolity": [
@@ -275,13 +280,6 @@ const data = {
                 image: "images/value-investor.png"
             },
 
-            {
-                id: "for-india-only-economic-growth-matters-rohit-shinde",
-                title: "For India, Only Economic Growth Matters",
-                author: "Rohit Shinde",
-                description: "I guess this is why they call it economically right and politically left.",
-                url: "https://rshinde.substack.com/p/for-india-only-economic-growth-matters"
-            },
 
             {
                 id: "finding-your-investment-lodestar-aswath-damodaran",
@@ -314,14 +312,7 @@ const data = {
             }
         ],
         "food-for-thought": [
-            {
-                id: "compared-to-what-adam-golding",
-                title: "Compared to What?",
-                author: "Adam Golding",
-                description: "A very fun exercise.",
-                url: "https://adamgolding.substack.com/p/compared-to-what",
-                image: "images/compared-to-what.png",
-            },
+
             {
                 id: "india-in-charts---the-house-view-tiger-feathers",
                 title: "India In Charts - The House View",
@@ -330,6 +321,7 @@ const data = {
                 url: "https://www.tigerfeathers.in/p/india-in-charts-the-house-view",
                 image: "images/india-in-charts.jpg"
             },
+
             {
                 id: "the-great-differentiation-not-boring",
                 title: "The Great Differentiation",
@@ -338,6 +330,7 @@ const data = {
                 url: "https://www.notboring.co/p/the-great-differentiation",
                 image: "images/great-differentiation.jpg"
             },
+
             {
                 id: "the-böckenförde-dilemma-jason-zhao",
                 title: "The Böckenförde Dilemma",
@@ -346,6 +339,7 @@ const data = {
                 url: "https://jasonzhao.substack.com/p/the-bockenforde-dilemma",
                 image: "images/bockenforde.jpg"
             },
+
             {
                 id: "technology-in-1776-christian-keil",
                 title: "Technology in 1776",
@@ -353,6 +347,24 @@ const data = {
                 description: "Human progress is an exponential.",
                 url: "https://www.a16z.news/p/technology-in-1776",
                 image: "images/technology-1776.jpg"
+            },
+            {
+                id: "compared-to-what-adam-golding",
+                title: "Compared to What?",
+                author: "Adam Golding",
+                description: "A very fun exercise.",
+                url: "https://adamgolding.substack.com/p/compared-to-what",
+                image: "images/compared-to-what.png",
+            }
+        ],
+        "culture": [
+            {
+                id: "where-edges-become-doors-mishti-sharma",
+                title: "where edges become doors",
+                author: "Mishti Sharma",
+                description: "Something about this fills the heart up",
+                url: "https://substack.com/@mishti/p-165343008",
+                image: "images/culture-mishti.jpg"
             }
         ],
         "user-submissions": [
@@ -368,6 +380,7 @@ const categoryNames = {
     "intrapersonal": "Intrapersonal",
     "fin-econ-geopolity": "Fin-Econ-(Geo)Polity",
     "food-for-thought": "Food for Thought",
+    "culture": "Culture?",
     "user-submissions": "User Submissions"
 };
 
