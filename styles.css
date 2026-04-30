@@ -56,39 +56,35 @@ body {
    ============================================ */
 .landing-page {
     min-height: 100vh;
-    display: flex;
-    align-items: stretch;
     background: var(--bg-main);
     position: relative;
 }
 
-/* ---- About panel (left third) ---- */
+/* ---- About panel — fixed overlay, never in the layout flow ---- */
 .about-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 32vw;
     min-width: 260px;
     max-width: 420px;
-    min-height: 100vh;
+    height: 100vh;
     background: var(--bg-sidebar);
     border-right: 1px solid var(--border-accent);
     padding: 4.5rem 2.8rem 3rem;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    flex-shrink: 0;
-    transition: width 0.32s cubic-bezier(.4,0,.2,1),
-                min-width 0.32s cubic-bezier(.4,0,.2,1),
-                padding 0.32s cubic-bezier(.4,0,.2,1),
+    z-index: 50;
+    transform: translateX(0);
+    opacity: 1;
+    transition: transform 0.32s cubic-bezier(.4,0,.2,1),
                 opacity 0.24s ease;
-    position: relative;
 }
 .about-panel.collapsed {
-    width: 0;
-    min-width: 0;
-    padding-left: 0;
-    padding-right: 0;
-    overflow: hidden;
+    transform: translateX(-105%);
     opacity: 0;
-    border-right: none;
+    pointer-events: none;
 }
 
 .about-panel-close {
@@ -173,14 +169,19 @@ body {
 }
 .about-toggle-btn:hover { border-color: var(--accent-primary); color: var(--text-primary); }
 
-/* ---- Landing main area (right of about panel) ---- */
+/* ---- Landing main area — always full-screen, shifts right when panel is open ---- */
 .landing-main {
-    flex: 1;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 2rem;
-    min-height: 100vh;
+    padding-left: calc(32vw + 2rem); /* default: panel open → push content right */
+    transition: padding-left 0.32s cubic-bezier(.4,0,.2,1);
+}
+/* When panel is collapsed, main content fills full width */
+.landing-page.panel-collapsed .landing-main {
+    padding-left: 2rem;
 }
 
 .landing-content {
@@ -1743,37 +1744,32 @@ textarea.modal-field { resize: vertical; min-height: 72px; }
    ============================================ */
 @media (max-width: 640px) {
 
-    /* Landing page: stack vertically */
-    .landing-page {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    /* About panel hidden by default on mobile (welcome popup shows instead) */
+    /* About panel on mobile: full-width slide-down from top */
     .about-panel {
         width: 100% !important;
         max-width: 100%;
         min-width: 0;
-        min-height: auto;
-        max-height: 60vh;
-        overflow-y: auto;
+        height: auto;
+        max-height: 65vh;
         border-right: none;
         border-bottom: 1px solid var(--border-accent);
         padding: 3.5rem 1.5rem 1.8rem;
-        flex-shrink: 0;
+        transform: translateY(0);
+        transition: transform 0.32s ease, opacity 0.24s ease;
     }
     .about-panel.collapsed {
-        max-height: 0;
-        padding-top: 0;
-        padding-bottom: 0;
+        transform: translateY(-105%);
         opacity: 0;
-        border-bottom: none;
     }
     .about-panel-close { top: 0.8rem; right: 0.8rem; }
     .about-letter p { font-size: 0.85rem; }
 
-    /* Landing main: full width, centered */
-    .landing-main { min-height: 100svh; padding: 2rem 1.4rem 3rem; }
+    /* Landing main: always full-screen on mobile, no left push */
+    .landing-main,
+    .landing-page.panel-collapsed .landing-main {
+        min-height: 100svh;
+        padding: 2rem 1.4rem 3rem;
+    }
     .landing-content { max-width: 100%; }
 
     /* Title sizing */

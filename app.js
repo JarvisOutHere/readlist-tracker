@@ -1529,9 +1529,11 @@ function closeMobileWelcome() {
 function toggleAbout() {
     const panel = document.getElementById('about-panel');
     const toggleBtn = document.getElementById('about-toggle-btn');
+    const landingPage = document.getElementById('landing-page');
     if (!panel) return;
     const isCollapsed = panel.classList.toggle('collapsed');
     if (toggleBtn) toggleBtn.classList.toggle('visible', isCollapsed);
+    if (landingPage) landingPage.classList.toggle('panel-collapsed', isCollapsed);
 }
 
 // Initialize
@@ -1543,14 +1545,19 @@ document.addEventListener('DOMContentLoaded', () => {
     setupProfileOverlay();
 
     // About panel + mobile welcome
+    const landingPage = document.getElementById('landing-page');
     if (isMobileView()) {
         // Collapse about panel on mobile (welcome popup covers it)
         const panel = document.getElementById('about-panel');
         const toggleBtn = document.getElementById('about-toggle-btn');
         if (panel) panel.classList.add('collapsed');
         if (toggleBtn) toggleBtn.classList.add('visible');
+        if (landingPage) landingPage.classList.add('panel-collapsed');
         // Show welcome popup
         openMobileWelcome();
+    } else {
+        // Desktop: panel open by default — main content is already shifted via CSS
+        // (padding-left: calc(32vw + 2rem) is the default state, no class needed)
     }
 
     // Start preloading all images immediately (before user clicks anything)
