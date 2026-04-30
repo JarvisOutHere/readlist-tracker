@@ -13,6 +13,39 @@ function getActiveUser() {
     return getCurrentUser(); // From firebase-config.js
 }
 
+
+// Is the current session an anonymous guest (no saved login)?
+function isGuestUser() {
+    const uid = getActiveUser();
+    return !!uid && uid.startsWith('anon-');
+}
+
+// Human-readable display name for a Firebase user key
+function getUserDisplayName(uid) {
+    if (!uid) return 'Guest';
+    if (uid.startsWith('anon-')) return 'Guest User';
+    return uid;
+}
+
+// Submitter display label: "Guest" if no login, otherwise their name
+function getSubmitterLabel() {
+    if (isGuestUser()) return 'Anonymous';
+    return getActiveUser();
+}
+
+// Update the landing page login button label
+function updateLoginButton() {
+    const btn = document.getElementById('landing-login-btn');
+    if (!btn) return;
+    const uid = getActiveUser();
+    if (uid && !uid.startsWith('anon-') && uid !== 'Tanmay') {
+        btn.textContent = uid;
+        btn.classList.add('logged-in');
+    } else if (uid && uid.startsWith('anon-')) {
+        btn.textContent = 'Login';
+        btn.classList.remove('logged-in');
+    }
+}
 // Load reactions from Firebase cache
 function loadReactions() {
     const cache = getReadStatusCache();
@@ -491,36 +524,54 @@ function renderScrollCards(categoryKey) {
     const sidebarList = document.getElementById('scroll-sidebar-list');
     sidebarList.innerHTML = '';
 
-    const items = data.articles[categoryKey];
+    // Merge static articles + user-submitted ones from Firebase
+    const staticItems = data.articles[categoryKey] || [];
+    const dynamicItems = getUserSubmissionsForCategory(categoryKey).map(s => ({
+        id: s.id,
+        title: s.title || s.url,
+        author: s.submittedBy || 'Anonymous',
+        url: s.url,
+        description: s.description || '',
+        image: s.imageUrl || s.image || 'images/no-image.png',
+        submittedBy: s.submittedBy || 'Anonymous',
+        userSubmitted: true,
+    }));
+    const items = [...staticItems, ...dynamicItems];
 
     if (items.length === 0) {
         sidebarList.innerHTML = '<div class="sidebar-empty">No articles yet</div>';
         document.getElementById('scroll-main').innerHTML = '';
-        return;
-    }
-
-    items.forEach((item) => {
-        const el = document.createElement('div');
-        el.className = 'sidebar-article-item';
-        el.innerHTML = `
-            <div class="sidebar-article-title">${item.title}</div>
-            <div class="sidebar-article-author">${item.author}</div>
-            ${item.description ? `<div class="sidebar-article-description">${item.description}</div>` : ''}
-        `;
-        el.addEventListener('click', () => {
-            document.querySelectorAll('.sidebar-article-item').forEach(e => e.classList.remove('active'));
-            el.classList.add('active');
-            showArticleInPanel(item);
+    } else {
+        items.forEach((item) => {
+            const el = document.createElement('div');
+            el.className = 'sidebar-article-item';
+            el.innerHTML = `
+                <div class="sidebar-article-title">${item.title}</div>
+                <div class="sidebar-article-author">${item.author}</div>
+                ${item.description ? `<div class="sidebar-article-description">${item.description}</div>` : ''}
+            `;
+            el.addEventListener('click', () => {
+                document.querySelectorAll('.sidebar-article-item').forEach(e => e.classList.remove('active'));
+                el.classList.add('active');
+                showArticleInPanel(item);
+            });
+            sidebarList.appendChild(el);
         });
-        sidebarList.appendChild(el);
-    });
 
-    // Auto-select first article
-    const firstEl = sidebarList.querySelector('.sidebar-article-item');
-    if (firstEl) {
-        firstEl.classList.add('active');
-        showArticleInPanel(items[0]);
+        // Auto-select first article
+        const firstEl = sidebarList.querySelector('.sidebar-article-item');
+        if (firstEl) {
+            firstEl.classList.add('active');
+            showArticleInPanel(items[0]);
+        }
     }
+
+    // "+" button at the bottom of sidebar for anyone to suggest an article
+    const addBtn = document.createElement('button');
+    addBtn.className = 'sidebar-add-btn';
+    addBtn.innerHTML = '<span>+</span> Add an article';
+    addBtn.addEventListener('click', () => openSubmitArticleModal(categoryKey));
+    sidebarList.appendChild(addBtn);
 }
 
 // Build the reaction pane showing who reacted with Nice / Meh / Absolutely No
@@ -537,8 +588,20 @@ function buildReactionPane(item) {
         else if (reaction === 'negative') no.push(userName);
     }
 
+    // Build display map for anon keys (consistent across categories)
+    const allKeys = [...nice, ...meh, ...no];
+    const anonMap = {};
+    let anonIdx = 0;
+    allKeys.forEach(n => {
+        if (n.startsWith('anon-') && !anonMap[n]) {
+            anonIdx++;
+            anonMap[n] = anonIdx === 1 ? 'Anonymous' : `Anonymous (${anonIdx})`;
+        }
+    });
+    const toDisplay = n => n.startsWith('anon-') ? anonMap[n] : n;
+
     const renderNames = (names) => names.length
-        ? names.map(n => `<span class="reaction-person-name">${n}</span>`).join('')
+        ? names.map(n => `<span class="reaction-person-name">${toDisplay(n)}</span>`).join('')
         : `<span class="reaction-empty">—</span>`;
 
     const pane = document.createElement('div');
@@ -778,6 +841,14 @@ function buildScrollCard(item, imgW, imgH, containerW, containerH) {
         e.stopPropagation();
         handleFavorite(item, card);
     });
+
+    // Submitter badge for user-submitted articles (bottom-left, mirrors reaction buttons)
+    if (item.submittedBy) {
+        const badge = document.createElement('div');
+        badge.className = 'submitter-badge';
+        badge.innerHTML = `<span class="submitter-badge-icon">✎</span> ${item.submittedBy}`;
+        win.appendChild(badge);
+    }
 
     return card;
 }
@@ -1031,6 +1102,43 @@ function buildNerdTiles() {
         grid.appendChild(card);
     });
 
+    // Add registered users from Firebase (guests who self-registered)
+    const regUsers = getRegisteredUsersCache();
+    Object.values(regUsers).forEach((user) => {
+        // Skip if already in the static nerds list
+        if (nerds.some(n => n.name.toLowerCase() === user.name.toLowerCase())) return;
+        const card = buildRegisteredUserCard(user);
+        grid.appendChild(card);
+    });
+
+    // Always add "+" card at the end so anyone can join
+    const addCard = document.createElement('div');
+    addCard.className = 'nerd-profile-card add-nerd-card';
+    addCard.innerHTML = `
+        <div class="add-nerd-plus">+</div>
+        <div class="add-nerd-label">Add yourself</div>
+    `;
+    addCard.addEventListener('click', () => openRegisterModal());
+    grid.appendChild(addCard);
+}
+
+// Build a profile card for a Firebase-registered user (no reaction stats)
+function buildRegisteredUserCard(user) {
+    const card = document.createElement('div');
+    card.className = 'nerd-profile-card';
+    card.innerHTML = `
+        <div class="profile-avatar">${user.name.charAt(0)}</div>
+        <h3 class="profile-name">${user.name}</h3>
+        <p class="profile-subtitle">${user.oneLiner || 'New here'}</p>
+        <div class="profile-divider"></div>
+        <div class="profile-section">
+            <div class="profile-section-label">Reviews So Far</div>
+            <div class="profile-empty-reviews">
+                <div class="profile-empty-text">No reviews yet</div>
+            </div>
+        </div>
+    `;
+    return card;
 }
 
 // Build a full-size profile card (same content as the popup)
@@ -1316,13 +1424,15 @@ function updateCounts() {
 function updateGreeting() {
     const greetingEl = document.getElementById('pillars-greeting');
     if (greetingEl) {
-        const userName = getActiveUser();
-        if (userName === 'Guest') {
-            greetingEl.textContent = `Welcome, Guest User`;
+        const uid = getActiveUser();
+        const name = getUserDisplayName(uid);
+        if (name === 'Guest User') {
+            greetingEl.textContent = 'Welcome, Guest User';
         } else {
-            greetingEl.textContent = `Hi ${userName}`;
+            greetingEl.textContent = `Hi ${name}`;
         }
     }
+    updateLoginButton();
 }
 
 // Callback when Firebase data updates - update button states in-place to preserve scroll
@@ -1388,5 +1498,240 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Firebase listeners
     initReadStatusListener(onFirebaseDataUpdate);
     initUserThoughtsListener(buildNerdTiles); // Load favorites from Firebase
+    subscribeToRegisteredUsers(buildNerdTiles); // Load registered guest users
+    subscribeToUserSubmissions(() => {           // Load user-submitted articles
+        if (currentCategoryKey) renderScrollCards(currentCategoryKey);
+    });
 });
 
+
+// ========================================
+// MODAL SYSTEM
+// ========================================
+function openModal(html, onSubmit) {
+    const overlay = document.getElementById('modal-overlay');
+    const box = document.getElementById('modal-box');
+    box.innerHTML = html;
+    overlay.classList.remove('hidden');
+    // Focus first input
+    setTimeout(() => { const inp = box.querySelector('input, textarea'); if (inp) inp.focus(); }, 50);
+    if (onSubmit) {
+        const form = box.querySelector('form');
+        if (form) form.addEventListener('submit', function(e) { e.preventDefault(); onSubmit(e); });
+    }
+}
+
+function closeModal() {
+    document.getElementById('modal-overlay').classList.add('hidden');
+    document.getElementById('modal-box').innerHTML = '';
+}
+
+function handleModalOverlayClick(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+// ========================================
+// LOGIN MODAL
+// ========================================
+function openLoginModal() {
+    openModal(`
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <div class="modal-title">Login</div>
+        <div class="modal-subtitle">Enter your name to log in to your profile</div>
+        <form id="login-form">
+            <div class="modal-field">
+                <label>Your name</label>
+                <input type="text" id="login-name" placeholder="e.g. Tanmay" required autocomplete="off" />
+            </div>
+            <div id="login-error" class="modal-error" style="display:none"></div>
+            <button type="submit" class="modal-submit-btn">Log In</button>
+        </form>
+    `);
+
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('login-name').value.trim();
+        if (!name) return;
+        setSavedLogin(name);
+        closeModal();
+        updateGreeting();
+        buildNerdTiles();
+    });
+}
+
+// ========================================
+// REGISTER MODAL ("+" card in nerds)
+// ========================================
+function openRegisterModal() {
+    openModal(`
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <div class="modal-title">Add yourself</div>
+        <div class="modal-callout">Your name here becomes your login — type it on any device to find your profile.</div>
+        <form id="register-form">
+            <div class="modal-field">
+                <label>Name <span style="color:#c0392b">*</span></label>
+                <input type="text" id="reg-name" placeholder="What should we call you?" required autocomplete="off" />
+            </div>
+            <div class="modal-field">
+                <label>One-liner <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
+                <input type="text" id="reg-subtitle" placeholder="e.g. Finbro / Crochet Enthusiast" />
+            </div>
+            <div id="reg-error" class="modal-error" style="display:none"></div>
+            <button type="submit" class="modal-submit-btn" id="reg-submit">Join</button>
+        </form>
+    `);
+
+    document.getElementById('register-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('reg-name').value.trim();
+        const subtitle = document.getElementById('reg-subtitle').value.trim();
+        const errEl = document.getElementById('reg-error');
+        const btn = document.getElementById('reg-submit');
+        if (!name) return;
+
+        btn.disabled = true;
+        btn.textContent = 'Joining...';
+
+        saveUserRegistration(name, subtitle)
+            .then(function() {
+                setSavedLogin(name);
+                closeModal();
+                updateGreeting();
+                buildNerdTiles();
+            })
+            .catch(function(err) {
+                errEl.textContent = 'Something went wrong. Try again.';
+                errEl.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Join';
+            });
+    });
+}
+
+// ========================================
+// SUBMIT ARTICLE MODAL
+// ========================================
+function openSubmitArticleModal(categoryKey) {
+    const catName = categoryNames[categoryKey] || categoryKey;
+    openModal(`
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <div class="modal-title">Add an article to ${catName}</div>
+        <div class="modal-subtitle">Only the link is required.</div>
+        <form id="submit-form">
+            <div class="modal-field">
+                <label>Link <span style="color:#c0392b">*</span></label>
+                <input type="url" id="sub-url" placeholder="https://..." required />
+            </div>
+            <div class="modal-field">
+                <label>Title <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
+                <input type="text" id="sub-title" placeholder="Leave blank to use URL" />
+            </div>
+            <div class="modal-field">
+                <label>Why it's worth reading <span style="color:var(--text-muted);font-weight:400">(optional)</span></label>
+                <textarea id="sub-desc" placeholder="Your take on it..."></textarea>
+            </div>
+            <div class="modal-field">
+                <label>Image <span style="color:var(--text-muted);font-weight:400">(optional, max 10MB)</span></label>
+                <input type="file" id="sub-image" accept="image/*" />
+                <div class="field-hint">Wide images work best. If none, a placeholder will be used.</div>
+            </div>
+            <div id="sub-error" class="modal-error" style="display:none"></div>
+            <button type="submit" class="modal-submit-btn" id="sub-submit">Add Article</button>
+        </form>
+    `);
+
+    document.getElementById('submit-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const url = document.getElementById('sub-url').value.trim();
+        const title = document.getElementById('sub-title').value.trim();
+        const desc = document.getElementById('sub-desc').value.trim();
+        const imageFile = document.getElementById('sub-image').files[0];
+        const errEl = document.getElementById('sub-error');
+        const btn = document.getElementById('sub-submit');
+
+        if (!url) return;
+
+        // Validate URL
+        try { new URL(url); } catch {
+            errEl.textContent = 'Please enter a valid URL.';
+            errEl.style.display = 'block';
+            return;
+        }
+
+        // Validate image size
+        if (imageFile && imageFile.size > 10 * 1024 * 1024) {
+            errEl.textContent = 'Image must be under 10MB.';
+            errEl.style.display = 'block';
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = imageFile ? 'Uploading image...' : 'Adding...';
+        errEl.style.display = 'none';
+
+        const submittedBy = getSubmitterLabel();
+        const submissionId = 'usub-' + Date.now();
+
+        const doSave = function(imageUrl) {
+            return saveUserSubmission({
+                id: submissionId,
+                title: title || url,
+                url: url,
+                description: desc,
+                image: imageUrl || null,
+                imageUrl: imageUrl || null, // kept for compat
+                submittedBy: submittedBy,
+                category: categoryKey,
+                userSubmitted: true,
+                submittedAt: Date.now(),
+            });
+        };
+
+        const finish = function() {
+            closeModal();
+            // Re-render sidebar if this category is currently open
+            if (currentCategoryKey === categoryKey) {
+                const activeItem = document.querySelector('.sidebar-article-item.active');
+                const activeTitle = activeItem ? activeItem.querySelector('.sidebar-article-title').textContent : null;
+                renderScrollCards(categoryKey);
+                // Try to re-select the previously active article
+                if (activeTitle) {
+                    document.querySelectorAll('.sidebar-article-item').forEach(el => {
+                        if (el.querySelector('.sidebar-article-title').textContent === activeTitle) {
+                            el.classList.add('active');
+                        }
+                    });
+                }
+            }
+        };
+
+        if (imageFile) {
+            uploadImageToStorage(imageFile, submissionId)
+                .then(function(imageUrl) {
+                    btn.textContent = 'Saving...';
+                    return doSave(imageUrl);
+                })
+                .then(finish)
+                .catch(function(err) {
+                    console.error('Upload error:', err);
+                    // If storage upload fails (e.g., rules not set), save without image
+                    if (err.code === 'storage/unauthorized') {
+                        errEl.textContent = 'Image upload requires Firebase Storage rules to be set to public. Saving without image.';
+                        errEl.style.display = 'block';
+                        return doSave(null).then(finish);
+                    }
+                    errEl.textContent = 'Upload failed: ' + (err.message || 'Unknown error');
+                    errEl.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Add Article';
+                });
+        } else {
+            doSave(null).then(finish).catch(function(err) {
+                errEl.textContent = 'Failed to save. Try again.';
+                errEl.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Add Article';
+            });
+        }
+    });
+}

@@ -43,7 +43,8 @@ const USER_TOKENS = {
     "k7v9f": "Kashvi",
     "y3m8q": "Achyut",
     "v1bhu": "Vibhu",
-    "s8h4n": "Shubhangi"
+    "s8h4n": "Shubhangi",
+    "guest": "Guest"
 };
 
 // Curator/parent access token
@@ -82,12 +83,25 @@ function isUsingMagicLink() {
 }
 
 function getCurrentUser() {
-    // First check for magic link token
-    const tokenUser = getUserFromToken();
-    if (tokenUser) {
-        return tokenUser;
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('u');
+
+    // Curator access always takes priority
+    if (token === CURATOR_TOKEN) return CURATOR;
+
+    // Named (non-guest) token: trusted user, skip localStorage
+    if (token && USER_TOKENS[token] && USER_TOKENS[token] !== 'Guest') {
+        return USER_TOKENS[token];
     }
-    // Fallback to Tanmay if no token provided
+
+    // Guest link or no token: check localStorage saved login
+    const saved = getSavedLogin();
+    if (saved && saved.name) return saved.name;
+
+    // Guest link with no saved login: return stable anon key
+    if (token && USER_TOKENS[token] === 'Guest') return getOrCreateAnonKey();
+
+    // No token at all: default fallback
     return "Tanmay";
 }
 
@@ -232,6 +246,100 @@ function clearFavoriteFromFirebase(userName) {
 //      the tab becomes visible or the network returns.
 //   3. Keep-alive ping — a cheap roundtrip every 4 minutes prevents idle
 //      intermediaries (ISPs, proxies) from closing the WebSocket.
+
+
+// ========================================
+// LocalStorage: Saved Login & Anon Key
+// ========================================
+const SAVED_LOGIN_KEY = 'readingArchive_login';
+const ANON_KEY_STORAGE = 'readingArchive_anonKey';
+
+function getSavedLogin() {
+    try {
+        return JSON.parse(localStorage.getItem(SAVED_LOGIN_KEY) || 'null');
+    } catch (e) {
+        return null;
+    }
+}
+
+function setSavedLogin(name) {
+    localStorage.setItem(SAVED_LOGIN_KEY, JSON.stringify({ name, timestamp: Date.now() }));
+}
+
+function clearSavedLogin() {
+    localStorage.removeItem(SAVED_LOGIN_KEY);
+}
+
+function getOrCreateAnonKey() {
+    let key = localStorage.getItem(ANON_KEY_STORAGE);
+    if (!key) {
+        key = 'anon-' + Math.random().toString(36).substr(2, 8);
+        localStorage.setItem(ANON_KEY_STORAGE, key);
+    }
+    return key;
+}
+
+// ========================================
+// Registered Users (guest self-registration)
+// ========================================
+let registeredUsersCache = {};
+
+function subscribeToRegisteredUsers(callback) {
+    database.ref('registeredUsers').on('value', (snapshot) => {
+        registeredUsersCache = snapshot.val() || {};
+        if (callback) callback(registeredUsersCache);
+    });
+}
+
+function getRegisteredUsersCache() {
+    return registeredUsersCache;
+}
+
+function saveUserRegistration(name, oneLiner) {
+    return database.ref('registeredUsers/' + name).set({
+        name: name,
+        oneLiner: oneLiner || '',
+        joinedAt: Date.now()
+    });
+}
+
+function checkUserExists(name) {
+    return database.ref('registeredUsers/' + name).once('value').then(function(s) { return s.exists(); });
+}
+
+// ========================================
+// User Submissions
+// ========================================
+let userSubmissionsCache = {};
+
+function subscribeToUserSubmissions(callback) {
+    database.ref('userSubmissions').on('value', (snapshot) => {
+        userSubmissionsCache = snapshot.val() || {};
+        if (callback) callback(userSubmissionsCache);
+    });
+}
+
+function getUserSubmissionsCache() {
+    return userSubmissionsCache;
+}
+
+function getUserSubmissionsForCategory(categoryKey) {
+    const all = userSubmissionsCache;
+    return Object.values(all).filter(function(s) { return s.category === categoryKey; });
+}
+
+function saveUserSubmission(submission) {
+    return database.ref('userSubmissions/' + submission.id).set(submission);
+}
+
+// ========================================
+// Image Upload to Firebase Storage
+// ========================================
+function uploadImageToStorage(file, submissionId) {
+    const storage = firebase.storage();
+    const ref = storage.ref('submissions/' + submissionId + '/' + file.name);
+    return ref.put(file).then(function(snapshot) { return snapshot.ref.getDownloadURL(); });
+}
 
 // 1. Keep the reaction + favorites tree synced globally.
 database.ref('readStatus').keepSynced(true);

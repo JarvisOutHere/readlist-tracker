@@ -11,6 +11,7 @@
 <body>
     <!-- Landing Page -->
     <div id="landing-page" class="landing-page">
+        <button class="landing-login-btn" id="landing-login-btn" onclick="openLoginModal()">Login</button>
         <div class="landing-content">
             <h1 class="main-title">Reading Archive</h1>
             <p class="subtitle">Archive of things I've read recently and found interesting</p>
@@ -59,8 +60,6 @@
             </div>
         </div>
 
-
-
         <!-- Profile Pane (popup on nerd click) -->
         <div class="profile-overlay hidden" id="profile-overlay">
             <div class="profile-pane" id="profile-pane">
@@ -91,9 +90,17 @@
         </div>
     </div>
 
+    <!-- Shared Modal -->
+    <div class="modal-overlay hidden" id="modal-overlay" onclick="handleModalOverlayClick(event)">
+        <div class="modal-box" id="modal-box">
+            <!-- Content set dynamically by JS -->
+        </div>
+    </div>
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script src="app.js"></script>
 </body>
