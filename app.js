@@ -471,7 +471,9 @@ function buildPillars() {
     categories.forEach((catKey, index) => {
         const pillar = document.createElement('div');
         const isUserSubmissions = catKey === 'user-submissions';
-        const count = data.articles[catKey].length;
+        const count = isUserSubmissions
+            ? Object.keys(getUserSubmissionsCache()).length
+            : data.articles[catKey].length;
         const isEmpty = count === 0;
 
         // Build class list
@@ -524,9 +526,9 @@ function renderScrollCards(categoryKey) {
     const sidebarList = document.getElementById('scroll-sidebar-list');
     sidebarList.innerHTML = '';
 
-    // Merge static articles + user-submitted ones from Firebase
-    const staticItems = data.articles[categoryKey] || [];
-    const dynamicItems = getUserSubmissionsForCategory(categoryKey).map(s => ({
+    // For 'user-submissions': show ALL Firebase submissions across all categories
+    // For regular categories: merge static articles + submissions tagged to that category
+    const toArticle = s => ({
         id: s.id,
         title: s.title || s.url,
         author: s.submittedBy || 'Anonymous',
@@ -535,8 +537,19 @@ function renderScrollCards(categoryKey) {
         image: s.imageUrl || s.image || 'images/no-image.png',
         submittedBy: s.submittedBy || 'Anonymous',
         userSubmitted: true,
-    }));
-    const items = [...staticItems, ...dynamicItems];
+    });
+
+    let items;
+    if (categoryKey === 'user-submissions') {
+        // All Firebase submissions, sorted newest first
+        items = Object.values(getUserSubmissionsCache())
+            .sort((a, b) => (b.submittedAt || 0) - (a.submittedAt || 0))
+            .map(toArticle);
+    } else {
+        const staticItems = data.articles[categoryKey] || [];
+        const dynamicItems = getUserSubmissionsForCategory(categoryKey).map(toArticle);
+        items = [...staticItems, ...dynamicItems];
+    }
 
     if (items.length === 0) {
         sidebarList.innerHTML = '<div class="sidebar-empty">No articles yet</div>';
@@ -1423,13 +1436,16 @@ function updateCounts() {
 // Update greeting with current user name
 function updateGreeting() {
     const greetingEl = document.getElementById('pillars-greeting');
+    const hintEl = document.getElementById('pillars-guest-hint');
     if (greetingEl) {
         const uid = getActiveUser();
         const name = getUserDisplayName(uid);
         if (name === 'Guest User') {
             greetingEl.textContent = 'Welcome, Guest User';
+            if (hintEl) hintEl.textContent = 'Feel free to create an account!';
         } else {
             greetingEl.textContent = `Hi ${name}`;
+            if (hintEl) hintEl.textContent = '';
         }
     }
     updateLoginButton();
@@ -1500,6 +1516,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initUserThoughtsListener(buildNerdTiles); // Load favorites from Firebase
     subscribeToRegisteredUsers(buildNerdTiles); // Load registered guest users
     subscribeToUserSubmissions(() => {           // Load user-submitted articles
+        buildPillars(); // refresh count on the landing pillar
         if (currentCategoryKey) renderScrollCards(currentCategoryKey);
     });
 });
