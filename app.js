@@ -14,6 +14,9 @@ function getActiveUser() {
 }
 
 
+// Device detection
+function isMobileView() { return window.innerWidth <= 640; }
+
 // Is the current session an anonymous guest (no saved login)?
 function isGuestUser() {
     const uid = getActiveUser();
@@ -553,7 +556,7 @@ function renderScrollCards(categoryKey) {
 
     if (items.length === 0) {
         sidebarList.innerHTML = '<div class="sidebar-empty">No articles yet</div>';
-        document.getElementById('scroll-main').innerHTML = '';
+        if (!isMobileView()) document.getElementById('scroll-main').innerHTML = '';
     } else {
         items.forEach((item) => {
             const el = document.createElement('div');
@@ -566,16 +569,24 @@ function renderScrollCards(categoryKey) {
             el.addEventListener('click', () => {
                 document.querySelectorAll('.sidebar-article-item').forEach(e => e.classList.remove('active'));
                 el.classList.add('active');
-                showArticleInPanel(item);
+                if (isMobileView()) {
+                    // On mobile: open the article URL directly in a new tab
+                    const url = item.url || (item.id && `#${item.id}`);
+                    if (url && url.startsWith('http')) window.open(url, '_blank', 'noopener');
+                } else {
+                    showArticleInPanel(item);
+                }
             });
             sidebarList.appendChild(el);
         });
 
-        // Auto-select first article
-        const firstEl = sidebarList.querySelector('.sidebar-article-item');
-        if (firstEl) {
-            firstEl.classList.add('active');
-            showArticleInPanel(items[0]);
+        // Auto-select + load first article (desktop only)
+        if (!isMobileView()) {
+            const firstEl = sidebarList.querySelector('.sidebar-article-item');
+            if (firstEl) {
+                firstEl.classList.add('active');
+                showArticleInPanel(items[0]);
+            }
         }
     }
 
@@ -1501,6 +1512,18 @@ function updateReactionButtonStates() {
 }
 
 // ============================================
+// Mobile Welcome Popup
+// ============================================
+function openMobileWelcome() {
+    const el = document.getElementById('mobile-welcome-overlay');
+    if (el) el.classList.remove('hidden');
+}
+function closeMobileWelcome() {
+    const el = document.getElementById('mobile-welcome-overlay');
+    if (el) el.classList.add('hidden');
+}
+
+// ============================================
 // About Panel
 // ============================================
 function toggleAbout() {
@@ -1519,13 +1542,15 @@ document.addEventListener('DOMContentLoaded', () => {
     setupCornerNav();
     setupProfileOverlay();
 
-    // About panel: start open on desktop, collapsed on mobile
-    const isMobile = window.innerWidth <= 640;
-    if (isMobile) {
+    // About panel + mobile welcome
+    if (isMobileView()) {
+        // Collapse about panel on mobile (welcome popup covers it)
         const panel = document.getElementById('about-panel');
         const toggleBtn = document.getElementById('about-toggle-btn');
         if (panel) panel.classList.add('collapsed');
         if (toggleBtn) toggleBtn.classList.add('visible');
+        // Show welcome popup
+        openMobileWelcome();
     }
 
     // Start preloading all images immediately (before user clicks anything)

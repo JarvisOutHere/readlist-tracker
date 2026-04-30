@@ -98,11 +98,8 @@ function getCurrentUser() {
     const saved = getSavedLogin();
     if (saved && saved.name) return saved.name;
 
-    // Guest link with no saved login: return stable anon key
-    if (token && USER_TOKENS[token] === 'Guest') return getOrCreateAnonKey();
-
-    // No token at all: default fallback
-    return "Tanmay";
+    // Any remaining case (guest link or bare URL with no saved login): anon key
+    return getOrCreateAnonKey();
 }
 
 function isCurator() {

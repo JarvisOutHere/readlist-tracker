@@ -17,9 +17,10 @@
             <button class="about-panel-close" onclick="toggleAbout()" title="Collapse">&#8592;</button>
             <div class="about-letter">
                 <p class="about-salutation">Dear Reader,</p>
-                <p>I've had a lot of time on my hands, and ended up reading a lot. I used to share a lot of it with my friends as well. This was right around when Claude Code blew up, so I figured I'd check it out, and making a platform to share stuff with them seemed like a good idea.</p>
-                <p>I'd initially dropped it after marking it, but kept coming back to it every now and then when I was bored. This was never really meant to be posted publicly, but as I visited one last time before the unemployment arc ended, one of my friends convinced me to.</p>
-                <p>Take a look around, read some articles, share some if you'd like, and let me know if you have any ideas for the thing — hope it's fun.</p>
+                <p>I've had a bunch of time on my hands, and I ended up reading a bunch of substack and similar stuff online, which I used to share with my friends as well.</p>
+                <p>This was right around when Claude blew up, so I figured I'd check it out, and thought of making a platform to share this stuff with my friends.</p>
+                <p>I'd initially dropped it after making it, but kept coming back to it every now and then when I was bored. This was never really meant to be posted publicly, but as I visited one last time before the unemployment arc ended, one of my friends convinced me to.</p>
+                <p>Take a look around, read some articles, share some if you'd like, and let me know if you have any ideas for the thing, hope it's fun.</p>
                 <p class="about-sign">With Love,<br>Tanmay</p>
                 <div class="about-links">
                     <a href="https://www.instagram.com/not.muddy?igsh=MW84dGo1NmI1OGxhZw==" target="_blank" rel="noopener">Instagram</a>
@@ -121,6 +122,20 @@
     <div class="modal-overlay hidden" id="modal-overlay" onclick="handleModalOverlayClick(event)">
         <div class="modal-box" id="modal-box">
             <!-- Content set dynamically by JS -->
+        </div>
+    </div>
+
+    <!-- Mobile Welcome Overlay (shown on load on small screens) -->
+    <div class="mobile-welcome-overlay hidden" id="mobile-welcome-overlay">
+        <div class="mobile-welcome-box">
+            <p class="mobile-welcome-dear">Dear Reader,</p>
+            <p>I've had a bunch of time on my hands, and I ended up reading a bunch of substack and similar stuff online, which I used to share with my friends as well.</p>
+            <p>This was right around when Claude blew up, so I figured I'd check it out, and thought of making a platform to share this stuff with my friends.</p>
+            <p>I'd initially dropped it after making it, but kept coming back to it every now and then when I was bored. This was never really meant to be posted publicly, but one of my friends convinced me to.</p>
+            <p>Take a look around, read some articles, share some if you'd like — hope it's fun.</p>
+            <p class="mobile-welcome-sign">With Love, Tanmay</p>
+            <p class="mobile-welcome-ps">P.S. This is best explored on a laptop — there's a bit more going on there.</p>
+            <button class="mobile-welcome-btn" onclick="closeMobileWelcome()">Let me take a look →</button>
         </div>
     </div>
 
