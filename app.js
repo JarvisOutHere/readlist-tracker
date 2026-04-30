@@ -433,6 +433,7 @@ function enterCatalog() {
     document.getElementById('pillars-page').classList.remove('hidden');
     document.getElementById('scroll-page').classList.add('hidden');
     buildPillars();
+    trackEvent('catalog_enter', null);
 }
 
 // Show pillars (back from scroll view)
@@ -522,6 +523,7 @@ function openScrollView(categoryKey) {
     title.textContent = categoryNames[categoryKey];
 
     renderScrollCards(categoryKey);
+    trackEvent('category_view', { cat: categoryKey });
 }
 
 // Render sidebar list and auto-select first article in the panel
@@ -653,6 +655,7 @@ function buildReactionPane(item) {
 // Show a full article card in the right panel, with reaction pane below
 function showArticleInPanel(item) {
     currentPanelItem = item;
+    trackEvent('article_open', { id: item.id || null, title: (item.title || '').slice(0, 60), cat: currentCategoryKey || null });
     const main = document.getElementById('scroll-main');
     main.innerHTML = '';
     main.scrollTop = 0;
@@ -893,10 +896,12 @@ function handleReaction(item, reactionType, card) {
     if (mappedCurrentReaction === reactionType) {
         // Remove reaction
         removeReactionFromFirebase(itemId, currentUserName);
+        trackEvent('reaction_remove', { id: itemId, r: reactionType });
     } else {
         // Set new reaction with article metadata for robustness
         const firebaseReaction = mapAppReactionToFirebase(reactionType);
         saveReactionToFirebase(itemId, currentUserName, firebaseReaction, item.title, item.author);
+        trackEvent('reaction_set', { id: itemId, r: reactionType, title: (item.title || '').slice(0, 60) });
     }
 
     // UI update will happen via Firebase listener callback
@@ -1524,6 +1529,25 @@ function closeMobileWelcome() {
 }
 
 // ============================================
+// Analytics Event Tracking
+// ============================================
+// Fire-and-forget: zero latency impact, silently swallows all errors.
+// Schema: analytics/events/{YYYY-MM-DD}/{pushId}
+//   { ts, ev, u, d }
+function trackEvent(ev, data) {
+    try {
+        const today = new Date().toISOString().slice(0, 10);
+        const uid = getActiveUser ? getActiveUser() : 'anon';
+        database.ref('analytics/events/' + today).push({
+            ts: Date.now(),
+            ev: ev,
+            u: uid ? String(uid).slice(0, 16) : 'anon',
+            d: data || null
+        }).catch(() => {});
+    } catch (e) {}
+}
+
+// ============================================
 // About Panel
 // ============================================
 function toggleAbout() {
@@ -1543,6 +1567,7 @@ document.addEventListener('DOMContentLoaded', () => {
     buildNerdTiles();
     setupCornerNav();
     setupProfileOverlay();
+    trackEvent('page_view', { ref: document.referrer ? document.referrer.slice(0, 80) : null });
 
     // About panel + mobile welcome
     const landingPage = document.getElementById('landing-page');
@@ -1664,6 +1689,7 @@ function openRegisterModal() {
         saveUserRegistration(name, subtitle)
             .then(function() {
                 setSavedLogin(name);
+                trackEvent('user_register', { name: name });
                 closeModal();
                 updateGreeting();
                 buildNerdTiles();
@@ -1757,6 +1783,7 @@ function openSubmitArticleModal(categoryKey) {
         };
 
         const finish = function() {
+            trackEvent('article_submit', { cat: categoryKey, by: submittedBy });
             closeModal();
             // Re-render sidebar if this category is currently open
             if (currentCategoryKey === categoryKey) {

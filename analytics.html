@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics — Reading Archive</title>
+    <link rel="preconnect" href="https://readlist-tracker-default-rtdb.firebaseio.com">
+    <link rel="preconnect" href="https://www.gstatic.com">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="analytics.css">
+</head>
+<body>
+    <div id="auth-gate" class="auth-gate hidden">
+        <div class="auth-gate-box">
+            <div class="auth-gate-icon">🔒</div>
+            <h2>Curator access required</h2>
+            <p>This dashboard is only accessible with the curator token.</p>
+            <a href="/" class="auth-gate-link">← Back to Reading Archive</a>
+        </div>
+    </div>
+
+    <div id="dashboard" class="dashboard hidden">
+        <header class="dash-header">
+            <div class="dash-header-left">
+                <a href="/" class="dash-back">← Reading Archive</a>
+                <h1 class="dash-title">Analytics Dashboard</h1>
+            </div>
+            <div class="dash-header-right">
+                <span class="dash-updated" id="dash-updated">Loading…</span>
+            </div>
+        </header>
+
+        <main class="dash-main">
+            <!-- Stats Cards Row -->
+            <section class="section">
+                <div class="stats-grid" id="stats-grid">
+                    <div class="stat-card loading"><div class="stat-spinner"></div></div>
+                    <div class="stat-card loading"><div class="stat-spinner"></div></div>
+                    <div class="stat-card loading"><div class="stat-spinner"></div></div>
+                    <div class="stat-card loading"><div class="stat-spinner"></div></div>
+                    <div class="stat-card loading"><div class="stat-spinner"></div></div>
+                    <div class="stat-card loading"><div class="stat-spinner"></div></div>
+                </div>
+            </section>
+
+            <!-- 30-Day Activity -->
+            <section class="section">
+                <h2 class="section-title">Activity — Last 30 Days</h2>
+                <div class="chart-card">
+                    <canvas id="activity-chart" height="90"></canvas>
+                </div>
+            </section>
+
+            <!-- Two-column: Top Articles + Category Breakdown -->
+            <div class="two-col">
+                <section class="section">
+                    <h2 class="section-title">Top Articles by Opens</h2>
+                    <div class="table-card" id="top-articles-table">
+                        <div class="table-loading">Loading…</div>
+                    </div>
+                </section>
+                <section class="section">
+                    <h2 class="section-title">Category Views</h2>
+                    <div class="chart-card chart-card-sm">
+                        <canvas id="category-chart"></canvas>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Reactions Breakdown -->
+            <section class="section">
+                <h2 class="section-title">Reactions by Article</h2>
+                <div class="table-card" id="reactions-table">
+                    <div class="table-loading">Loading…</div>
+                </div>
+            </section>
+
+            <!-- Two-column: Registered Users + User Submissions -->
+            <div class="two-col">
+                <section class="section">
+                    <h2 class="section-title">Registered Users</h2>
+                    <div class="table-card" id="users-table">
+                        <div class="table-loading">Loading…</div>
+                    </div>
+                </section>
+                <section class="section">
+                    <h2 class="section-title">User Submissions</h2>
+                    <div class="table-card" id="submissions-table">
+                        <div class="table-loading">Loading…</div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Live Activity Feed -->
+            <section class="section">
+                <h2 class="section-title">Recent Activity <span class="live-badge">LIVE</span></h2>
+                <div class="activity-feed" id="activity-feed">
+                    <div class="table-loading">Loading…</div>
+                </div>
+            </section>
+
+            <!-- Event Breakdown -->
+            <section class="section">
+                <h2 class="section-title">Event Breakdown (All Time)</h2>
+                <div class="chart-card chart-card-sm">
+                    <canvas id="event-type-chart"></canvas>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="analytics.js"></script>
+</body>
+</html>
