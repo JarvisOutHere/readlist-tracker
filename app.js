@@ -637,21 +637,16 @@ function buildReactionPane(item) {
         else if (reaction === 'negative') no.push(userName);
     }
 
-    // Build display map for anon keys (consistent across categories)
-    const allKeys = [...nice, ...meh, ...no];
-    const anonMap = {};
-    let anonIdx = 0;
-    allKeys.forEach(n => {
-        if (n.startsWith('anon-') && !anonMap[n]) {
-            anonIdx++;
-            anonMap[n] = anonIdx === 1 ? 'Anonymous' : `Anonymous (${anonIdx})`;
-        }
-    });
-    const toDisplay = n => n.startsWith('anon-') ? anonMap[n] : n;
-
-    const renderNames = (names) => names.length
-        ? names.map(n => `<span class="reaction-person-name">${toDisplay(n)}</span>`).join('')
-        : `<span class="reaction-empty">—</span>`;
+    // Group all anon keys per bucket into a single "Anonymous ×N" entry
+    const renderNames = (names) => {
+        if (!names.length) return `<span class="reaction-empty">—</span>`;
+        const named = names.filter(n => !n.startsWith('anon-'));
+        const anonCount = names.length - named.length;
+        const parts = named.map(n => `<span class="reaction-person-name">${n}</span>`);
+        if (anonCount === 1) parts.push(`<span class="reaction-person-name anon-name">Anonymous</span>`);
+        else if (anonCount > 1) parts.push(`<span class="reaction-person-name anon-name">Anonymous ×${anonCount}</span>`);
+        return parts.join('');
+    };
 
     const pane = document.createElement('div');
     pane.className = 'reaction-pane';
@@ -1559,10 +1554,23 @@ let _geoCache = null;
 
 function fetchGeoAsync() {
     if (_geoCache !== null) return; // already fetched or in-flight
+
+    // Check localStorage for a recent result (24-hour TTL) — makes city available instantly on return visits
+    try {
+        const stored = localStorage.getItem('ra_geo');
+        if (stored) {
+            const { c, t } = JSON.parse(stored);
+            if (Date.now() - t < 86400000) { _geoCache = c; return; }
+        }
+    } catch (e) {}
+
     _geoCache = {}; // mark in-flight to prevent duplicate requests
     fetch('https://ipinfo.io/json', { cache: 'no-store' })
         .then(r => r.json())
-        .then(d => { _geoCache = { city: d.city || null, country: d.country || null }; })
+        .then(d => {
+            _geoCache = { city: d.city || null, country: d.country || null };
+            try { localStorage.setItem('ra_geo', JSON.stringify({ c: _geoCache, t: Date.now() })); } catch (e) {}
+        })
         .catch(() => {}); // leave _geoCache as {} on failure — city will be null
 }
 

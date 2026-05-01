@@ -335,10 +335,10 @@
                                 <div class="mini-bar" style="width:${Math.round((row.count / maxCount) * 100)}%"></div>
                             </td>
                             <td class="expand-cell">
-                                <button class="expand-btn" title="Who opened this?">▶</button>
+                                <button class="expand-btn" data-idx="${i}" title="Who opened this?">▶</button>
                             </td>
                         </tr>
-                        <tr class="expand-row hidden">
+                        <tr class="expand-row hidden" data-expand="${i}">
                             <td colspan="5" class="expand-td"></td>
                         </tr>
                     `).join('')}
@@ -346,10 +346,11 @@
             </table>
         `;
 
-        // Wire expand buttons — nextElementSibling is the paired expand row
-        el.querySelectorAll('.expand-btn').forEach((btn, i) => {
+        // Wire expand buttons — locate paired row via data-expand attr (avoids nextElementSibling issues)
+        el.querySelectorAll('.expand-btn').forEach(btn => {
             btn.addEventListener('click', function () {
-                const expandRow = this.closest('tr').nextElementSibling;
+                const idx = this.dataset.idx;
+                const expandRow = el.querySelector(`.expand-row[data-expand="${idx}"]`);
                 if (!expandRow) return;
                 const isOpen = !expandRow.classList.contains('hidden');
                 if (isOpen) {
@@ -363,7 +364,7 @@
                     const td = expandRow.querySelector('.expand-td');
                     if (td && !td.dataset.rendered) {
                         td.dataset.rendered = '1';
-                        td.innerHTML = buildUserOpensBreakdown(sorted[i]);
+                        td.innerHTML = buildUserOpensBreakdown(sorted[parseInt(idx, 10)]);
                     }
                 }
             });
