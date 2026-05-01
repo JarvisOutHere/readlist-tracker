@@ -516,6 +516,10 @@ function buildPillars() {
 let currentCategoryKey = null;
 let currentPanelItem = null;
 
+// Mobile carousel state
+let mobileArticleItems = [];
+let mobileArticleIndex = 0;
+
 // Open the scroll view for a category
 function openScrollView(categoryKey) {
     currentCategoryKey = categoryKey;
@@ -531,11 +535,6 @@ function openScrollView(categoryKey) {
 
 // Render sidebar list and auto-select first article in the panel
 function renderScrollCards(categoryKey) {
-    const sidebarList = document.getElementById('scroll-sidebar-list');
-    sidebarList.innerHTML = '';
-
-    // For 'user-submissions': show ALL Firebase submissions across all categories
-    // For regular categories: merge static articles + submissions tagged to that category
     const toArticle = s => ({
         id: s.id,
         title: s.title || s.url,
@@ -549,7 +548,6 @@ function renderScrollCards(categoryKey) {
 
     let items;
     if (categoryKey === 'user-submissions') {
-        // All Firebase submissions, sorted newest first
         items = Object.values(getUserSubmissionsCache())
             .sort((a, b) => (b.submittedAt || 0) - (a.submittedAt || 0))
             .map(toArticle);
@@ -559,15 +557,23 @@ function renderScrollCards(categoryKey) {
         items = [...staticItems, ...dynamicItems];
     }
 
-    // Filter out hidden articles for everyone
     const hidden = getHiddenArticlesCache();
     items = items.filter(item => !hidden[item.id]);
+
+    if (isMobileView()) {
+        renderMobileScrollCards(items, categoryKey);
+        return;
+    }
+
+    // ── Desktop sidebar rendering ──
+    const sidebarList = document.getElementById('scroll-sidebar-list');
+    sidebarList.innerHTML = '';
 
     const isTanmay = getActiveUser() === 'Tanmay';
 
     if (items.length === 0) {
         sidebarList.innerHTML = '<div class="sidebar-empty">No articles yet</div>';
-        if (!isMobileView()) document.getElementById('scroll-main').innerHTML = '';
+        document.getElementById('scroll-main').innerHTML = '';
     } else {
         items.forEach((item) => {
             const el = document.createElement('div');
@@ -578,7 +584,6 @@ function renderScrollCards(categoryKey) {
                 ${item.description ? `<div class="sidebar-article-description">${item.description}</div>` : ''}
             `;
 
-            // Delete button — only shown for Tanmay
             if (isTanmay) {
                 const delBtn = document.createElement('button');
                 delBtn.className = 'sidebar-delete-btn';
@@ -594,33 +599,232 @@ function renderScrollCards(categoryKey) {
             el.addEventListener('click', () => {
                 document.querySelectorAll('.sidebar-article-item').forEach(e => e.classList.remove('active'));
                 el.classList.add('active');
-                if (isMobileView()) {
-                    // On mobile: open the article URL directly in a new tab
-                    const url = item.url || (item.id && `#${item.id}`);
-                    if (url && url.startsWith('http')) window.open(url, '_blank', 'noopener');
-                } else {
-                    showArticleInPanel(item);
-                }
+                showArticleInPanel(item);
             });
             sidebarList.appendChild(el);
         });
 
-        // Auto-select + load first article (desktop only)
-        if (!isMobileView()) {
-            const firstEl = sidebarList.querySelector('.sidebar-article-item');
-            if (firstEl) {
-                firstEl.classList.add('active');
-                showArticleInPanel(items[0]);
-            }
+        const firstEl = sidebarList.querySelector('.sidebar-article-item');
+        if (firstEl) {
+            firstEl.classList.add('active');
+            showArticleInPanel(items[0]);
         }
     }
 
-    // "+" button at the bottom of sidebar for anyone to suggest an article
     const addBtn = document.createElement('button');
     addBtn.className = 'sidebar-add-btn';
     addBtn.innerHTML = '<span>+</span> Add an article';
     addBtn.addEventListener('click', () => openSubmitArticleModal(categoryKey));
     sidebarList.appendChild(addBtn);
+}
+
+// ── Mobile horizontal article carousel ──
+function renderMobileScrollCards(items, categoryKey) {
+    mobileArticleItems = items;
+    mobileArticleIndex = 0;
+
+    const scrollLayout = document.querySelector('.scroll-layout');
+    scrollLayout.innerHTML = '';
+
+    if (items.length === 0) {
+        scrollLayout.innerHTML = `
+            <div class="mobile-scroll-header">
+                <span class="mobile-scroll-title">${categoryNames[categoryKey]}</span>
+                <div class="mobile-scroll-nav"></div>
+            </div>
+            <div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-style:italic;font-size:0.9rem">No articles yet</div>
+        `;
+        return;
+    }
+
+    // Header with category title, prev/next arrows, and add button
+    const header = document.createElement('div');
+    header.className = 'mobile-scroll-header';
+    header.innerHTML = `
+        <span class="mobile-scroll-title">${categoryNames[categoryKey]}</span>
+        <div class="mobile-scroll-nav">
+            <button class="mobile-nav-btn" id="mob-prev" aria-label="Previous">&#8249;</button>
+            <span class="mobile-nav-counter" id="mob-counter">1 / ${items.length}</span>
+            <button class="mobile-nav-btn" id="mob-next" aria-label="Next">&#8250;</button>
+            <button class="mobile-nav-btn mobile-add-btn" id="mob-add" aria-label="Add article" title="Add an article">+</button>
+        </div>
+    `;
+    scrollLayout.appendChild(header);
+
+    // Carousel viewport + track
+    const carousel = document.createElement('div');
+    carousel.className = 'mobile-article-carousel';
+    const track = document.createElement('div');
+    track.className = 'mobile-article-track';
+    carousel.appendChild(track);
+    scrollLayout.appendChild(carousel);
+
+    // Build all cards
+    items.forEach((item) => {
+        track.appendChild(buildMobileArticleCard(item, categoryKey));
+    });
+
+    // Navigation helpers
+    const goTo = (idx) => {
+        if (idx < 0 || idx >= items.length) return;
+        mobileArticleIndex = idx;
+        track.style.transform = `translateX(${-idx * 100}%)`;
+        document.getElementById('mob-counter').textContent = `${idx + 1} / ${items.length}`;
+        document.getElementById('mob-prev').disabled = idx === 0;
+        document.getElementById('mob-next').disabled = idx === items.length - 1;
+    };
+
+    header.querySelector('#mob-prev').addEventListener('click', () => goTo(mobileArticleIndex - 1));
+    header.querySelector('#mob-next').addEventListener('click', () => goTo(mobileArticleIndex + 1));
+    header.querySelector('#mob-add').addEventListener('click', () => openSubmitArticleModal(categoryKey));
+
+    // Touch swipe
+    let touchStartX = 0;
+    carousel.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+    carousel.addEventListener('touchend', (e) => {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(dx) > 44) {
+            if (dx < 0) goTo(mobileArticleIndex + 1);
+            else goTo(mobileArticleIndex - 1);
+        }
+    }, { passive: true });
+
+    goTo(0);
+}
+
+function buildMobileArticleCard(item, categoryKey) {
+    const card = document.createElement('div');
+    card.className = 'mobile-article-card';
+
+    const itemId = getItemId(item);
+    card.dataset.itemId = itemId;
+
+    // Reaction state for current user
+    const cache = getReadStatusCache();
+    const userReaction = cache[itemId] ? mapFirebaseReactionToApp(cache[itemId][getActiveUser()]) : null;
+
+    // All reactions for summary bars
+    const allReactions = getAllReactionsForItem(itemId);
+    const nice = [], meh = [], no = [];
+    for (const u in allReactions) {
+        const r = mapFirebaseReactionToApp(allReactions[u]);
+        if (r === 'positive') nice.push(u);
+        else if (r === 'neutral') meh.push(u);
+        else if (r === 'negative') no.push(u);
+    }
+
+    const renderBarNames = (names) => {
+        if (!names.length) return '<span style="color:var(--text-muted);font-style:italic">—</span>';
+        const named = names.filter(n => !n.startsWith('anon-'));
+        const anonCount = names.length - named.length;
+        const parts = [...named];
+        if (anonCount === 1) parts.push('Anonymous');
+        else if (anonCount > 1) parts.push(`Anonymous ×${anonCount}`);
+        return parts.join(', ');
+    };
+
+    const imageHTML = item.image
+        ? `<img src="${item.image}" alt="" class="mobile-article-img">`
+        : `<div class="mobile-article-img-placeholder">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                    <rect x="4" y="8" width="40" height="32" rx="4" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="16" cy="20" r="4" stroke="currentColor" stroke-width="2"/>
+                    <path d="M4 32L16 24L28 32L36 26L44 32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+           </div>`;
+
+    card.innerHTML = `
+        <div class="mobile-article-image-wrap">${imageHTML}</div>
+        <div class="mobile-article-body">
+            <a class="mobile-article-title-link" href="${item.url || '#'}" target="_blank" rel="noopener">${item.title}</a>
+            <p class="mobile-article-author">${item.author}</p>
+            ${item.description ? `<p class="mobile-article-desc">${item.description}</p>` : ''}
+        </div>
+        <div class="mobile-article-footer">
+            <div class="mobile-reaction-btns">
+                <button class="mobile-reaction-btn positive ${userReaction === 'positive' ? 'active' : ''}" data-type="positive">✓ Nice</button>
+                <button class="mobile-reaction-btn neutral ${userReaction === 'neutral' ? 'active' : ''}" data-type="neutral">— Meh</button>
+                <button class="mobile-reaction-btn negative ${userReaction === 'negative' ? 'active' : ''}" data-type="negative">✗ Nope</button>
+            </div>
+            <div class="mobile-reaction-bars">
+                <div class="mobile-reaction-bar nice-bar">
+                    <span class="mobile-bar-label">Nice</span>
+                    <span class="mobile-bar-names">${renderBarNames(nice)}</span>
+                </div>
+                <div class="mobile-reaction-bar meh-bar">
+                    <span class="mobile-bar-label">Meh</span>
+                    <span class="mobile-bar-names">${renderBarNames(meh)}</span>
+                </div>
+                <div class="mobile-reaction-bar no-bar">
+                    <span class="mobile-bar-label">Absolutely Not</span>
+                    <span class="mobile-bar-names">${renderBarNames(no)}</span>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Track article open on title/image tap
+    const trackOpen = () => trackEvent('article_open', { id: itemId, title: (item.title || '').slice(0, 60), cat: currentCategoryKey || null });
+    const titleLink = card.querySelector('.mobile-article-title-link');
+    if (titleLink) titleLink.addEventListener('click', trackOpen);
+    const imgWrap = card.querySelector('.mobile-article-image-wrap');
+    if (imgWrap) imgWrap.addEventListener('click', () => {
+        trackOpen();
+        if (item.url) window.open(item.url, '_blank', 'noopener');
+    });
+
+    // Reaction buttons
+    card.querySelectorAll('.mobile-reaction-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            handleReaction(item, btn.dataset.type, card);
+        });
+    });
+
+    return card;
+}
+
+// Update mobile reaction buttons + bars in-place when Firebase data changes
+function updateMobileReactionState() {
+    if (!isMobileView()) return;
+    const cache = getReadStatusCache();
+    const currentUser = getActiveUser();
+
+    document.querySelectorAll('.mobile-article-card').forEach(card => {
+        const itemId = card.dataset.itemId;
+        if (!itemId) return;
+
+        // Update reaction button active states
+        const userReaction = cache[itemId] ? mapFirebaseReactionToApp(cache[itemId][currentUser]) : null;
+        card.querySelectorAll('.mobile-reaction-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.type === userReaction);
+        });
+
+        // Rebuild reaction bar names
+        const allReactions = getAllReactionsForItem(itemId);
+        const nice = [], meh = [], no = [];
+        for (const u in allReactions) {
+            const r = mapFirebaseReactionToApp(allReactions[u]);
+            if (r === 'positive') nice.push(u);
+            else if (r === 'neutral') meh.push(u);
+            else if (r === 'negative') no.push(u);
+        }
+        const renderBarNames = (names) => {
+            if (!names.length) return '<span style="color:var(--text-muted);font-style:italic">—</span>';
+            const named = names.filter(n => !n.startsWith('anon-'));
+            const anonCount = names.length - named.length;
+            const parts = [...named];
+            if (anonCount === 1) parts.push('Anonymous');
+            else if (anonCount > 1) parts.push(`Anonymous ×${anonCount}`);
+            return parts.join(', ');
+        };
+        const bars = card.querySelectorAll('.mobile-bar-names');
+        if (bars[0]) bars[0].innerHTML = renderBarNames(nice);
+        if (bars[1]) bars[1].innerHTML = renderBarNames(meh);
+        if (bars[2]) bars[2].innerHTML = renderBarNames(no);
+    });
 }
 
 // Build the reaction pane showing who reacted with Nice / Meh / Absolutely No
@@ -1488,14 +1692,17 @@ function updateGreeting() {
 // Callback when Firebase data updates - update button states in-place to preserve scroll
 function onFirebaseDataUpdate(data) {
     if (currentCategoryKey && !document.getElementById('scroll-page').classList.contains('hidden')) {
-        updateReactionButtonStates();
-        // Refresh reaction pane with latest Firebase data
-        if (currentPanelItem) {
-            const oldPane = document.querySelector('.reaction-pane');
-            if (oldPane) {
-                const newPane = buildReactionPane(currentPanelItem);
-                newPane.style.width = oldPane.style.width;
-                oldPane.replaceWith(newPane);
+        if (isMobileView()) {
+            updateMobileReactionState();
+        } else {
+            updateReactionButtonStates();
+            if (currentPanelItem) {
+                const oldPane = document.querySelector('.reaction-pane');
+                if (oldPane) {
+                    const newPane = buildReactionPane(currentPanelItem);
+                    newPane.style.width = oldPane.style.width;
+                    oldPane.replaceWith(newPane);
+                }
             }
         }
     }
