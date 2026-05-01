@@ -20,10 +20,12 @@
 
 | Item | Value |
 |------|-------|
-| **Live URL** | https://readlist-tracker.vercel.app |
-| **GitHub** | https://github.com/JarvisOutHere/readlist-tracker |
-| **Deploy** | Auto on push to `main` (Vercel) |
-| **Firebase Project** | `readingtracker-ai` |
+| **Live URL (config-8)** | https://reading-tracker-config8.vercel.app |
+| **Analytics dashboard** | https://reading-tracker-config8.vercel.app/analytics.html?u=curator_x7z9q |
+| **GitHub** | https://github.com/JarvisOutHere/readlist-tracker (branch: `config-8`) |
+| **Deploy** | Auto on push via Vercel |
+| **Firebase Project** | `readlist-tracker` |
+| **Firebase Console** | https://console.firebase.google.com/project/readlist-tracker/database |
 
 ---
 
@@ -107,13 +109,18 @@ function getItemId(item) {
 
 ## File Structure
 
-| File | Purpose | Lines |
-|------|---------|-------|
-| `app.js` | Main logic, article data, UI rendering | ~1200 |
-| `firebase-config.js` | Firebase init, listeners, caching | ~210 |
-| `styles.css` | All styling (dark theme, glassmorphism) | ~1100 |
-| `index.html` | Entry point, minimal HTML structure | ~80 |
-| `ARCHITECTURE.md` | This file | - |
+| File | Purpose |
+|------|---------|
+| `app.js` | Main logic, article data, UI rendering, event tracking |
+| `firebase-config.js` | Firebase init, all listeners, local caches |
+| `styles.css` | All main app styling |
+| `index.html` | Entry point |
+| `analytics.html` | Curator analytics dashboard |
+| `analytics.js` | Dashboard logic (self-contained IIFE, curator-gated) |
+| `analytics.css` | Dashboard-only styles |
+| `vercel.json` | Cache-control headers |
+| `ARCHITECTURE.md` | This file |
+| `CLAUDE.md` | Agent/session handoff notes |
 
 ---
 
@@ -141,6 +148,7 @@ function getItemId(item) {
     "title": "Article Title (for debugging)"
 }
 ```
+**Legacy format:** some entries are bare strings (`"liked"`) not objects. Always use `normalizeReaction(v)` (analytics.js) or `mapFirebaseReactionToApp(v)` (app.js).
 
 ### Firebase: userThoughts/{userName}
 ```json
@@ -149,6 +157,33 @@ function getItemId(item) {
     "updatedAt": 1234567890
 }
 ```
+
+### Firebase: hiddenArticles/{articleId}
+```json
+true
+```
+Written by `hideArticleInFirebase()` when Tanmay deletes a static article. Filtered in `renderScrollCards()` and `buildPillars()`. Delete the key in Firebase console to un-hide.
+
+### Firebase: anonLabels/{anonKey}
+```json
+"A"  // or any string like "Himadri's phone"
+```
+Curator-assigned display names for anonymous visitors. Auto-labelled A→Z, A1→Z1… on every dashboard load.
+
+### Firebase: analytics/events/{YYYY-MM-DD}/{pushId}
+```json
+{
+    "ts": 1714900000000,
+    "ev": "article_open",
+    "u": "Tanmay",
+    "dev": "d",
+    "tz": "Asia/Calcutta",
+    "city": "Mumbai",
+    "country": "IN",
+    "d": { "id": "article-id", "title": "...", "cat": "ai" }
+}
+```
+`dev`, `city`, `country` added May 2026 — older events have `null` for these fields.
 
 ---
 
@@ -307,6 +342,12 @@ Run this in browser console on the live site:
 
 | Date | Change |
 |------|--------|
+| 2026-05-01 | Fix expand rows (data-idx attr), anon grouping (Anonymous ×N), reaction wrapping (white-space:nowrap), city localStorage cache |
+| 2026-05-01 | Auto-label anon visitors A/B/C… silently on dashboard load; city visible inline in activity feed |
+| 2026-05-01 | Add city geo (ipinfo.io), device filter counts, auto-label button, expandable top articles |
+| 2026-05-01 | Add anon visitor labelling (anonLabels/), timezone tracking, activity feed user+device filters |
+| 2026-05-01 | Add analytics dashboard (analytics.html/js/css), event tracking, vercel.json cache headers |
+| 2026-05-01 | Add article deletion for Tanmay (hiddenArticles/ + userSubmissions delete) |
 | 2026-02-12 | Added 6th pillar "User Submissions" with inverted colors |
 | 2026-02-12 | Added Shubhangi as new user with magic link |
 | 2026-02-12 | Sort nerd tiles: active users first, then blanks (current user first in their group) |
