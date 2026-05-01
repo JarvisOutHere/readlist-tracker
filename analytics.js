@@ -155,9 +155,12 @@
         setupLiveFeed();
         setupAnonLabelsListener();
 
+        // Auto-assign A, B, C… to any unlabelled anon visitors (silent, idempotent)
+        autoLabelAll(false);
+
         // Wire one-time controls
         document.getElementById('auto-label-btn')
-            ?.addEventListener('click', autoLabelAll);
+            ?.addEventListener('click', () => autoLabelAll(true));
 
         const now = new Date();
         document.getElementById('dash-updated').textContent =
@@ -682,12 +685,16 @@
         return alpha[n % 26] + (cycle > 0 ? String(cycle) : '');
     }
 
-    function autoLabelAll() {
+    // interactive=true shows alerts; interactive=false runs silently (used on auto page-load)
+    function autoLabelAll(interactive = false) {
         // Collect all anon IDs seen in analytics, sorted by first-seen timestamp
         const anonIds = [...new Set(
             allEvents.filter(e => e.u && e.u.startsWith('anon-')).map(e => e.u)
         )];
-        if (!anonIds.length) { alert('No anonymous visitors found in the last 30 days.'); return; }
+        if (!anonIds.length) {
+            if (interactive) alert('No anonymous visitors found in the last 30 days.');
+            return;
+        }
 
         const firstSeen = {};
         anonIds.forEach(id => {
@@ -711,13 +718,16 @@
         });
 
         if (!Object.keys(updates).length) {
-            alert('All anonymous visitors already have labels.');
+            if (interactive) alert('All anonymous visitors already have labels.');
             return;
         }
 
         database.ref('anonLabels').update(updates)
-            .then(() => { /* setupAnonLabelsListener will refresh everything */ })
-            .catch(err => { console.error('Auto-label error:', err); alert('Save failed — see console.'); });
+            .then(() => { /* setupAnonLabelsListener will refresh feed + dropdown */ })
+            .catch(err => {
+                console.error('Auto-label error:', err);
+                if (interactive) alert('Save failed — see console.');
+            });
     }
 
     // ── Recent Activity Feed ───────────────────────────────────────────────────
@@ -757,13 +767,15 @@
             const deviceIcon = ev.dev === 'm' ? '📱' : ev.dev === 'd' ? '💻' : '';
             const rawUid = ev.u || 'anon';
             const displayUser = getLabel(rawUid);
-            // Tooltip shows raw ID if labelled, city, and timezone
+            // Tooltip: raw anon ID (if labelled) + timezone
             const tooltipParts = [
                 displayUser !== rawUid ? rawUid : '',
-                ev.city || '',
                 ev.tz || '',
             ].filter(Boolean);
             const tooltip = tooltipParts.length ? ` title="${esc(tooltipParts.join(' · '))}"` : '';
+
+            // City visible inline; device icon before city when both present
+            const cityText = ev.city ? esc(ev.city) : '';
 
             return `
                 <div class="feed-item">
@@ -771,6 +783,7 @@
                     <span class="feed-detail">${esc(detail)}</span>
                     <span class="feed-meta">
                         ${deviceIcon ? `<span class="feed-device">${deviceIcon}</span>` : ''}
+                        ${cityText ? `<span class="feed-city">${cityText}</span>` : ''}
                         <span class="feed-user"${tooltip}>${esc(displayUser)}</span>
                         <span class="feed-time">${ev.ts ? timeAgo(ev.ts) : ev.date || ''}</span>
                     </span>
