@@ -77,7 +77,20 @@
         if (r === 'liked') return '❤️';
         if (r === 'neutral') return '🤔';
         if (r === 'disliked') return '👎';
-        return r;
+        return r || '?';
+    }
+
+    // Firebase has two formats: old plain string "liked", new object { reaction: "liked", ... }
+    function normalizeReaction(v) {
+        if (!v) return null;
+        if (typeof v === 'string') return v;          // legacy format
+        return v.reaction || null;                     // current format
+    }
+
+    // Article title stored in the reaction object (new format only)
+    function reactionTitle(v) {
+        if (!v || typeof v === 'string') return null;
+        return v.title || null;
     }
 
     function categoryLabel(key) {
@@ -335,10 +348,12 @@
         Object.entries(readStatus).forEach(([articleId, userMap]) => {
             let liked = 0, neutral = 0, disliked = 0, title = articleId;
             Object.values(userMap).forEach(entry => {
-                if (entry.title) title = entry.title;
-                if (entry.reaction === 'liked')    liked++;
-                else if (entry.reaction === 'neutral')  neutral++;
-                else if (entry.reaction === 'disliked') disliked++;
+                const t = reactionTitle(entry);
+                if (t) title = t;
+                const r = normalizeReaction(entry);
+                if (r === 'liked')    liked++;
+                else if (r === 'neutral')  neutral++;
+                else if (r === 'disliked') disliked++;
             });
             rows.push({ articleId, title, liked, neutral, disliked,
                 total: liked + neutral + disliked });
@@ -373,7 +388,7 @@
                             <td class="count-cell"><strong>${row.total}</strong></td>
                             <td class="who-cell">
                                 ${Object.entries(readStatus[row.articleId] || {}).map(([u, v]) =>
-                                    `<span class="user-pill">${esc(u)} ${reactionEmoji(v.reaction)}</span>`
+                                    `<span class="user-pill">${esc(u)} ${reactionEmoji(normalizeReaction(v))}</span>`
                                 ).join('')}
                             </td>
                         </tr>

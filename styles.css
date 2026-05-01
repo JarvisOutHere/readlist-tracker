@@ -1781,8 +1781,16 @@ textarea.modal-field { resize: vertical; min-height: 72px; }
     .about-toggle-btn { top: 0.8rem; left: 1rem; font-size: 0.74rem; padding: 0.3rem 0.7rem; }
     .landing-login-btn { top: 0.8rem; right: 1rem; font-size: 0.74rem; padding: 0.3rem 0.7rem; }
 
+    /* Greeting: centered text, clear of fixed back button */
+    .pillars-greeting {
+        text-align: center;
+        width: 100%;
+        padding: 0 3rem; /* keep text away from back arrow on left */
+    }
+    .pillars-guest-hint { text-align: center; width: 100%; }
+
     /* Pillars: vertical list layout */
-    .pillars-section { padding: 1rem; }
+    .pillars-section { padding: 1rem; padding-top: 3.5rem; }
     .pillars-container {
         flex-direction: column;
         height: auto;
@@ -1822,15 +1830,28 @@ textarea.modal-field { resize: vertical; min-height: 72px; }
         width: 100% !important;
         height: 100vh;
         border-right: none;
+        overflow: hidden; /* keep hidden — inner list handles scroll */
+    }
+    .scroll-sidebar-list {
         overflow-y: auto;
+        overflow-x: hidden; /* stop horizontal slide */
     }
     /* Hide right panel entirely on mobile */
     .scroll-main { display: none !important; }
 
-    /* Sidebar items: larger touch targets */
+    /* Sidebar items: larger touch targets, prevent horizontal overflow */
     .sidebar-article-item { padding: 0.9rem 1rem; }
-    .sidebar-article-title { font-size: 0.92rem; -webkit-line-clamp: 4; }
-    .sidebar-article-description { font-size: 0.78rem; }
+    .sidebar-article-title {
+        font-size: 0.92rem;
+        -webkit-line-clamp: 4;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+    .sidebar-article-description {
+        font-size: 0.78rem;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
 
     /* Modal: full-width */
     .modal-box { width: 96vw; padding: 1.8rem 1.4rem 1.4rem; }
