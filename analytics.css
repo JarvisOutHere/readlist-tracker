@@ -149,10 +149,33 @@ a:hover { text-decoration: underline; }
     gap: 2rem;
 }
 
+/* ── Section title row (title + filters) ────────────────────────────────── */
+.section-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+.activity-filter-select {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    padding: 0.28rem 0.55rem;
+    cursor: pointer;
+    max-width: 200px;
+}
+.activity-filter-select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
 /* ── Stats Grid ────────────────────────────────────────────────────────── */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(7, 1fr);
     gap: 1rem;
 }
 
@@ -315,6 +338,7 @@ a:hover { text-decoration: underline; }
 .feed-event { font-weight: 600; color: var(--text-primary); white-space: nowrap; }
 .feed-detail { color: var(--text-secondary); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .feed-meta { display: flex; gap: 0.6rem; align-items: center; margin-left: auto; flex-shrink: 0; }
+.feed-device { font-size: 0.85rem; line-height: 1; opacity: 0.75; }
 .feed-user { font-size: 0.78rem; color: var(--text-muted); background: var(--bg-main); border: 1px solid var(--border-subtle); border-radius: 100px; padding: 0.1rem 0.45rem; }
 .feed-time { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
 
@@ -333,6 +357,10 @@ a:hover { text-decoration: underline; }
 }
 
 /* ── Responsive ────────────────────────────────────────────────────────── */
+@media (max-width: 1200px) {
+    .stats-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
 @media (max-width: 1024px) {
     .stats-grid { grid-template-columns: repeat(3, 1fr); }
 }
@@ -344,6 +372,7 @@ a:hover { text-decoration: underline; }
     .dash-title { font-size: 1rem; }
     .who-cell { display: none; }
     .bar-cell { display: none; }
+    .activity-filter-select { max-width: 140px; font-size: 0.75rem; }
 }
 
 @media (max-width: 480px) {

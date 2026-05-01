@@ -1565,6 +1565,7 @@ function trackEvent(ev, data) {
             ts: Date.now(),
             ev: ev,
             u: uid ? String(uid).slice(0, 16) : 'anon',
+            dev: window.innerWidth <= 640 ? 'm' : 'd',   // m = mobile, d = desktop
             d: data || null
         }).catch(() => {});
     } catch (e) {}

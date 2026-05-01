@@ -163,6 +163,7 @@
         renderUsersTable();
         renderSubmissionsTable();
         renderEventTypeChart();
+        populateUserFilter();
         renderRecentFeed();
     }
 
@@ -187,13 +188,25 @@
         const numUsers = Object.keys(registeredUsers).length;
         const numSubmissions = Object.keys(userSubmissions).length;
 
+        // Device breakdown (only events that have the dev field — added recently)
+        const evWithDev = allEvents.filter(e => e.dev);
+        const mobileCount  = evWithDev.filter(e => e.dev === 'm').length;
+        const desktopCount = evWithDev.filter(e => e.dev === 'd').length;
+        const totalDev = mobileCount + desktopCount;
+        const mobilePct  = totalDev > 0 ? Math.round((mobileCount  / totalDev) * 100) : null;
+        const desktopPct = totalDev > 0 ? Math.round((desktopCount / totalDev) * 100) : null;
+        const deviceSub = totalDev > 0
+            ? `📱 ${fmtNum(mobileCount)} · 💻 ${fmtNum(desktopCount)}`
+            : 'no device data yet';
+
         const stats = [
-            { label: 'Page Views (30d)',   value: fmtNum(pageViews),    icon: '👀', sub: 'landing page loads' },
-            { label: 'Unique Visitors (30d)', value: fmtNum(uniqueVisitors), icon: '🧑‍💻', sub: 'distinct user keys' },
-            { label: 'Article Opens (30d)', value: fmtNum(articleOpens), icon: '📄', sub: 'articles read' },
-            { label: 'Category Views (30d)',value: fmtNum(catViews),     icon: '📂', sub: 'category entries' },
-            { label: 'Total Reactions',     value: fmtNum(totalReactions),icon: '❤️', sub: 'in Firebase' },
-            { label: 'Registered Users',    value: fmtNum(numUsers),     icon: '🙋', sub: numSubmissions + ' submissions' },
+            { label: 'Page Views (30d)',      value: fmtNum(pageViews),     icon: '👀', sub: 'landing page loads' },
+            { label: 'Unique Visitors (30d)', value: fmtNum(uniqueVisitors),icon: '🧑‍💻', sub: 'distinct user keys' },
+            { label: 'Article Opens (30d)',   value: fmtNum(articleOpens),  icon: '📄', sub: 'articles read' },
+            { label: 'Category Views (30d)',  value: fmtNum(catViews),      icon: '📂', sub: 'category entries' },
+            { label: 'Total Reactions',       value: fmtNum(totalReactions),icon: '❤️', sub: 'in Firebase' },
+            { label: 'Registered Users',      value: fmtNum(numUsers),      icon: '🙋', sub: numSubmissions + ' submissions' },
+            { label: 'Mobile (30d)',          value: mobilePct !== null ? mobilePct + '%' : '—', icon: '📱', sub: deviceSub },
         ];
 
         grid.innerHTML = stats.map(s => `
@@ -506,33 +519,67 @@
         });
     }
 
+    // ── User filter dropdown ───────────────────────────────────────────────────
+    function populateUserFilter() {
+        const select = document.getElementById('activity-user-filter');
+        if (!select) return;
+        // Collect unique users sorted: named users first, then anon keys
+        const all = [...new Set(allEvents.map(e => e.u).filter(Boolean))];
+        const named = all.filter(u => !u.startsWith('anon-')).sort();
+        const anons = all.filter(u => u.startsWith('anon-')).sort();
+        [...named, ...anons].forEach(u => {
+            const opt = document.createElement('option');
+            opt.value = u;
+            opt.textContent = u;
+            select.appendChild(opt);
+        });
+        select.addEventListener('change', () => renderRecentFeed());
+        document.getElementById('activity-device-filter')
+            ?.addEventListener('change', () => renderRecentFeed());
+    }
+
     // ── Recent Activity Feed ───────────────────────────────────────────────────
     function renderRecentFeed(liveEvents) {
         const feed = document.getElementById('activity-feed');
-        // Show last 40 events from allEvents + any new live events
-        const source = liveEvents
-            ? [...allEvents, ...liveEvents].sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 40)
-            : [...allEvents].sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, 40);
+        const filterUser   = document.getElementById('activity-user-filter')?.value   || '';
+        const filterDevice = document.getElementById('activity-device-filter')?.value || '';
+
+        // Merge allEvents with any incoming live events, deduplicate by ts+ev+u
+        const combined = liveEvents
+            ? [...allEvents, ...liveEvents.filter(le =>
+                !allEvents.some(e => e.ts === le.ts && e.ev === le.ev && e.u === le.u)
+              )]
+            : allEvents;
+
+        const source = combined
+            .slice()
+            .sort((a, b) => (b.ts || 0) - (a.ts || 0))
+            .filter(ev => (!filterUser   || ev.u   === filterUser))
+            .filter(ev => (!filterDevice || ev.dev === filterDevice))
+            .slice(0, 60);
 
         if (!source.length) {
-            feed.innerHTML = '<div class="table-empty">No activity yet.</div>';
+            feed.innerHTML = '<div class="table-empty">No activity matches the selected filters.</div>';
             return;
         }
 
         feed.innerHTML = source.map(ev => {
             const d = ev.d || {};
             let detail = '';
-            if (ev.ev === 'article_open' && d.title) detail = ` — ${d.title}`;
-            else if (ev.ev === 'category_view' && d.cat) detail = ` — ${categoryLabel(d.cat)}`;
-            else if (ev.ev === 'reaction_set' && d.r) detail = ` — ${reactionEmoji(d.r)} ${d.title || d.id || ''}`;
+            if (ev.ev === 'article_open'  && d.title) detail = ` — ${d.title}`;
+            else if (ev.ev === 'category_view' && d.cat)  detail = ` — ${categoryLabel(d.cat)}`;
+            else if (ev.ev === 'reaction_set'  && d.r)    detail = ` — ${reactionEmoji(d.r)} ${d.title || d.id || ''}`;
             else if (ev.ev === 'user_register' && d.name) detail = ` — ${d.name}`;
             else if (ev.ev === 'article_submit' && d.cat) detail = ` — ${categoryLabel(d.cat)} by ${d.by || '?'}`;
+
+            const deviceIcon = ev.dev === 'm' ? '📱' : ev.dev === 'd' ? '💻' : '';
 
             return `
                 <div class="feed-item">
                     <span class="feed-event">${eventLabel(ev.ev)}</span>
                     <span class="feed-detail">${esc(detail)}</span>
                     <span class="feed-meta">
+                        ${deviceIcon ? `<span class="feed-device" title="${ev.dev === 'm' ? 'Mobile' : 'Desktop'}">${deviceIcon}</span>` : ''}
                         <span class="feed-user">${esc(ev.u || 'anon')}</span>
                         <span class="feed-time">${ev.ts ? timeAgo(ev.ts) : ev.date || ''}</span>
                     </span>
@@ -544,18 +591,16 @@
     // ── Live Feed: subscribe to today's events ─────────────────────────────────
     function setupLiveFeed() {
         const today = isoDate(new Date());
-        let liveBuffer = [];
 
         database.ref('analytics/events/' + today).on('child_added', (snap) => {
             const ev = snap.val();
             if (!ev) return;
             ev.date = today;
-            // Only add if it's not already in allEvents (avoid duplicates on initial load)
+            // Avoid duplicates from the initial batch load
             const alreadyLoaded = allEvents.some(e => e.ts === ev.ts && e.ev === ev.ev && e.u === ev.u);
             if (!alreadyLoaded) {
-                liveBuffer.push(ev);
                 allEvents.push(ev);
-                renderRecentFeed(liveBuffer);
+                renderRecentFeed(); // re-render with updated allEvents (no separate liveBuffer needed)
             }
         });
     }
