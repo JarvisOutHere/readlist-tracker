@@ -113,8 +113,11 @@
 
             <!-- Name Anonymous Visitors -->
             <section class="section">
-                <h2 class="section-title">Name Anonymous Visitors</h2>
-                <p class="section-desc">Assign display names to anonymous IDs — labels appear in the activity feed and filter dropdown. Timezone helps you identify who's who without needing an IP address.</p>
+                <div class="section-title-row">
+                    <h2 class="section-title">Name Anonymous Visitors</h2>
+                    <button id="auto-label-btn" class="anon-save-btn">Auto-label all (A, B, C…)</button>
+                </div>
+                <p class="section-desc">Assign display names to anonymous IDs — labels appear in the activity feed and filter dropdown. City and timezone help identify who's who. Auto-label assigns sequential letters (A, B, C … Z, A1, B1…) ordered by first visit.</p>
                 <div class="table-card" id="anon-labels-table">
                     <div class="table-loading">Loading…</div>
                 </div>

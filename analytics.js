@@ -155,6 +155,10 @@
         setupLiveFeed();
         setupAnonLabelsListener();
 
+        // Wire one-time controls
+        document.getElementById('auto-label-btn')
+            ?.addEventListener('click', autoLabelAll);
+
         const now = new Date();
         document.getElementById('dash-updated').textContent =
             'Updated ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -174,6 +178,7 @@
         renderSubmissionsTable();
         renderEventTypeChart();
         populateUserFilter();
+        updateDeviceFilterCounts();
         renderRecentFeed();
         renderAnonLabelsTable();
     }
@@ -300,7 +305,12 @@
             opens[key].count++;
         });
 
-        const sorted = Object.values(opens).sort((a, b) => b.count - a.count).slice(0, 15);
+        // Preserve key so expand breakdown can match events back
+        const sorted = Object.entries(opens)
+            .map(([key, val]) => ({ key, ...val }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 15);
+
         const el = document.getElementById('top-articles-table');
 
         if (!sorted.length) {
@@ -311,18 +321,101 @@
         const maxCount = sorted[0].count || 1;
         el.innerHTML = `
             <table class="data-table">
-                <thead><tr><th>#</th><th>Article</th><th>Opens</th><th></th></tr></thead>
+                <thead><tr><th>#</th><th>Article</th><th>Opens</th><th></th><th class="expand-cell"></th></tr></thead>
                 <tbody>
                     ${sorted.map((row, i) => `
-                        <tr>
+                        <tr class="top-article-row">
                             <td class="rank">${i + 1}</td>
                             <td class="article-title-cell">${esc(row.title)}</td>
                             <td class="count-cell">${row.count}</td>
                             <td class="bar-cell">
                                 <div class="mini-bar" style="width:${Math.round((row.count / maxCount) * 100)}%"></div>
                             </td>
+                            <td class="expand-cell">
+                                <button class="expand-btn" title="Who opened this?">▶</button>
+                            </td>
+                        </tr>
+                        <tr class="expand-row hidden">
+                            <td colspan="5" class="expand-td"></td>
                         </tr>
                     `).join('')}
+                </tbody>
+            </table>
+        `;
+
+        // Wire expand buttons — nextElementSibling is the paired expand row
+        el.querySelectorAll('.expand-btn').forEach((btn, i) => {
+            btn.addEventListener('click', function () {
+                const expandRow = this.closest('tr').nextElementSibling;
+                if (!expandRow) return;
+                const isOpen = !expandRow.classList.contains('hidden');
+                if (isOpen) {
+                    expandRow.classList.add('hidden');
+                    this.textContent = '▶';
+                    this.classList.remove('expand-open');
+                } else {
+                    expandRow.classList.remove('hidden');
+                    this.textContent = '▼';
+                    this.classList.add('expand-open');
+                    const td = expandRow.querySelector('.expand-td');
+                    if (td && !td.dataset.rendered) {
+                        td.dataset.rendered = '1';
+                        td.innerHTML = buildUserOpensBreakdown(sorted[i]);
+                    }
+                }
+            });
+        });
+    }
+
+    // ── User opens breakdown (nested in top articles expand row) ──────────────
+    function buildUserOpensBreakdown(row) {
+        // Match events using the same key derivation as renderTopArticles
+        const events = allEvents.filter(e => {
+            if (e.ev !== 'article_open') return false;
+            const evKey = (e.d && e.d.id) ? e.d.id : (e.d && e.d.title) ? e.d.title : 'unknown';
+            return evKey === row.key;
+        });
+
+        if (!events.length) return '<div class="expand-empty">No events found.</div>';
+
+        // Group by user
+        const byUser = {};
+        events.forEach(e => {
+            const uid = e.u || 'anon';
+            if (!byUser[uid]) byUser[uid] = { count: 0, devices: new Set(), city: null, lastTs: 0 };
+            byUser[uid].count++;
+            if (e.dev) byUser[uid].devices.add(e.dev);
+            if (e.city && !byUser[uid].city) byUser[uid].city = e.city;
+            if ((e.ts || 0) > byUser[uid].lastTs) byUser[uid].lastTs = e.ts || 0;
+        });
+
+        const userRows = Object.entries(byUser).sort((a, b) => b[1].count - a[1].count);
+
+        return `
+            <table class="data-table expand-inner-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Opens</th>
+                        <th>Device</th>
+                        <th>City</th>
+                        <th>Last opened</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${userRows.map(([uid, s]) => {
+                        const devIcons = [...s.devices].map(d => d === 'm' ? '📱' : '💻').join(' ') || '—';
+                        const label = getLabel(uid);
+                        return `
+                            <tr>
+                                <td>${esc(label)}${label !== uid ? `<span class="expand-raw-id"> (${esc(uid)})</span>` : ''}</td>
+                                <td class="count-cell">${s.count}</td>
+                                <td class="count-cell">${devIcons}</td>
+                                <td class="muted-cell">${esc(s.city || '—')}</td>
+                                <td class="muted-cell">${s.lastTs ? timeAgo(s.lastTs) : '—'}</td>
+                            </tr>
+                        `;
+                    }).join('')}
                 </tbody>
             </table>
         `;
@@ -572,6 +665,61 @@
         }
     }
 
+    // ── Device filter: show counts so user understands empty results ───────────
+    function updateDeviceFilterCounts() {
+        const mobileCount  = allEvents.filter(e => e.dev === 'm').length;
+        const desktopCount = allEvents.filter(e => e.dev === 'd').length;
+        const deviceSel = document.getElementById('activity-device-filter');
+        if (!deviceSel || deviceSel.options.length < 3) return;
+        deviceSel.options[1].textContent = `💻 Desktop (${desktopCount})`;
+        deviceSel.options[2].textContent = `📱 Mobile (${mobileCount})`;
+    }
+
+    // ── Auto-label anonymous visitors A, B, C … Z, A1, B1 … ──────────────────
+    function genLabel(n) {
+        const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const cycle = Math.floor(n / 26);
+        return alpha[n % 26] + (cycle > 0 ? String(cycle) : '');
+    }
+
+    function autoLabelAll() {
+        // Collect all anon IDs seen in analytics, sorted by first-seen timestamp
+        const anonIds = [...new Set(
+            allEvents.filter(e => e.u && e.u.startsWith('anon-')).map(e => e.u)
+        )];
+        if (!anonIds.length) { alert('No anonymous visitors found in the last 30 days.'); return; }
+
+        const firstSeen = {};
+        anonIds.forEach(id => {
+            const evs = allEvents.filter(e => e.u === id);
+            firstSeen[id] = Math.min(...evs.map(e => e.ts || Infinity));
+        });
+        anonIds.sort((a, b) => (firstSeen[a] || 0) - (firstSeen[b] || 0));
+
+        // Build set of already-used labels (including manually assigned ones)
+        const usedLabels = new Set(Object.values(anonLabels));
+
+        // Assign next available label to each unlabelled ID
+        const updates = {};
+        let n = 0;
+        anonIds.forEach(id => {
+            if (anonLabels[id]) return; // already labelled — keep it
+            let label;
+            do { label = genLabel(n++); } while (usedLabels.has(label));
+            usedLabels.add(label);
+            updates[id] = label;
+        });
+
+        if (!Object.keys(updates).length) {
+            alert('All anonymous visitors already have labels.');
+            return;
+        }
+
+        database.ref('anonLabels').update(updates)
+            .then(() => { /* setupAnonLabelsListener will refresh everything */ })
+            .catch(err => { console.error('Auto-label error:', err); alert('Save failed — see console.'); });
+    }
+
     // ── Recent Activity Feed ───────────────────────────────────────────────────
     function renderRecentFeed(liveEvents) {
         const feed = document.getElementById('activity-feed');
@@ -609,9 +757,10 @@
             const deviceIcon = ev.dev === 'm' ? '📱' : ev.dev === 'd' ? '💻' : '';
             const rawUid = ev.u || 'anon';
             const displayUser = getLabel(rawUid);
-            // Tooltip shows raw ID if labelled, plus timezone if available
+            // Tooltip shows raw ID if labelled, city, and timezone
             const tooltipParts = [
                 displayUser !== rawUid ? rawUid : '',
+                ev.city || '',
                 ev.tz || '',
             ].filter(Boolean);
             const tooltip = tooltipParts.length ? ` title="${esc(tooltipParts.join(' · '))}"` : '';
@@ -666,6 +815,7 @@
                 lastTs: lastEv.ts || 0,
                 devices: [...new Set(evs.map(e => e.dev).filter(Boolean))],
                 tz: [...new Set(evs.map(e => e.tz).filter(Boolean))][0] || null,
+                city: [...new Set(evs.map(e => e.city).filter(Boolean))][0] || null,
             };
         });
 
@@ -680,6 +830,7 @@
                         <th>Display name</th>
                         <th>Events</th>
                         <th>Device</th>
+                        <th>City</th>
                         <th>Timezone</th>
                         <th>Last seen</th>
                         <th></th>
@@ -700,6 +851,7 @@
                                 </td>
                                 <td class="count-cell">${s.count}</td>
                                 <td class="count-cell">${devIcons}</td>
+                                <td class="muted-cell">${esc(s.city || '—')}</td>
                                 <td class="muted-cell tz-cell">${esc(s.tz || '—')}</td>
                                 <td class="muted-cell">${s.lastTs ? timeAgo(s.lastTs) : '—'}</td>
                                 <td><button class="anon-save-btn" data-id="${esc(id)}">Save</button></td>

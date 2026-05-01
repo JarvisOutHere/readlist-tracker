@@ -316,6 +316,46 @@ a:hover { text-decoration: underline; }
     white-space: nowrap;
 }
 
+/* ── Top Articles Expand ───────────────────────────────────────────────────── */
+.expand-cell {
+    width: 2.5rem;
+    text-align: center;
+    padding: 0 0.5rem !important;
+}
+.expand-btn {
+    background: none;
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 0.18rem 0.42rem;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    line-height: 1;
+}
+.expand-btn:hover,
+.expand-btn.expand-open {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+.expand-row td.expand-td {
+    padding: 0.6rem 1rem 1rem 2.5rem !important;
+    background: var(--bg-main);
+    border-bottom: 2px solid var(--border-subtle);
+}
+.expand-inner-table {
+    font-size: 0.82rem;
+    width: auto;
+    min-width: 400px;
+}
+.expand-inner-table th { font-size: 0.7rem; }
+.expand-raw-id { font-size: 0.72rem; color: var(--text-muted); }
+.expand-empty {
+    padding: 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
 /* ── Activity Feed ─────────────────────────────────────────────────────── */
 .activity-feed {
     background: var(--bg-card);

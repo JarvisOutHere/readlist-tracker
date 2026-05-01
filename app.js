@@ -1552,21 +1552,39 @@ function closeMobileWelcome() {
 }
 
 // ============================================
+// Geo Cache (city-level location, fire-and-forget)
+// ============================================
+// null = not fetched yet; {} = in-flight or failed; { city, country } = success
+let _geoCache = null;
+
+function fetchGeoAsync() {
+    if (_geoCache !== null) return; // already fetched or in-flight
+    _geoCache = {}; // mark in-flight to prevent duplicate requests
+    fetch('https://ipinfo.io/json', { cache: 'no-store' })
+        .then(r => r.json())
+        .then(d => { _geoCache = { city: d.city || null, country: d.country || null }; })
+        .catch(() => {}); // leave _geoCache as {} on failure — city will be null
+}
+
+// ============================================
 // Analytics Event Tracking
 // ============================================
 // Fire-and-forget: zero latency impact, silently swallows all errors.
 // Schema: analytics/events/{YYYY-MM-DD}/{pushId}
-//   { ts, ev, u, d }
+//   { ts, ev, u, dev, tz, city, country, d }
 function trackEvent(ev, data) {
     try {
         const today = new Date().toISOString().slice(0, 10);
         const uid = getActiveUser ? getActiveUser() : 'anon';
+        const geo = _geoCache || {};
         database.ref('analytics/events/' + today).push({
             ts: Date.now(),
             ev: ev,
             u: uid ? String(uid).slice(0, 16) : 'anon',
             dev: window.innerWidth <= 640 ? 'm' : 'd',
             tz: (Intl && Intl.DateTimeFormat().resolvedOptions().timeZone) || null,
+            city: geo.city || null,
+            country: geo.country || null,
             d: data || null
         }).catch(() => {});
     } catch (e) {}
@@ -1587,6 +1605,7 @@ function toggleAbout() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    fetchGeoAsync(); // fire-and-forget city lookup — result stored in _geoCache for trackEvent
     updateCounts();
     updateGreeting();
     buildNerdTiles();
