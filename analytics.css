@@ -343,6 +343,65 @@ a:hover { text-decoration: underline; }
 .feed-time { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
 
 /* Live badge */
+/* Section description line */
+.section-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-top: -0.3rem;
+    line-height: 1.5;
+}
+
+/* Monospace cell for anon IDs */
+.mono-cell {
+    font-family: ui-monospace, 'Menlo', 'Consolas', monospace;
+    font-size: 0.78rem;
+    letter-spacing: -0.01em;
+    color: var(--text-muted);
+}
+
+/* Timezone cell — shrink long tz strings gracefully */
+.tz-cell {
+    font-size: 0.78rem;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Inline label input */
+.anon-label-input {
+    font-family: var(--font-sans);
+    font-size: 0.84rem;
+    background: var(--bg-main);
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 0.3rem 0.55rem;
+    color: var(--text-primary);
+    width: 190px;
+    transition: border-color 0.15s;
+}
+.anon-label-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+.anon-label-input::placeholder { color: var(--text-muted); }
+
+/* Save button next to input */
+.anon-save-btn {
+    font-family: var(--font-sans);
+    font-size: 0.76rem;
+    background: none;
+    border: 1px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 0.28rem 0.65rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+}
+.anon-save-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+.anon-save-btn.saved { color: var(--accent-primary); border-color: var(--accent-primary); }
+
 .live-badge {
     font-size: 0.65rem;
     font-weight: 700;

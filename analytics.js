@@ -118,6 +118,13 @@
     let readStatus = {};     // { articleId: { userName: { reaction, title, ... } } }
     let registeredUsers = {};
     let userSubmissions = {};
+    let anonLabels = {};     // { anonId: "friendly label" }
+
+    // Return the display label for a user ID (falls back to raw ID)
+    function getLabel(uid) {
+        if (!uid) return 'anon';
+        return anonLabels[uid] || uid;
+    }
 
     // ── Fetch everything in parallel ──────────────────────────────────────────
     const days = last30Days();
@@ -136,14 +143,17 @@
         database.ref('readStatus').once('value'),
         database.ref('registeredUsers').once('value'),
         database.ref('userSubmissions').once('value'),
-    ]).then(([eventDays, rsSnap, ruSnap, usSnap]) => {
+        database.ref('anonLabels').once('value'),
+    ]).then(([eventDays, rsSnap, ruSnap, usSnap, alSnap]) => {
         allEvents = eventDays.flat().sort((a, b) => (a.ts || 0) - (b.ts || 0));
         readStatus = rsSnap.val() || {};
         registeredUsers = ruSnap.val() || {};
         userSubmissions = usSnap.val() || {};
+        anonLabels = alSnap.val() || {};
 
         renderAll();
         setupLiveFeed();
+        setupAnonLabelsListener();
 
         const now = new Date();
         document.getElementById('dash-updated').textContent =
@@ -165,6 +175,7 @@
         renderEventTypeChart();
         populateUserFilter();
         renderRecentFeed();
+        renderAnonLabelsTable();
     }
 
     // ── Stats Cards ────────────────────────────────────────────────────────────
@@ -519,23 +530,46 @@
         });
     }
 
+    // One-time flag so filter event listeners are only bound once
+    let _filtersSetup = false;
+
     // ── User filter dropdown ───────────────────────────────────────────────────
     function populateUserFilter() {
-        const select = document.getElementById('activity-user-filter');
-        if (!select) return;
-        // Collect unique users sorted: named users first, then anon keys
+        const userSel = document.getElementById('activity-user-filter');
+        if (!userSel) return;
+
+        // Save current selection so it survives a rebuild
+        const prevVal = userSel.value;
+
+        // Clear all options except the first "All users" placeholder
+        while (userSel.options.length > 1) userSel.remove(1);
+
+        // Collect unique user IDs: named users first, then anon keys
         const all = [...new Set(allEvents.map(e => e.u).filter(Boolean))];
         const named = all.filter(u => !u.startsWith('anon-')).sort();
         const anons = all.filter(u => u.startsWith('anon-')).sort();
+
         [...named, ...anons].forEach(u => {
             const opt = document.createElement('option');
             opt.value = u;
-            opt.textContent = u;
-            select.appendChild(opt);
+            const lbl = anonLabels[u];
+            // Show "Friendly Name  (anon-xxx)" or just the raw ID
+            opt.textContent = lbl ? `${lbl}  (${u})` : u;
+            userSel.appendChild(opt);
         });
-        select.addEventListener('change', () => renderRecentFeed());
-        document.getElementById('activity-device-filter')
-            ?.addEventListener('change', () => renderRecentFeed());
+
+        // Restore previous selection if it still exists
+        if (prevVal && [...userSel.options].some(o => o.value === prevVal)) {
+            userSel.value = prevVal;
+        }
+
+        // Bind change listeners only once
+        if (!_filtersSetup) {
+            _filtersSetup = true;
+            userSel.addEventListener('change', () => renderRecentFeed());
+            document.getElementById('activity-device-filter')
+                ?.addEventListener('change', () => renderRecentFeed());
+        }
     }
 
     // ── Recent Activity Feed ───────────────────────────────────────────────────
@@ -573,19 +607,140 @@
             else if (ev.ev === 'article_submit' && d.cat) detail = ` — ${categoryLabel(d.cat)} by ${d.by || '?'}`;
 
             const deviceIcon = ev.dev === 'm' ? '📱' : ev.dev === 'd' ? '💻' : '';
+            const rawUid = ev.u || 'anon';
+            const displayUser = getLabel(rawUid);
+            // Tooltip shows raw ID if labelled, plus timezone if available
+            const tooltipParts = [
+                displayUser !== rawUid ? rawUid : '',
+                ev.tz || '',
+            ].filter(Boolean);
+            const tooltip = tooltipParts.length ? ` title="${esc(tooltipParts.join(' · '))}"` : '';
 
             return `
                 <div class="feed-item">
                     <span class="feed-event">${eventLabel(ev.ev)}</span>
                     <span class="feed-detail">${esc(detail)}</span>
                     <span class="feed-meta">
-                        ${deviceIcon ? `<span class="feed-device" title="${ev.dev === 'm' ? 'Mobile' : 'Desktop'}">${deviceIcon}</span>` : ''}
-                        <span class="feed-user">${esc(ev.u || 'anon')}</span>
+                        ${deviceIcon ? `<span class="feed-device">${deviceIcon}</span>` : ''}
+                        <span class="feed-user"${tooltip}>${esc(displayUser)}</span>
                         <span class="feed-time">${ev.ts ? timeAgo(ev.ts) : ev.date || ''}</span>
                     </span>
                 </div>
             `;
         }).join('');
+    }
+
+    // ── Anon Labels: live listener ─────────────────────────────────────────────
+    function setupAnonLabelsListener() {
+        database.ref('anonLabels').on('value', (snap) => {
+            anonLabels = snap.val() || {};
+            // Rebuild dropdown labels and re-render feed — but NOT the label table
+            // (to avoid resetting the input fields while Tanmay is typing)
+            populateUserFilter();
+            renderRecentFeed();
+        });
+    }
+
+    // ── Name Anonymous Visitors table ──────────────────────────────────────────
+    function renderAnonLabelsTable() {
+        const el = document.getElementById('anon-labels-table');
+        if (!el) return;
+
+        // All unique anon IDs seen in the last 30 days
+        const anonIds = [...new Set(
+            allEvents.filter(e => e.u && e.u.startsWith('anon-')).map(e => e.u)
+        )];
+
+        if (!anonIds.length) {
+            el.innerHTML = '<div class="table-empty">No anonymous visitors in the last 30 days.</div>';
+            return;
+        }
+
+        // Per-ID stats: event count, last seen, devices, timezone
+        const idStats = {};
+        anonIds.forEach(id => {
+            const evs = allEvents.filter(e => e.u === id);
+            const lastEv = evs.reduce((a, b) => ((a.ts || 0) > (b.ts || 0) ? a : b), {});
+            idStats[id] = {
+                count: evs.length,
+                lastTs: lastEv.ts || 0,
+                devices: [...new Set(evs.map(e => e.dev).filter(Boolean))],
+                tz: [...new Set(evs.map(e => e.tz).filter(Boolean))][0] || null,
+            };
+        });
+
+        // Sort by most recently active
+        anonIds.sort((a, b) => (idStats[b].lastTs || 0) - (idStats[a].lastTs || 0));
+
+        el.innerHTML = `
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Anonymous ID</th>
+                        <th>Display name</th>
+                        <th>Events</th>
+                        <th>Device</th>
+                        <th>Timezone</th>
+                        <th>Last seen</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${anonIds.map(id => {
+                        const s = idStats[id];
+                        const devIcons = s.devices.map(d => d === 'm' ? '📱' : '💻').join(' ') || '—';
+                        return `
+                            <tr>
+                                <td class="mono-cell">${esc(id)}</td>
+                                <td>
+                                    <input class="anon-label-input" type="text"
+                                        data-id="${esc(id)}"
+                                        value="${esc(anonLabels[id] || '')}"
+                                        placeholder="e.g. Himadri's phone" />
+                                </td>
+                                <td class="count-cell">${s.count}</td>
+                                <td class="count-cell">${devIcons}</td>
+                                <td class="muted-cell tz-cell">${esc(s.tz || '—')}</td>
+                                <td class="muted-cell">${s.lastTs ? timeAgo(s.lastTs) : '—'}</td>
+                                <td><button class="anon-save-btn" data-id="${esc(id)}">Save</button></td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
+
+        // Wire up save buttons
+        el.querySelectorAll('.anon-save-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.dataset.id;
+                const input = el.querySelector(`.anon-label-input[data-id="${id}"]`);
+                if (!input) return;
+                const label = input.value.trim();
+                const b = this;
+                const ref = database.ref('anonLabels/' + id);
+                if (label) {
+                    ref.set(label).then(() => {
+                        b.textContent = 'Saved ✓'; b.classList.add('saved');
+                        setTimeout(() => { b.textContent = 'Save'; b.classList.remove('saved'); }, 1800);
+                    }).catch(() => { b.textContent = 'Error'; });
+                } else {
+                    ref.remove().then(() => {
+                        b.textContent = 'Cleared';
+                        setTimeout(() => { b.textContent = 'Save'; }, 1800);
+                    });
+                }
+            });
+        });
+
+        // Save on Enter key
+        el.querySelectorAll('.anon-label-input').forEach(input => {
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    el.querySelector(`.anon-save-btn[data-id="${this.dataset.id}"]`)?.click();
+                }
+            });
+        });
     }
 
     // ── Live Feed: subscribe to today's events ─────────────────────────────────
