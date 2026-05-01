@@ -329,6 +329,30 @@ function saveUserSubmission(submission) {
     return database.ref('userSubmissions/' + submission.id).set(submission);
 }
 
+function deleteUserSubmissionFromFirebase(submissionId) {
+    return database.ref('userSubmissions/' + submissionId).remove();
+}
+
+// ========================================
+// Hidden Articles (Tanmay can hide/delete any article)
+// ========================================
+let hiddenArticlesCache = {};
+
+function subscribeToHiddenArticles(callback) {
+    database.ref('hiddenArticles').on('value', (snapshot) => {
+        hiddenArticlesCache = snapshot.val() || {};
+        if (callback) callback(hiddenArticlesCache);
+    });
+}
+
+function getHiddenArticlesCache() {
+    return hiddenArticlesCache;
+}
+
+function hideArticleInFirebase(articleId) {
+    return database.ref('hiddenArticles/' + articleId).set(true);
+}
+
 // ========================================
 // Image Upload to Firebase Storage
 // ========================================

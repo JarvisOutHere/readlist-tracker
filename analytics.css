@@ -96,6 +96,26 @@ a:hover { text-decoration: underline; }
     letter-spacing: 0.01em;
     color: var(--text-primary);
 }
+.dash-header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.dash-user-link {
+    font-size: 0.8rem;
+    color: var(--accent-primary);
+    text-decoration: none;
+    padding: 0.28rem 0.7rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    transition: border-color 0.15s, background 0.15s;
+    white-space: nowrap;
+}
+.dash-user-link:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--accent-primary);
+    text-decoration: none;
+}
 .dash-updated {
     font-size: 0.8rem;
     color: var(--text-muted);

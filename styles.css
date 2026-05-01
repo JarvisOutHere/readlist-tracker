@@ -992,6 +992,37 @@ body {
     transition: background 0.15s ease, border-color 0.15s ease;
     border: 1px solid transparent;
     margin-bottom: 0.45rem;
+    position: relative;
+}
+
+/* Delete button — visible on hover (desktop) or always (mobile via media query) */
+.sidebar-delete-btn {
+    position: absolute;
+    top: 0.38rem;
+    right: 0.38rem;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 1rem;
+    line-height: 1;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s, background 0.15s;
+    z-index: 2;
+    padding: 0;
+}
+.sidebar-article-item:hover .sidebar-delete-btn {
+    opacity: 1;
+}
+.sidebar-delete-btn:hover {
+    color: var(--reaction-negative);
+    background: rgba(184, 92, 92, 0.1);
 }
 
 .sidebar-article-item::after {
@@ -1840,7 +1871,8 @@ textarea.modal-field { resize: vertical; min-height: 72px; }
     .scroll-main { display: none !important; }
 
     /* Sidebar items: larger touch targets, prevent horizontal overflow */
-    .sidebar-article-item { padding: 0.9rem 1rem; }
+    .sidebar-article-item { padding: 0.9rem 1rem; padding-right: 2rem; }
+    .sidebar-delete-btn { opacity: 0.45; } /* always visible on mobile */
     .sidebar-article-title {
         font-size: 0.92rem;
         -webkit-line-clamp: 4;

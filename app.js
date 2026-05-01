@@ -465,8 +465,11 @@ function buildPillars() {
     const categories = [...fixedKeys, ...restKeys, 'user-submissions']; // user-submissions always last
 
     // Find max article count for proportional heights (exclude user-submissions from max calc)
-    const mainCounts = categories.filter(k => k !== 'user-submissions').map(k => data.articles[k].length);
-    const maxCount = Math.max(...mainCounts);
+    const hiddenIds = getHiddenArticlesCache();
+    const mainCounts = categories.filter(k => k !== 'user-submissions').map(k =>
+        data.articles[k].filter(a => !hiddenIds[a.id]).length
+    );
+    const maxCount = Math.max(...mainCounts, 1);
 
     // Height range: min 40%, max 90% of container
     const minPct = 40;
@@ -476,8 +479,8 @@ function buildPillars() {
         const pillar = document.createElement('div');
         const isUserSubmissions = catKey === 'user-submissions';
         const count = isUserSubmissions
-            ? Object.keys(getUserSubmissionsCache()).length
-            : data.articles[catKey].length;
+            ? Object.values(getUserSubmissionsCache()).filter(s => !hiddenIds[s.id]).length
+            : data.articles[catKey].filter(a => !hiddenIds[a.id]).length;
         const isEmpty = count === 0;
 
         // Build class list
@@ -556,6 +559,12 @@ function renderScrollCards(categoryKey) {
         items = [...staticItems, ...dynamicItems];
     }
 
+    // Filter out hidden articles for everyone
+    const hidden = getHiddenArticlesCache();
+    items = items.filter(item => !hidden[item.id]);
+
+    const isTanmay = getActiveUser() === 'Tanmay';
+
     if (items.length === 0) {
         sidebarList.innerHTML = '<div class="sidebar-empty">No articles yet</div>';
         if (!isMobileView()) document.getElementById('scroll-main').innerHTML = '';
@@ -568,6 +577,20 @@ function renderScrollCards(categoryKey) {
                 <div class="sidebar-article-author">${item.author}</div>
                 ${item.description ? `<div class="sidebar-article-description">${item.description}</div>` : ''}
             `;
+
+            // Delete button — only shown for Tanmay
+            if (isTanmay) {
+                const delBtn = document.createElement('button');
+                delBtn.className = 'sidebar-delete-btn';
+                delBtn.title = 'Delete article';
+                delBtn.textContent = '×';
+                delBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    confirmDeleteArticle(item);
+                });
+                el.appendChild(delBtn);
+            }
+
             el.addEventListener('click', () => {
                 document.querySelectorAll('.sidebar-article-item').forEach(e => e.classList.remove('active'));
                 el.classList.add('active');
@@ -1596,6 +1619,10 @@ document.addEventListener('DOMContentLoaded', () => {
         buildPillars(); // refresh count on the landing pillar
         if (currentCategoryKey) renderScrollCards(currentCategoryKey);
     });
+    subscribeToHiddenArticles(() => {            // Tanmay can hide/delete articles
+        buildPillars();
+        if (currentCategoryKey) renderScrollCards(currentCategoryKey);
+    });
 });
 
 
@@ -1700,6 +1727,35 @@ function openRegisterModal() {
                 btn.disabled = false;
                 btn.textContent = 'Join';
             });
+    });
+}
+
+// ========================================
+// DELETE ARTICLE (Tanmay only)
+// ========================================
+function confirmDeleteArticle(item) {
+    const isUserSubmission = !!item.userSubmitted;
+    const displayTitle = (item.title || 'this article').slice(0, 72)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    openModal(`
+        <button class="modal-close" onclick="closeModal()">×</button>
+        <div class="modal-title">Delete article?</div>
+        <div class="modal-subtitle" style="margin-top:0.4rem">"${displayTitle}" will be removed for all users.</div>
+        ${!isUserSubmission ? `<div class="modal-callout" style="margin-top:0.75rem;font-size:0.8rem">Static articles are hidden in Firebase — recoverable via the console if needed.</div>` : ''}
+        <div style="display:flex;gap:0.75rem;margin-top:1.5rem">
+            <button class="modal-submit-btn" id="confirm-delete-btn" style="background:#b85c5c">Delete</button>
+            <button class="modal-submit-secondary" onclick="closeModal()">Cancel</button>
+        </div>
+    `);
+
+    document.getElementById('confirm-delete-btn').addEventListener('click', function () {
+        if (isUserSubmission) {
+            deleteUserSubmissionFromFirebase(item.id).catch(() => {});
+        } else {
+            hideArticleInFirebase(item.id).catch(() => {});
+        }
+        closeModal();
     });
 }
 
