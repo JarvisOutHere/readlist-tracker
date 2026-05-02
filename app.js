@@ -663,31 +663,83 @@ function renderMobileScrollCards(items, categoryKey) {
     carousel.appendChild(track);
     scrollLayout.appendChild(carousel);
 
-    // Build all cards
+    // Build all real cards
+    const n = items.length;
     items.forEach((item) => {
         track.appendChild(buildMobileArticleCard(item, categoryKey));
     });
 
-    // Navigation: wraps around, lazy-loads current + adjacent images
-    const loadImgAt = (i) => {
-        const img = track.children[i] && track.children[i].querySelector('img[data-src]');
-        if (img) { img.src = img.dataset.src; img.removeAttribute('data-src'); }
-    };
-    const goTo = (idx) => {
-        idx = ((idx % items.length) + items.length) % items.length;
-        mobileArticleIndex = idx;
-        track.style.transform = `translateX(${-idx * 100}%)`;
-        document.getElementById('mob-counter').textContent = `${idx + 1} / ${items.length}`;
-        // Load current card's image and preload neighbours
-        loadImgAt(idx);
-        loadImgAt((idx + 1) % items.length);
-        loadImgAt(((idx - 1) + items.length) % items.length);
+    // ── Infinite carousel via clone technique ──────────────────────────────
+    // DOM layout after cloning: [lastClone, real0, real1, …, realN-1, firstClone]
+    // Real card i lives at DOM index i+1. Start position: DOM[1] = real0.
+    //
+    // On swipe past the last real card we animate to firstClone (DOM[N+1]), then
+    // instantly snap (no animation) to DOM[1]. The user always sees motion in the
+    // direction they swiped — the snap is invisible.
+
+    // Helper: resolve any remaining data-src on a cloned node so its image loads
+    const resolveCloneImages = (el) => {
+        el.querySelectorAll('img[data-src]').forEach(img => {
+            img.src = img.dataset.src;
+            img.removeAttribute('data-src');
+        });
     };
 
-    // Wire card-level prev/next buttons to goTo
+    const firstClone = track.children[0].cloneNode(true);
+    resolveCloneImages(firstClone);
+    const lastClone  = track.children[n - 1].cloneNode(true);
+    resolveCloneImages(lastClone);
+
+    track.insertBefore(lastClone, track.children[0]); // prepend: DOM[0]
+    track.appendChild(firstClone);                    // append:  DOM[N+1]
+
+    // Track which DOM slot is currently shown (starts at 1 = real0)
+    let currentDomIdx = 1;
+
+    const setPos = (domIdx, animate) => {
+        currentDomIdx = domIdx;
+        track.style.transition = animate
+            ? 'transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
+            : 'none';
+        track.style.transform = `translateX(${-domIdx * 100}%)`;
+        if (!animate) track.getBoundingClientRect(); // force reflow to commit instant jump
+    };
+
+    // Lazy-load real card's image (DOM offset +1 from real index)
+    const loadImgAt = (realIdx) => {
+        const img = track.children[realIdx + 1]?.querySelector('img[data-src]');
+        if (img) { img.src = img.dataset.src; img.removeAttribute('data-src'); }
+    };
+
+    const goTo = (realIdx) => {
+        // realIdx may be -1 (wrap to last) or n (wrap to first)
+        let domIdx, logical;
+        if (realIdx < 0)  { domIdx = 0;     logical = n - 1; } // show lastClone
+        else if (realIdx >= n) { domIdx = n + 1; logical = 0;     } // show firstClone
+        else              { domIdx = realIdx + 1; logical = realIdx; }
+
+        mobileArticleIndex = logical;
+        setPos(domIdx, true);
+        document.getElementById('mob-counter').textContent = `${logical + 1} / ${n}`;
+        loadImgAt(logical);
+        loadImgAt((logical + 1) % n);
+        loadImgAt(((logical - 1) + n) % n);
+    };
+
+    // After animating to a clone, instantly snap to the corresponding real card
+    track.addEventListener('transitionend', () => {
+        if (currentDomIdx === 0)     setPos(n, false);      // lastClone → real last
+        if (currentDomIdx === n + 1) setPos(1, false);      // firstClone → real first
+    });
+
+    // Wire nav buttons on ALL track children (real cards + clones)
     Array.from(track.children).forEach(card => {
-        card.querySelector('.mobile-card-prev').addEventListener('click', (e) => { e.stopPropagation(); goTo(mobileArticleIndex - 1); });
-        card.querySelector('.mobile-card-next').addEventListener('click', (e) => { e.stopPropagation(); goTo(mobileArticleIndex + 1); });
+        card.querySelector('.mobile-card-prev')?.addEventListener('click', (e) => {
+            e.stopPropagation(); goTo(mobileArticleIndex - 1);
+        });
+        card.querySelector('.mobile-card-next')?.addEventListener('click', (e) => {
+            e.stopPropagation(); goTo(mobileArticleIndex + 1);
+        });
     });
 
     header.querySelector('#mob-add').addEventListener('click', () => openSubmitArticleModal(categoryKey));
@@ -705,7 +757,11 @@ function renderMobileScrollCards(items, categoryKey) {
         }
     }, { passive: true });
 
-    goTo(0);
+    // Initialise: show real[0] with no animation, load first two images
+    setPos(1, false);
+    document.getElementById('mob-counter').textContent = `1 / ${n}`;
+    loadImgAt(0);
+    loadImgAt(1 % n);
 }
 
 function buildMobileArticleCard(item, categoryKey) {
