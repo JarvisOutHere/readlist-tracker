@@ -1752,12 +1752,14 @@ function updateCounts() {
 
 // Update greeting with current user name
 function updateGreeting() {
+    const uid = getActiveUser();
+    const name = getUserDisplayName(uid);
+    const isGuest = name === 'Guest User';
+
     const greetingEl = document.getElementById('pillars-greeting');
     const hintEl = document.getElementById('pillars-guest-hint');
     if (greetingEl) {
-        const uid = getActiveUser();
-        const name = getUserDisplayName(uid);
-        if (name === 'Guest User') {
+        if (isGuest) {
             greetingEl.textContent = 'Welcome, Guest User';
             if (hintEl) hintEl.textContent = 'Feel free to create an account!';
         } else {
@@ -1765,6 +1767,12 @@ function updateGreeting() {
             if (hintEl) hintEl.textContent = '';
         }
     }
+
+    const landingGreeting = document.getElementById('landing-greeting');
+    if (landingGreeting) {
+        landingGreeting.textContent = isGuest ? '' : `Hi ${name}`;
+    }
+
     updateLoginButton();
 }
 
