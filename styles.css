@@ -1837,7 +1837,7 @@ textarea.modal-field { resize: vertical; min-height: 72px; }
         padding-top: 3rem;
         justify-content: flex-end;
         align-items: center;
-        padding-bottom: 4.5rem;
+        padding-bottom: 6rem;
         gap: 1.2rem;
         height: 100svh;
         box-sizing: border-box;
@@ -2036,23 +2036,16 @@ textarea.modal-field { resize: vertical; min-height: 72px; }
         -webkit-overflow-scrolling: touch;
     }
 
-    /* Image area — contained, full aspect ratio visible */
+    /* Image area — full bleed, natural aspect ratio per image */
     .mobile-article-image-wrap {
         width: 100%;
         flex-shrink: 0;
         background: var(--bg-sidebar);
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        max-height: 55vw;
         cursor: pointer;
     }
     .mobile-article-img {
         width: 100%;
         height: auto;
-        max-height: 55vw;
-        object-fit: contain;
         display: block;
     }
     .mobile-article-img-placeholder {
