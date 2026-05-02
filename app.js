@@ -643,15 +643,13 @@ function renderMobileScrollCards(items, categoryKey) {
         return;
     }
 
-    // Header with category title, prev/next arrows, and add button
+    // Header: category title + article counter + add button (no arrows here)
     const header = document.createElement('div');
     header.className = 'mobile-scroll-header';
     header.innerHTML = `
         <span class="mobile-scroll-title">${categoryNames[categoryKey]}</span>
         <div class="mobile-scroll-nav">
-            <button class="mobile-nav-btn" id="mob-prev" aria-label="Previous">&#8249;</button>
             <span class="mobile-nav-counter" id="mob-counter">1 / ${items.length}</span>
-            <button class="mobile-nav-btn" id="mob-next" aria-label="Next">&#8250;</button>
             <button class="mobile-nav-btn mobile-add-btn" id="mob-add" aria-label="Add article" title="Add an article">+</button>
         </div>
     `;
@@ -670,18 +668,28 @@ function renderMobileScrollCards(items, categoryKey) {
         track.appendChild(buildMobileArticleCard(item, categoryKey));
     });
 
-    // Navigation helpers
+    // Navigation: wraps around, lazy-loads current + adjacent images
+    const loadImgAt = (i) => {
+        const img = track.children[i] && track.children[i].querySelector('img[data-src]');
+        if (img) { img.src = img.dataset.src; img.removeAttribute('data-src'); }
+    };
     const goTo = (idx) => {
-        if (idx < 0 || idx >= items.length) return;
+        idx = ((idx % items.length) + items.length) % items.length;
         mobileArticleIndex = idx;
         track.style.transform = `translateX(${-idx * 100}%)`;
         document.getElementById('mob-counter').textContent = `${idx + 1} / ${items.length}`;
-        document.getElementById('mob-prev').disabled = idx === 0;
-        document.getElementById('mob-next').disabled = idx === items.length - 1;
+        // Load current card's image and preload neighbours
+        loadImgAt(idx);
+        loadImgAt((idx + 1) % items.length);
+        loadImgAt(((idx - 1) + items.length) % items.length);
     };
 
-    header.querySelector('#mob-prev').addEventListener('click', () => goTo(mobileArticleIndex - 1));
-    header.querySelector('#mob-next').addEventListener('click', () => goTo(mobileArticleIndex + 1));
+    // Wire card-level prev/next buttons to goTo
+    Array.from(track.children).forEach(card => {
+        card.querySelector('.mobile-card-prev').addEventListener('click', (e) => { e.stopPropagation(); goTo(mobileArticleIndex - 1); });
+        card.querySelector('.mobile-card-next').addEventListener('click', (e) => { e.stopPropagation(); goTo(mobileArticleIndex + 1); });
+    });
+
     header.querySelector('#mob-add').addEventListener('click', () => openSubmitArticleModal(categoryKey));
 
     // Touch swipe
@@ -731,8 +739,9 @@ function buildMobileArticleCard(item, categoryKey) {
         return parts.join(', ');
     };
 
+    // Use data-src so images only load when goTo fires (lazy per-card)
     const imageHTML = item.image
-        ? `<img src="${item.image}" alt="" class="mobile-article-img">`
+        ? `<img data-src="${item.image}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" class="mobile-article-img">`
         : `<div class="mobile-article-img-placeholder">
                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
                     <rect x="4" y="8" width="40" height="32" rx="4" stroke="currentColor" stroke-width="2"/>
@@ -743,10 +752,14 @@ function buildMobileArticleCard(item, categoryKey) {
 
     card.innerHTML = `
         <div class="mobile-article-image-wrap">${imageHTML}</div>
-        <div class="mobile-article-body">
-            <a class="mobile-article-title-link" href="${item.url || '#'}" target="_blank" rel="noopener">${item.title}</a>
-            <p class="mobile-article-author">${item.author}</p>
-            ${item.description ? `<p class="mobile-article-desc">${item.description}</p>` : ''}
+        <div class="mobile-title-row">
+            <button class="mobile-card-prev" aria-label="Previous">&#8249;</button>
+            <div class="mobile-article-body">
+                <a class="mobile-article-title-link" href="${item.url || '#'}" target="_blank" rel="noopener">${item.title}</a>
+                <p class="mobile-article-author">${item.author}</p>
+                ${item.description ? `<p class="mobile-article-desc">${item.description}</p>` : ''}
+            </div>
+            <button class="mobile-card-next" aria-label="Next">&#8250;</button>
         </div>
         <div class="mobile-article-footer">
             <div class="mobile-reaction-btns">

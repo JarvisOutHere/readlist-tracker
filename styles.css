@@ -2058,9 +2058,39 @@ textarea.modal-field { resize: vertical; min-height: 72px; }
         opacity: 0.35;
     }
 
-    /* Article text body */
+    /* Title row: arrows flush to screen edges, body between them */
+    .mobile-title-row {
+        display: flex;
+        align-items: flex-start;
+        width: 100%;
+        flex-shrink: 0;
+    }
+    .mobile-card-prev,
+    .mobile-card-next {
+        flex-shrink: 0;
+        width: 44px;
+        align-self: stretch;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        color: var(--accent-primary);
+        font-size: 2rem;
+        line-height: 1;
+        cursor: pointer;
+        padding: 0;
+        opacity: 0.55;
+        touch-action: manipulation;
+    }
+    .mobile-card-prev:active,
+    .mobile-card-next:active { opacity: 1; }
+
+    /* Article text body (no horizontal padding — title-row handles edges) */
     .mobile-article-body {
-        padding: 1rem 1.2rem 0.6rem;
+        flex: 1;
+        min-width: 0;
+        padding: 1rem 0 0.6rem;
         flex-shrink: 0;
     }
     .mobile-article-title-link {
