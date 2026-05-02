@@ -817,7 +817,11 @@ function buildMobileArticleCard(item, categoryKey) {
             </div>
             <button class="mobile-card-next" aria-label="Next">&#8250;</button>
         </div>
+        <div class="mobile-read-row">
+            <a class="mobile-read-btn" href="${item.url || '#'}" target="_blank" rel="noopener">Read Article →</a>
+        </div>
         <div class="mobile-article-footer">
+            <span class="mobile-reviews-label">Reviews</span>
             <div class="mobile-reaction-btns">
                 <button class="mobile-reaction-btn positive ${userReaction === 'positive' ? 'active' : ''}" data-type="positive">✓ Nice</button>
                 <button class="mobile-reaction-btn neutral ${userReaction === 'neutral' ? 'active' : ''}" data-type="neutral">— Meh</button>

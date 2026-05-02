@@ -2117,6 +2117,40 @@ textarea.modal-field { resize: vertical; min-height: 72px; }
         line-height: 1.55;
     }
 
+    /* Read Article button row — right-aligned, sits between description and footer */
+    .mobile-read-row {
+        display: flex;
+        justify-content: flex-end;
+        padding: 0 1.2rem 0.8rem;
+        flex-shrink: 0;
+    }
+    .mobile-read-btn {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.78rem;
+        font-weight: 500;
+        color: var(--accent-primary);
+        text-decoration: none;
+        border: 1px solid var(--border-accent);
+        border-radius: 6px;
+        padding: 0.35rem 0.85rem;
+        letter-spacing: 0.02em;
+        transition: background 0.15s, color 0.15s;
+    }
+    .mobile-read-btn:active {
+        background: var(--bg-sidebar);
+    }
+
+    /* "Reviews" label above the reaction section */
+    .mobile-reviews-label {
+        font-family: 'Inter', sans-serif;
+        font-size: 0.68rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: var(--text-muted);
+        margin-bottom: -0.2rem;
+    }
+
     /* Footer: reaction buttons + reaction bars */
     .mobile-article-footer {
         flex-shrink: 0;
