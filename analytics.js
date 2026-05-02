@@ -119,6 +119,7 @@
     let registeredUsers = {};
     let userSubmissions = {};
     let anonLabels = {};     // { anonId: "friendly label" }
+    let flaggedAccounts = {}; // { anonId: true } — your test sessions, hidden from visitor data
 
     // Return the display label for a user ID (falls back to raw ID)
     function getLabel(uid) {
@@ -144,16 +145,19 @@
         database.ref('registeredUsers').once('value'),
         database.ref('userSubmissions').once('value'),
         database.ref('anonLabels').once('value'),
-    ]).then(([eventDays, rsSnap, ruSnap, usSnap, alSnap]) => {
+        database.ref('flaggedTestAccounts').once('value'),
+    ]).then(([eventDays, rsSnap, ruSnap, usSnap, alSnap, ftSnap]) => {
         allEvents = eventDays.flat().sort((a, b) => (a.ts || 0) - (b.ts || 0));
         readStatus = rsSnap.val() || {};
         registeredUsers = ruSnap.val() || {};
         userSubmissions = usSnap.val() || {};
         anonLabels = alSnap.val() || {};
+        flaggedAccounts = ftSnap.val() || {};
 
         renderAll();
         setupLiveFeed();
         setupAnonLabelsListener();
+        setupFlaggedAccountsListener();
 
         // Auto-assign A, B, C… to any unlabelled anon visitors (silent, idempotent)
         autoLabelAll(false);
@@ -635,32 +639,31 @@
         const userSel = document.getElementById('activity-user-filter');
         if (!userSel) return;
 
-        // Save current selection so it survives a rebuild
         const prevVal = userSel.value;
-
-        // Clear all options except the first "All users" placeholder
         while (userSel.options.length > 1) userSel.remove(1);
 
-        // Collect unique user IDs: named users first, then anon keys
-        const all = [...new Set(allEvents.map(e => e.u).filter(Boolean))];
-        const named = all.filter(u => !u.startsWith('anon-')).sort();
-        const anons = all.filter(u => u.startsWith('anon-')).sort();
+        // Count events per user
+        const countByUser = {};
+        allEvents.forEach(e => { if (e.u) countByUser[e.u] = (countByUser[e.u] || 0) + 1; });
 
-        [...named, ...anons].forEach(u => {
+        // All unique user IDs, excluding flagged test accounts, sorted by event count desc
+        const all = [...new Set(allEvents.map(e => e.u).filter(Boolean))]
+            .filter(u => !flaggedAccounts[u])
+            .sort((a, b) => (countByUser[b] || 0) - (countByUser[a] || 0));
+
+        all.forEach(u => {
             const opt = document.createElement('option');
             opt.value = u;
             const lbl = anonLabels[u];
-            // Show "Friendly Name  (anon-xxx)" or just the raw ID
-            opt.textContent = lbl ? `${lbl}  (${u})` : u;
+            const count = countByUser[u] || 0;
+            opt.textContent = lbl ? `${lbl} — ${count} actions` : `${u} — ${count}`;
             userSel.appendChild(opt);
         });
 
-        // Restore previous selection if it still exists
         if (prevVal && [...userSel.options].some(o => o.value === prevVal)) {
             userSel.value = prevVal;
         }
 
-        // Bind change listeners only once
         if (!_filtersSetup) {
             _filtersSetup = true;
             userSel.addEventListener('change', () => renderRecentFeed());
@@ -768,18 +771,22 @@
             const deviceIcon = ev.dev === 'm' ? '📱' : ev.dev === 'd' ? '💻' : '';
             const rawUid = ev.u || 'anon';
             const displayUser = getLabel(rawUid);
-            // Tooltip: raw anon ID (if labelled) + timezone
+            const isAnon = rawUid.startsWith('anon-');
+            const isFlagged = isAnon && !!flaggedAccounts[rawUid];
             const tooltipParts = [
                 displayUser !== rawUid ? rawUid : '',
                 ev.tz || '',
             ].filter(Boolean);
             const tooltip = tooltipParts.length ? ` title="${esc(tooltipParts.join(' · '))}"` : '';
-
-            // City visible inline; device icon before city when both present
             const cityText = ev.city ? esc(ev.city) : '';
 
+            // Flag button shown for all anon users (flagged or not)
+            const flagBtn = isAnon
+                ? `<button class="feed-flag-btn ${isFlagged ? 'is-flagged' : ''}" data-id="${esc(rawUid)}" title="${isFlagged ? 'Unflag — restore to visitor data' : 'Flag as my test account'}">${isFlagged ? '✓ mine' : '🚫'}</button>`
+                : '';
+
             return `
-                <div class="feed-item">
+                <div class="feed-item${isFlagged ? ' feed-item-flagged' : ''}">
                     <span class="feed-event">${eventLabel(ev.ev)}</span>
                     <span class="feed-detail">${esc(detail)}</span>
                     <span class="feed-meta">
@@ -787,10 +794,21 @@
                         ${cityText ? `<span class="feed-city">${cityText}</span>` : ''}
                         <span class="feed-user"${tooltip}>${esc(displayUser)}</span>
                         <span class="feed-time">${ev.ts ? timeAgo(ev.ts) : ev.date || ''}</span>
+                        ${flagBtn}
                     </span>
                 </div>
             `;
         }).join('');
+
+        // Wire flag buttons via delegation
+        feed.querySelectorAll('.feed-flag-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                const isFlagged = !!flaggedAccounts[id];
+                if (!isFlagged && !confirm(`Flag "${getLabel(id)}" as your test account? It will be hidden from Anonymous Visitor data.`)) return;
+                toggleFlagAccount(id);
+            });
+        });
     }
 
     // ── Anon Labels: live listener ─────────────────────────────────────────────
@@ -810,18 +828,18 @@
         if (!el) return;
 
         // All unique anon IDs seen in the last 30 days
-        const anonIds = [...new Set(
+        const allAnonIds = [...new Set(
             allEvents.filter(e => e.u && e.u.startsWith('anon-')).map(e => e.u)
         )];
 
-        if (!anonIds.length) {
+        if (!allAnonIds.length) {
             el.innerHTML = '<div class="table-empty">No anonymous visitors in the last 30 days.</div>';
             return;
         }
 
         // Per-ID stats: event count, last seen, devices, timezone
         const idStats = {};
-        anonIds.forEach(id => {
+        allAnonIds.forEach(id => {
             const evs = allEvents.filter(e => e.u === id);
             const lastEv = evs.reduce((a, b) => ((a.ts || 0) > (b.ts || 0) ? a : b), {});
             idStats[id] = {
@@ -833,50 +851,69 @@
             };
         });
 
-        // Sort by most recently active
-        anonIds.sort((a, b) => (idStats[b].lastTs || 0) - (idStats[a].lastTs || 0));
+        // Split into real visitors and flagged (your own test accounts)
+        const anonIds   = allAnonIds.filter(id => !flaggedAccounts[id]);
+        const flaggedIds = allAnonIds.filter(id =>  flaggedAccounts[id]);
+
+        // Sort each group by most recently active
+        anonIds.sort((a, b)    => (idStats[b].lastTs || 0) - (idStats[a].lastTs || 0));
+        flaggedIds.sort((a, b) => (idStats[b].lastTs || 0) - (idStats[a].lastTs || 0));
+
+        const buildRow = (id, isFlagged) => {
+            const s = idStats[id];
+            const devIcons = s.devices.map(d => d === 'm' ? '📱' : '💻').join(' ') || '—';
+            return `
+                <tr class="${isFlagged ? 'flagged-row' : ''}">
+                    <td class="mono-cell">${esc(id)}</td>
+                    <td>
+                        ${isFlagged
+                            ? `<span class="muted-cell">${esc(anonLabels[id] || '—')}</span>`
+                            : `<input class="anon-label-input" type="text"
+                                   data-id="${esc(id)}"
+                                   value="${esc(anonLabels[id] || '')}"
+                                   placeholder="e.g. Himadri's phone" />`
+                        }
+                    </td>
+                    <td class="count-cell">${s.count}</td>
+                    <td class="count-cell">${devIcons}</td>
+                    <td class="muted-cell">${esc(s.city || '—')}</td>
+                    <td class="muted-cell tz-cell">${esc(s.tz || '—')}</td>
+                    <td class="muted-cell">${s.lastTs ? timeAgo(s.lastTs) : '—'}</td>
+                    <td class="anon-action-cell">
+                        ${isFlagged
+                            ? `<button class="anon-unflag-btn" data-id="${esc(id)}">Unflag</button>`
+                            : `<button class="anon-save-btn" data-id="${esc(id)}">Save</button>
+                               <button class="anon-flag-btn" data-id="${esc(id)}" title="Flag as my test account">🚫 Mine</button>`
+                        }
+                    </td>
+                </tr>
+            `;
+        };
+
+        const theadCols = '<th>Anonymous ID</th><th>Display name</th><th>Events</th><th>Device</th><th>City</th><th>Timezone</th><th>Last seen</th><th></th>';
 
         el.innerHTML = `
             <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Anonymous ID</th>
-                        <th>Display name</th>
-                        <th>Events</th>
-                        <th>Device</th>
-                        <th>City</th>
-                        <th>Timezone</th>
-                        <th>Last seen</th>
-                        <th></th>
-                    </tr>
-                </thead>
+                <thead><tr>${theadCols}</tr></thead>
                 <tbody>
-                    ${anonIds.map(id => {
-                        const s = idStats[id];
-                        const devIcons = s.devices.map(d => d === 'm' ? '📱' : '💻').join(' ') || '—';
-                        return `
-                            <tr>
-                                <td class="mono-cell">${esc(id)}</td>
-                                <td>
-                                    <input class="anon-label-input" type="text"
-                                        data-id="${esc(id)}"
-                                        value="${esc(anonLabels[id] || '')}"
-                                        placeholder="e.g. Himadri's phone" />
-                                </td>
-                                <td class="count-cell">${s.count}</td>
-                                <td class="count-cell">${devIcons}</td>
-                                <td class="muted-cell">${esc(s.city || '—')}</td>
-                                <td class="muted-cell tz-cell">${esc(s.tz || '—')}</td>
-                                <td class="muted-cell">${s.lastTs ? timeAgo(s.lastTs) : '—'}</td>
-                                <td><button class="anon-save-btn" data-id="${esc(id)}">Save</button></td>
-                            </tr>
-                        `;
-                    }).join('')}
+                    ${anonIds.length
+                        ? anonIds.map(id => buildRow(id, false)).join('')
+                        : '<tr><td colspan="8" class="table-empty" style="padding:1rem">All anonymous visitors have been flagged as test accounts.</td></tr>'
+                    }
                 </tbody>
             </table>
+            ${flaggedIds.length ? `
+                <details class="flagged-section">
+                    <summary class="flagged-summary">Your test accounts (${flaggedIds.length} flagged, hidden from visitor data)</summary>
+                    <table class="data-table flagged-table">
+                        <thead><tr>${theadCols}</tr></thead>
+                        <tbody>${flaggedIds.map(id => buildRow(id, true)).join('')}</tbody>
+                    </table>
+                </details>
+            ` : ''}
         `;
 
-        // Wire up save buttons
+        // Wire save buttons
         el.querySelectorAll('.anon-save-btn').forEach(btn => {
             btn.addEventListener('click', function () {
                 const id = this.dataset.id;
@@ -899,6 +936,22 @@
             });
         });
 
+        // Wire "Flag as mine" buttons
+        el.querySelectorAll('.anon-flag-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const id = this.dataset.id;
+                if (!confirm(`Flag "${getLabel(id)}" as your test account? It will be hidden from anonymous visitor data.`)) return;
+                toggleFlagAccount(id);
+            });
+        });
+
+        // Wire "Unflag" buttons (in the flagged section)
+        el.querySelectorAll('.anon-unflag-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                toggleFlagAccount(this.dataset.id);
+            });
+        });
+
         // Save on Enter key
         el.querySelectorAll('.anon-label-input').forEach(input => {
             input.addEventListener('keydown', function (e) {
@@ -906,6 +959,30 @@
                     el.querySelector(`.anon-save-btn[data-id="${this.dataset.id}"]`)?.click();
                 }
             });
+        });
+    }
+
+    // ── Toggle flag on a test account ─────────────────────────────────────────
+    function toggleFlagAccount(anonId) {
+        const isFlagged = !!flaggedAccounts[anonId];
+        const ref = database.ref('flaggedTestAccounts/' + anonId);
+        const op = isFlagged ? ref.remove() : ref.set(true);
+        op.then(() => {
+            if (isFlagged) delete flaggedAccounts[anonId];
+            else flaggedAccounts[anonId] = true;
+            renderAnonLabelsTable();
+            populateUserFilter();
+            renderRecentFeed();
+        }).catch(err => console.error('Flag toggle error:', err));
+    }
+
+    // ── Live listener for flagged accounts ────────────────────────────────────
+    function setupFlaggedAccountsListener() {
+        database.ref('flaggedTestAccounts').on('value', (snap) => {
+            flaggedAccounts = snap.val() || {};
+            renderAnonLabelsTable();
+            populateUserFilter();
+            renderRecentFeed();
         });
     }
 

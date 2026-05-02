@@ -443,6 +443,86 @@ a:hover { text-decoration: underline; }
 .anon-save-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
 .anon-save-btn.saved { color: var(--accent-primary); border-color: var(--accent-primary); }
 
+/* Anon table action cell — holds Save + Flag buttons side by side */
+.anon-action-cell { display: flex; gap: 0.35rem; align-items: center; }
+
+.anon-flag-btn {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 0.22rem 0.55rem;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.15s, color 0.15s;
+}
+.anon-flag-btn:hover { border-color: #c0392b; color: #c0392b; }
+
+.anon-unflag-btn {
+    font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 0.22rem 0.55rem;
+    border-radius: 4px;
+    border: 1px solid var(--accent-primary);
+    background: none;
+    color: var(--accent-primary);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+}
+.anon-unflag-btn:hover { background: rgba(176,125,98,0.1); }
+
+/* Flagged row in the main table (if ever shown) */
+.flagged-row td { opacity: 0.5; }
+
+/* Flagged accounts collapsible section */
+.flagged-section {
+    margin-top: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
+}
+.flagged-summary {
+    padding: 0.6rem 1rem;
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    background: var(--bg-sidebar);
+}
+.flagged-summary::-webkit-details-marker { display: none; }
+.flagged-summary::before { content: '▶ '; font-size: 0.6rem; margin-right: 0.3rem; }
+details[open] .flagged-summary::before { content: '▼ '; }
+.flagged-table { border-top: 1px solid var(--border-color); }
+
+/* Feed: flag button inline with feed-meta */
+.feed-flag-btn {
+    font-family: var(--font-sans);
+    font-size: 0.68rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    border: 1px solid var(--border-color);
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    margin-left: 0.3rem;
+    opacity: 0;
+    transition: opacity 0.15s, border-color 0.15s, color 0.15s;
+    white-space: nowrap;
+}
+.feed-item:hover .feed-flag-btn { opacity: 1; }
+.feed-flag-btn.is-flagged { opacity: 0.6; border-color: var(--accent-primary); color: var(--accent-primary); }
+.feed-item:hover .feed-flag-btn.is-flagged { opacity: 1; }
+
+/* Flagged feed items: dimmed */
+.feed-item-flagged { opacity: 0.45; }
+
 .live-badge {
     font-size: 0.65rem;
     font-weight: 700;
