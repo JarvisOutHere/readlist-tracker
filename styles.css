@@ -190,17 +190,6 @@ body {
     width: 100%;
 }
 
-.landing-greeting {
-    font-family: 'Inter', sans-serif;
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-muted);
-    letter-spacing: 0.04em;
-    margin-bottom: 0.6rem;
-    min-height: 1.5em;
-    animation: fadeInUp 0.6s ease-out;
-}
-
 .main-title {
     font-family: 'Playfair Display', serif;
     font-size: 5rem;
