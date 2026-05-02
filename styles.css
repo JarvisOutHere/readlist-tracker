@@ -1837,7 +1837,7 @@ textarea.modal-field { resize: vertical; min-height: 72px; }
         padding-top: 3rem;
         justify-content: flex-end;
         align-items: center;
-        padding-bottom: 7vh;
+        padding-bottom: 4.5rem;
         gap: 1.2rem;
         height: 100svh;
         box-sizing: border-box;
@@ -1847,7 +1847,7 @@ textarea.modal-field { resize: vertical; min-height: 72px; }
     /* Carousel container: horizontal scroll, snap, shows adjacent pillars */
     .pillars-container {
         flex-direction: row;
-        height: 52vh;
+        height: 46vh;
         align-items: flex-end;
         gap: 0;
         overflow-x: scroll;
@@ -1915,8 +1915,30 @@ textarea.modal-field { resize: vertical; min-height: 72px; }
         bottom: auto !important;
     }
 
+    /* Inverted pillar (User Submissions): ensure text is visible on brown bg */
+    .pillar-inverted .pillar-name {
+        color: var(--bg-main) !important;
+        opacity: 1 !important;
+    }
+    .pillar-inverted .pillar-count {
+        color: var(--bg-main) !important;
+        opacity: 1 !important;
+    }
+
     /* ── Scroll page: mobile article carousel ── */
     .scroll-page { overflow: hidden; }
+
+    /* Back button: lock to header row height, no overlap with content below */
+    .scroll-back-btn {
+        top: 0;
+        left: 0;
+        width: 52px;
+        height: 52px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    }
 
     /* Hide old desktop split-pane on mobile */
     .scroll-sidebar { display: none !important; }
@@ -2014,7 +2036,7 @@ textarea.modal-field { resize: vertical; min-height: 72px; }
         -webkit-overflow-scrolling: touch;
     }
 
-    /* Image area — contained, no overflow */
+    /* Image area — contained, full aspect ratio visible */
     .mobile-article-image-wrap {
         width: 100%;
         flex-shrink: 0;
@@ -2023,15 +2045,14 @@ textarea.modal-field { resize: vertical; min-height: 72px; }
         display: flex;
         align-items: center;
         justify-content: center;
-        max-height: 42vw;
+        max-height: 55vw;
         cursor: pointer;
     }
     .mobile-article-img {
         width: 100%;
-        height: 100%;
-        max-height: 42vw;
-        object-fit: cover;
-        object-position: center;
+        height: auto;
+        max-height: 55vw;
+        object-fit: contain;
         display: block;
     }
     .mobile-article-img-placeholder {
@@ -2081,7 +2102,6 @@ textarea.modal-field { resize: vertical; min-height: 72px; }
         flex-direction: column;
         gap: 0.85rem;
         border-top: 1px solid var(--border-subtle);
-        margin-top: auto;
     }
 
     /* Three reaction buttons in a row */

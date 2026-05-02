@@ -624,16 +624,22 @@ function renderMobileScrollCards(items, categoryKey) {
     mobileArticleIndex = 0;
 
     const scrollLayout = document.querySelector('.scroll-layout');
-    scrollLayout.innerHTML = '';
+    // Remove only the mobile-specific children; leave #scroll-sidebar and #scroll-main intact
+    Array.from(scrollLayout.children).forEach(child => {
+        if (child.classList.contains('mobile-scroll-header') || child.classList.contains('mobile-article-carousel')) {
+            child.remove();
+        }
+    });
 
     if (items.length === 0) {
-        scrollLayout.innerHTML = `
-            <div class="mobile-scroll-header">
-                <span class="mobile-scroll-title">${categoryNames[categoryKey]}</span>
-                <div class="mobile-scroll-nav"></div>
-            </div>
-            <div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-style:italic;font-size:0.9rem">No articles yet</div>
-        `;
+        const emptyHeader = document.createElement('div');
+        emptyHeader.className = 'mobile-scroll-header';
+        emptyHeader.innerHTML = `<span class="mobile-scroll-title">${categoryNames[categoryKey]}</span><div class="mobile-scroll-nav"></div>`;
+        const emptyMsg = document.createElement('div');
+        emptyMsg.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-style:italic;font-size:0.9rem';
+        emptyMsg.textContent = 'No articles yet';
+        scrollLayout.appendChild(emptyHeader);
+        scrollLayout.appendChild(emptyMsg);
         return;
     }
 
